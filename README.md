@@ -27,3 +27,11 @@ https://lifecastvideocdn.s3.us-west-1.amazonaws.com/public/marsh_r5a_h264.mp4
 How to render a video to a texture:
 
 https://docs.unrealengine.com/4.26/en-US/WorkingWithMedia/MediaFramework/HowTo/FileMediaSource/
+
+# WebGL / WebVR / Javascript
+
+An example page is available in the /web directory of this repo.
+
+Refer to this tutorial for more information:
+
+https://lifecastvr.com/tutorial_webvr.html
