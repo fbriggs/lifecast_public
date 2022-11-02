@@ -2,7 +2,7 @@
 
 Lifecast makes software for immersive volumetric VR videos and photos. Lifecast's 6DOF format for 3D photos and videos can be generated using tools available on https://lifecastvr.com. This repo hosts the player for this format, which is open source under the MIT license. Several implementations of the player are available, in javascript, Unity and Unreal Engine.
 
-Just want to make VR content without writing code? We do the same processing in cloud and automatically host the results on https://holovolo.tv
+Do you just want to make VR content without writing code? We do the same processing in the cloud and automatically host the results on https://holovolo.tv
 
 # Unity
 
