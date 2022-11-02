@@ -13,3 +13,17 @@ Tutorials on using Lifecast's player with Unity are available here:
 https://lifecastvr.com/tutorial_unity.html
 
 https://youtu.be/9Ja20bitA-w
+
+# Unreal Engine
+
+Video tutorial on using Lifecast player with Unreal Engine:
+
+https://www.youtube.com/watch?v=HpGLGWP0tFo&ab_channel=Lifecast
+
+Sample 6DOF video file for testing: 
+
+https://lifecastvideocdn.s3.us-west-1.amazonaws.com/public/marsh_r5a_h264.mp4
+
+How to render a video to a texture:
+
+https://docs.unrealengine.com/4.26/en-US/WorkingWithMedia/MediaFramework/HowTo/FileMediaSource/
