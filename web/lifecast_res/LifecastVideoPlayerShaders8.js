@@ -210,7 +210,7 @@ void main() {
   vec2 depth_uv    = vec2(vUv.s * 0.5 + 0.5, vUv.t * 0.5);
 
   float depth_sample = clamp(texture2D(uTexture, depth_uv).r, 0.0001, 1.0);
-  float hack = 1.07; // without this, the background sometimes goes in front with depth testing when it shouldn't
+  float hack = 1.03; // without this, the background sometimes goes in front with depth testing when it shouldn't
   float s = hack * clamp(0.3 / depth_sample, 0.01, 50.0);
 
   vec4 position_shifted = vec4(ftheta_rotation * normalize(position.xyz) * s, 1.0);

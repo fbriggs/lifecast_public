@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lifecast WebVR 6DOF VR Video</title>
+<meta charset="UTF-8">
+<meta name="description" content="A 6DOF VR video that you can watch in WebVR on Oculus Quest 2.">
+<meta name="keywords" content="VR Video, 6DOF, Volumetric, Oculus, Quest, Quest 2, WebVR, WebXR, Quest Browser, VR180">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<script type="module">
+  import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer8.js';
+  LifecastVideoPlayer.init({
+    _media_url: "media/000000.jpg",
+    _embed_in_div: "player_div"
+  });
+</script>
+
+</head>
+<body>
+
+Hello!
+
+<div id="player_div" style="width: 600px; height: 500px;"></div>
+
+</body>
+</html>

@@ -113,6 +113,8 @@ let ftheta_fg_meshes = []; // above is for the geometry (so we can rotate). this
 let num_patches_not_culled = 0; // Used for performance stats (want to know how many patches are being draw in various scenes).
 let replay_count = 0; // just for analytics to see if people are replaying
 let lock_position = false;
+let create_button_url;
+let next_video_button, create_button;
 let mouse_last_moved_time = 0;
 
 let has_played_video = false;
@@ -127,6 +129,18 @@ let init_orientation_c = 0;
 
 let mobile_drag_u = 0.0;
 let mobile_drag_v = 0.0;
+
+// Used for programmatic camera animation
+let anim_x = 0.15;
+let anim_y = 0.10;
+let anim_z = 0.05;
+let anim_u = 0.15;
+let anim_v = 0.25;
+let anim_x_speed = 7500;
+let anim_y_speed = 5100;
+let anim_z_speed = 6100;
+let anim_u_speed = 4500;
+let anim_v_speed = 8500;
 
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
 var is_safari =  navigator.userAgent.indexOf("Safari")  != -1;
@@ -176,8 +190,9 @@ function trackMouseStatus(element) {
 }
 
 function makeNonVrControls() {
+  var right_buttons_width = 0;
   if (next_video_url && !embed_mode) {
-    const next_video_button = document.createElement("a");
+    next_video_button = document.createElement("a");
     next_video_button.id                      = "next_video_button";
     next_video_button.href                    = next_video_url;
     next_video_button.innerHTML               = `<img src="${next_video_thumbnail}" style="width:96px;height:60px;border-radius:16px;object-fit:cover">`;
@@ -187,7 +202,22 @@ function makeNonVrControls() {
     next_video_button.style.width             = '100px';
     next_video_button.style.right             = "16px";
     next_video_button.style.bottom            = "16px";
+    right_buttons_width += 116;
     document.body.appendChild(next_video_button);
+  }
+
+  if (create_button_url && !embed_mode) {
+    create_button = document.createElement("a");
+    create_button.id                      = "create_button";
+    create_button.href                    = create_button_url;
+    create_button.target                  = "_blank";
+    create_button.innerHTML               = `<img src="lifecast_res/plus_button.png" style="width: 48px; height: 48px;">`;
+    create_button.style.cursor            = "pointer";
+    create_button.draggable               = false;
+    create_button.style.position          = "absolute";
+    create_button.style.right             = (right_buttons_width + 16).toString() + "px";
+    create_button.style.bottom            = "22px";
+    document.body.appendChild(create_button);
   }
 
   if (photo_mode || embed_mode) return;
@@ -198,16 +228,14 @@ function makeNonVrControls() {
   nonvr_controls.style["position"]          = "absolute";
   nonvr_controls.style["top"]               = "1";
   nonvr_controls.style["left"]              = "0";
-  //nonvr_controls.style["right"]             = "0";
   nonvr_controls.style["bottom"]            = "0";
-  nonvr_controls.style["margin-left"]       = "32px";
-  nonvr_controls.style["margin-bottom"]     = "32px";
+  nonvr_controls.style["margin-left"]       = "16px";
+  nonvr_controls.style["margin-bottom"]     = "22px";
 
   let sz = "64px";
   nonvr_controls.style["width"]             = sz;
   nonvr_controls.style["height"]            = sz;
   nonvr_controls.style["cursor"]            = "pointer";
-
 
   const play_button = document.createElement("img");
   play_button.id                            = "play_button";
@@ -366,8 +394,12 @@ function verticalScrollCameraHandler() {
 }
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  // In embed mode, use the width and height of the container div.
+  let width = embed_mode ? container.clientWidth : window.innerWidth;
+  let height = embed_mode ? container.clientHeight : window.innerHeight;
+  console.log("onWindowResize: " + width + "x" + height);
+  camera.aspect = width / height;
+  renderer.setSize(width, height);
   camera.updateProjectionMatrix();
 
   if (cam_mode == "vscroll") { verticalScrollCameraHandler(); }
@@ -396,7 +428,8 @@ function updateControlsAndButtons() {
 
   if (!has_played_video && is_ios) {
     byId("play_button").style.display   = "inline";
-    byId("next_video_button").style.display = "inline";
+    if(next_video_button) next_video_button.style.display = "inline";
+    if(create_button) create_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -408,7 +441,8 @@ function updateControlsAndButtons() {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
-    byId("next_video_button").style.display = "none";
+    if(next_video_button) next_video_button.style.display = "none";
+    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "inline";
@@ -421,7 +455,8 @@ function updateControlsAndButtons() {
 
   if (video.ended) {
     byId("play_button").style.display   = "none";
-    byId("next_video_button").style.display = "none";
+    if(next_video_button) next_video_button.style.display = "none";
+    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("buffering_button").style.display = "none";
     byId("rewind_button").style.display = "inline";
@@ -431,7 +466,8 @@ function updateControlsAndButtons() {
 
   if (!video || nonvr_menu_fade_counter <= 0) {
     byId("play_button").style.display   = "none";
-    byId("next_video_button").style.display = "none";
+    if(next_video_button) next_video_button.style.display = "none";
+    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -441,7 +477,8 @@ function updateControlsAndButtons() {
 
   if (video_is_playing) {
     byId("play_button").style.display   = "none";
-    byId("next_video_button").style.display = "none";
+    if(next_video_button) next_video_button.style.display = "none";
+    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "inline";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -451,7 +488,8 @@ function updateControlsAndButtons() {
 
   if (!video_is_playing && video.readyState >= 2) {
     byId("play_button").style.display   = "inline";
-    byId("next_video_button").style.display = "inline";
+    if(next_video_button) next_video_button.style.display = "inline";
+    if(create_button) create_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -482,12 +520,12 @@ function render() {
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   if (cam_mode == "default" && !is_ios && Date.now() - mouse_last_moved_time > 5000) {
-    let x = 0.15 * Math.sin(Date.now() / 2500) * 0.5;
-    let y = 0.10 * Math.cos(Date.now() / 1700) * 0.5;
-    let z = 0.05 + 0.35 * Math.cos(Date.now() / 2100) * 0.5;
+    let x = anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+    let y = anim_y * Math.cos(Date.now() / anim_y_speed * Math.PI) * 0.5;
+    let z = anim_z + anim_z * Math.cos(Date.now() / anim_z_speed * Math.PI) * 0.5;
     camera.position.set(x, y, z);
-    let u = 0.15 * Math.sin(Date.now() / 1500) * 0.5;
-    let v = 0.25 * Math.cos(Date.now() / 3500) * 0.5;
+    let u = anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
+    let v = anim_v * Math.cos(Date.now() / anim_v_speed * Math.PI) * 0.5;
     camera.lookAt(u, v, -4.0);
   }
 
@@ -717,6 +755,25 @@ function getRotationMatrix( alpha, beta, gamma ) {
   ];
 };
 
+export function updateEmbedControls(
+    _fov,
+    _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
+    _anim_x_speed, _anim_y_speed, _anim_z_speed, _anim_u_speed, _anim_v_speed,
+) {
+  camera.fov = _fov;
+  anim_x = _anim_x;
+  anim_y = _anim_y;
+  anim_z = _anim_z;
+  anim_u = _anim_u;
+  anim_v = _anim_v;
+  anim_x_speed = _anim_x_speed;
+  anim_y_speed = _anim_y_speed;
+  anim_z_speed = _anim_z_speed;
+  anim_u_speed = _anim_u_speed;
+  anim_v_speed = _anim_v_speed;
+  console.log('updateEmbedControls', _fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v, _anim_x_speed, _anim_y_speed, _anim_z_speed, _anim_u_speed, _anim_v_speed);
+  onWindowResize();
+}
 
 export function init({
   _media_url = "",        // this should be high-res, but h264 for compatibility
@@ -734,7 +791,8 @@ export function init({
   _slideshow = [], // If there is a list of media files here, we can cycle through them
   _next_video_url = "",
   _next_video_thumbnail = "",
-  _lock_position = false
+  _lock_position = false,
+  _create_button_url = "",
 }={}) {
   if (use_amplitude) {
     amplitude.getInstance().logEvent('video_player_init', {
@@ -758,6 +816,7 @@ export function init({
   next_video_thumbnail  = _next_video_thumbnail;
   slideshow       = _slideshow;
   lock_position   = _lock_position;
+  create_button_url = _create_button_url;
 
   if (is_ios) {
     if (window.innerHeight > window.innerWidth) { // portrait
@@ -985,7 +1044,6 @@ export function init({
   renderer.outputEncoding = THREE.sRGBEncoding; // TODO: I dont know if this is correct or even does anything.
   container.appendChild(renderer.domElement);
   window.addEventListener('resize', onWindowResize);
-
   if (embed_mode) {
     onWindowResize();
   } else {
