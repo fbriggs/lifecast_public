@@ -50,8 +50,9 @@ if (use_amplitude) {
   amplitude.getInstance().init("8438e5106882c14826232edcc33207a4", null, {includeReferrer: true, includeUtm: true, batchEvents: false});
 }
 
-import * as THREE from './three.module.js';
-import {OrbitControls} from "./OrbitControls.js";
+import * as THREE from 'three';
+import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry.js"
+import {FontLoader} from "three/examples/jsm/loaders/FontLoader.js"
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
 
 import {
@@ -297,7 +298,7 @@ function debugLog(message) {
 function setDebugText(message) {
   if (debug_font == null) return;
   if (text_mesh != null) scene.remove(text_mesh);
-  text_geom = new THREE.TextGeometry(
+  text_geom = new TextGeometry(
     message,
     {font: debug_font, size: 0.05, height: 0, curveSegments: 3, bevelEnabled: false});
   text_mesh = new THREE.Mesh(text_geom, text_material);
@@ -794,6 +795,7 @@ export function init({
   _lock_position = false,
   _create_button_url = "",
 }={}) {
+  let self = {}
   if (use_amplitude) {
     amplitude.getInstance().logEvent('video_player_init', {
       "url": window.location.href,
@@ -885,7 +887,7 @@ export function init({
     texture.generateMipmaps = false;
   } else {
     photo_mode = false;
-    video = document.createElement('video');
+    self.elVideo = video = document.createElement('video');
     video.setAttribute("crossorigin", "anonymous");
     video.setAttribute("type", "video/mp4");
     video.setAttribute("playsinline", true);
@@ -1029,7 +1031,7 @@ export function init({
 
   // Load the debug font.
   if (enable_debug_text) {
-    var font_loader = new THREE.FontLoader();
+    var font_loader = new FontLoader();
     font_loader.load( 'https://cdn.skypack.dev/three@0.130.1/examples/fonts/helvetiker_regular.typeface.json', function (font) {
       debug_font = font;
       text_material = new THREE.MeshBasicMaterial({color: 0xffffff});
@@ -1284,4 +1286,5 @@ export function init({
   }
 
   animate();
+  return self
 } // end init()
