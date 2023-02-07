@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import * as THREE from './three.module.js';
+import * as THREE from './three149.module.min.js';
 
 class TimedVideoTexture extends THREE.Texture {
   // Note: I moved the arguments around to put format and type up front.

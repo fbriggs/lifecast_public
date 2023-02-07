@@ -50,7 +50,9 @@ if (use_amplitude) {
   amplitude.getInstance().init("8438e5106882c14826232edcc33207a4", null, {includeReferrer: true, includeUtm: true, batchEvents: false});
 }
 
-import * as THREE from './three.module.js';
+import * as THREE from './three149.module.min.js';
+//import {FontLoader} from "./FontLoader.js";
+//import {TextGeometry} from "./TextGeometry.js";
 import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
 
@@ -77,7 +79,7 @@ const CubeFace = {
 
 const FTHETA_UNIFORM_ROTATION_BUFFER_SIZE = 60; // This MUST match the uniform array size in fgVertexShader
 
-let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
+//let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
 let container, camera, scene, renderer, uniforms, vr_controller0, vr_controller1;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let debug_log = "";
@@ -113,6 +115,7 @@ let ftheta_fg_meshes = []; // above is for the geometry (so we can rotate). this
 let num_patches_not_culled = 0; // Used for performance stats (want to know how many patches are being draw in various scenes).
 let replay_count = 0; // just for analytics to see if people are replaying
 let lock_position = false;
+let orbit_controls;
 let create_button_url;
 let next_video_button, create_button;
 let mouse_last_moved_time = 0;
@@ -131,16 +134,24 @@ let mobile_drag_u = 0.0;
 let mobile_drag_v = 0.0;
 
 // Used for programmatic camera animation
+let anim_fov_offset = 80;
+let anim_x_offset = 0;
+let anim_y_offset = 0;
+let anim_z_offset = 0;
+let anim_u_offset = 0;
+let anim_v_offset = 0;
+let anim_fov = 0;
 let anim_x = 0.15;
 let anim_y = 0.10;
 let anim_z = 0.05;
 let anim_u = 0.15;
-let anim_v = 0.25;
+let anim_v = 0.10;
+let anim_fov_speed = 3000;
 let anim_x_speed = 7500;
 let anim_y_speed = 5100;
 let anim_z_speed = 6100;
 let anim_u_speed = 4500;
-let anim_v_speed = 8500;
+let anim_v_speed = 5100;
 
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
 var is_safari =  navigator.userAgent.indexOf("Safari")  != -1;
@@ -282,6 +293,7 @@ function makeNonVrControls() {
   document.body.appendChild(nonvr_controls);
 }
 
+/*
 // WARNING: possible memory leak. don't use in production.
 function debugLog(message) {
   ++debug_msg_count;
@@ -297,13 +309,14 @@ function debugLog(message) {
 function setDebugText(message) {
   if (debug_font == null) return;
   if (text_mesh != null) scene.remove(text_mesh);
-  text_geom = new THREE.TextGeometry(
+  text_geom = new TextGeometry(
     message,
     {font: debug_font, size: 0.05, height: 0, curveSegments: 3, bevelEnabled: false});
   text_mesh = new THREE.Mesh(text_geom, text_material);
   text_mesh.position.set(-0.5, 0.5, -1);
   world_group.add(text_mesh);
 }
+*/
 
 function handleGenericButtonPress() {
   if (photo_mode) {
@@ -345,6 +358,7 @@ function playVideoIfReady() {
     console.log("Can't play ftheta projection because metadata not yet loaded.");
     return;
   }
+  if (!video) return;
 
   // Log replays for analytics.
   if (video.ended) {
@@ -513,20 +527,29 @@ function render() {
     renderer.xr.isPresenting ? vr_camera_position : novr_camera_position;
   uniforms.uDistCamFromOrigin.value = cam_position_for_shader.length();
 
-  updateGamepad(vr_controller0);
-  updateGamepad(vr_controller1);
+  if (vr_controller0) {
+      updateGamepad(vr_controller0);
+  }
+  if (vr_controller1) {
+      updateGamepad(vr_controller1);
+  }
   updateControlsAndButtons();
   if (lock_position) { resetVRToCenter(); }
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
+  // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
   if (cam_mode == "default" && !is_ios && Date.now() - mouse_last_moved_time > 5000) {
-    let x = anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
-    let y = anim_y * Math.cos(Date.now() / anim_y_speed * Math.PI) * 0.5;
-    let z = anim_z + anim_z * Math.cos(Date.now() / anim_z_speed * Math.PI) * 0.5;
+    let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
+    //console.log('Setting fov to ' + fov);
+    camera.fov = fov;
+    let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+    let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
+    let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
     camera.position.set(x, y, z);
-    let u = anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
-    let v = anim_v * Math.cos(Date.now() / anim_v_speed * Math.PI) * 0.5;
+    let u = anim_u_offset + anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
+    let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
     camera.lookAt(u, v, -4.0);
+    camera.updateProjectionMatrix();
   }
 
   renderer.render(scene, camera);
@@ -546,23 +569,30 @@ function animate() {
 }
 
 function initVrController(vr_controller) {
+  if (!vr_controller) {
+      return;
+  }
+
+  // This is used to prevent the same button press from being handled multiple times.
+  vr_controller.lockout_timer = 0;
+
   vr_controller.addEventListener('select', handleGenericButtonPress);
 
   vr_controller.addEventListener('connected', function(e) {
     vr_controller.gamepad = e.data.gamepad;
+    //console.log("gamepad connected", e.data.handedness, vr_controller.gamepad);
   });
 
   vr_controller.button_A = false;
   vr_controller.button_B = false;
-
-  // This is used to prevent the same button press from being handled multiple times.
-  vr_controller.lockout_timer = 0;
 }
 
 function updateGamepad(vr_controller) {
+  if (!vr_controller) return;
   if (!vr_controller.gamepad) return;
 
   // Uncomment to show button state. Warning: might leak memory.
+  //console.log("buttons=" + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
   //setDebugText("buttons=" + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
 
   var prev_button_A = vr_controller.button_A;
@@ -756,23 +786,30 @@ function getRotationMatrix( alpha, beta, gamma ) {
 };
 
 export function updateEmbedControls(
-    _fov,
-    _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
-    _anim_x_speed, _anim_y_speed, _anim_z_speed, _anim_u_speed, _anim_v_speed,
+    _fov, _x, _y, _z, _u, _v,
+    _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
+    _anim_fov_speed, _anim_x_speed, _anim_y_speed, _anim_z_speed, _anim_u_speed, _anim_v_speed,
 ) {
-  camera.fov = _fov;
+  anim_fov_offset = _fov;
+  anim_x_offset = _x;
+  anim_y_offset = _y;
+  anim_z_offset = _z;
+  anim_u_offset = _u;
+  anim_v_offset = _v;
+  anim_fov = _anim_fov;
   anim_x = _anim_x;
   anim_y = _anim_y;
   anim_z = _anim_z;
   anim_u = _anim_u;
   anim_v = _anim_v;
+  anim_fov_speed = _anim_fov_speed;
   anim_x_speed = _anim_x_speed;
   anim_y_speed = _anim_y_speed;
   anim_z_speed = _anim_z_speed;
   anim_u_speed = _anim_u_speed;
   anim_v_speed = _anim_v_speed;
-  console.log('updateEmbedControls', _fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v, _anim_x_speed, _anim_y_speed, _anim_z_speed, _anim_u_speed, _anim_v_speed);
   onWindowResize();
+  playVideoIfReady();
 }
 
 export function init({
@@ -783,7 +820,7 @@ export function init({
   _force_recenter_frames = [], // (If supported), VR coordinate frame is reset on these frames.
   _embed_in_div = "",
   _cam_mode="default",
-  _hfov = 75,
+  _hfov = 80,
   _vscroll_bias = 0.0,
   _projection="ftheta",
   _framerate = 30,
@@ -825,6 +862,7 @@ export function init({
       _hfov = 90;
     }
   }
+  anim_fov_offset = _hfov;
 
   if (slideshow.length > 0) {
     photo_mode = true;
@@ -1028,13 +1066,15 @@ export function init({
   world_group.add(vrbutton3d);
 
   // Load the debug font.
+  /*
   if (enable_debug_text) {
-    var font_loader = new THREE.FontLoader();
+    var font_loader = new FontLoader();
     font_loader.load( 'https://cdn.skypack.dev/three@0.130.1/examples/fonts/helvetiker_regular.typeface.json', function (font) {
       debug_font = font;
       text_material = new THREE.MeshBasicMaterial({color: 0xffffff});
     });
   }
+  */
 
   renderer = new THREE.WebGLRenderer({
     antialias: false,
@@ -1065,7 +1105,8 @@ export function init({
     }
 
     renderer.xr.enabled = true;
-    renderer.xr.setFramebufferScaleFactor(0.9); // Tradeoff quality vs runtime. We are fragment shader limited so this matters.
+    renderer.xr.setFramebufferScaleFactor(1.0); // Tradeoff quality vs runtime. We are fragment shader limited so this matters.
+    renderer.xr.setFoveation(0.5);
     renderer.xr.setReferenceSpaceType('local');
   }
 
@@ -1077,13 +1118,23 @@ export function init({
       let v = (e.clientY / window.innerHeight - 0.5) * 2.0;
       mouse_last_moved_time = Date.now();
 
-      camera.position.set(-u * 0.1, v * 0.1, 0.0);
+      camera.position.set(-u * 0.2, v * 0.2, 0.0);
       camera.lookAt(0, 0, -0.3);
     });
   }
 
+  if (cam_mode == "orbit" && !is_ios) {
+    camera.position.set(0, 0, 2.0);
+    orbit_controls = new OrbitControls(camera, renderer.domElement);
+    orbit_controls.panSpeed = 20.0;
+    orbit_controls.target.set(0, 0, -2.0); // NOTE the 2 here is half the octree size of 4 meters^3
+    orbit_controls.enableDamping = true;
+    orbit_controls.enableZoom = true; // TODO: this is cool but needs some tweaking
+    orbit_controls.dampingFactor = 0.3;
+    orbit_controls.saveState();
+  }
 
-  if (is_ios) {
+  if (is_ios && !embed_mode) {
     document.body.style["touch-action"] = "none";
     document.addEventListener('touchmove', function(e) {
       e.preventDefault();
