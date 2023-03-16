@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lifecast LDI Player</title>
+<meta charset="UTF-8">
+<meta name="description" content="A 6DOF VR video that you can watch in WebVR on Oculus Quest 2.">
+<meta name="keywords" content="VR Video, 6DOF, Volumetric, Oculus, Quest, Quest 2, WebVR, WebXR, Quest Browser, VR180">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<script type="module">
+  import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer9.js';
+  LifecastVideoPlayer.init({
+    _format: "ldi3",
+    //_cam_mode: "orbit",
+    _media_url: "media/ldi3.jpg",
+    //_decode_12bit: false,
+  });
+</script>
+
+</head>
+<body>
+</body>
+</html>
