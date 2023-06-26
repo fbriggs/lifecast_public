@@ -50,24 +50,13 @@ if (use_amplitude) {
   amplitude.getInstance().init("8438e5106882c14826232edcc33207a4", null, {includeReferrer: true, includeUtm: true, batchEvents: false});
 }
 
+import { FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, FthetaMesh } from "./FthetaMesh.js";
 import * as THREE from './three149.module.min.js';
 //import {FontLoader} from "./FontLoader.js";
 //import {TextGeometry} from "./TextGeometry.js";
 import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
 
-import {
-  LDI2_fthetaFgVertexShader,
-  LDI2_fthetaFgFragmentShader,
-  LDI2_fthetaBgVertexShader,
-  LDI2_fthetaBgFragmentShader,
-  LDI3_fthetaFgVertexShader,
-  LDI3_fthetaFgFragmentShader,
-  LDI3_fthetaBgVertexShader,
-  LDI3_fthetaBgFragmentShader,
-  debugVertexShader,
-  debugFragmentShader,
-} from "./LifecastVideoPlayerShaders9.js";
 import {HelpGetVR} from './HelpGetVR9.js';
 
 const CubeFace = {
@@ -81,10 +70,9 @@ const CubeFace = {
   TOP_RIGHT:    7
 };
 
-const FTHETA_UNIFORM_ROTATION_BUFFER_SIZE = 60; // This MUST match the uniform array size in fgVertexShader
-
 //let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
-let container, camera, scene, renderer, uniforms, vr_controller0, vr_controller1;
+let container, camera, scene, renderer, vr_controller0, vr_controller1;
+let fthetaMesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let debug_log = "";
 let debug_msg_count = 0;
@@ -112,12 +100,7 @@ let next_video_url;
 let next_video_thumbnail;
 let slideshow;
 let slideshow_index = 0;
-let ftheta_fg_geoms = []; // references to all of the patches in the f-theta mesh (foreground)
-let ftheta_bg_geoms = []; // references to all of the patches in the f-theta mesh (background)
-let ftheta_fg_meshes = []; // above is for the geometry (so we can rotate). this one is for the Mesh so we can toggle visibility for debug purposes
-let ftheta_mid_meshes = []; // toggle visibility for debug purposes
-let ftheta_bg_meshes = []; // toggle visibility for debug purposes
-let num_patches_not_culled = 0; // Used for performance stats (want to know how many patches are being draw in various scenes).
+
 let replay_count = 0; // just for analytics to see if people are replaying
 let lock_position = false;
 let orbit_controls;
@@ -518,7 +501,7 @@ function updateControlsAndButtons() {
 
 
 function render() {
-  num_patches_not_culled = 0;
+  fthetaMesh.num_patches_not_culled = 0;
   // The fragment shader uses the distance from the camera to the origin to determine how
   // aggressively to fade out fragments that might be part of a streaky triangle. We need
   // to compute that distance differently depending on whether we are in VR or not.
@@ -529,7 +512,7 @@ function render() {
 
   var cam_position_for_shader =
     renderer.xr.isPresenting ? vr_camera_position : novr_camera_position;
-  uniforms.uDistCamFromOrigin.value = cam_position_for_shader.length();
+  fthetaMesh.uniforms.uDistCamFromOrigin.value = cam_position_for_shader.length();
 
   updateGamepad(vr_controller0);
   updateGamepad(vr_controller1);
@@ -617,110 +600,7 @@ function updateGamepad(vr_controller) {
   }
 }
 
-function makeFthetaMesh(format, material, GRID_SIZE, NUM_PATCHES, order, ftheta_scale, ftheta_inflation) {
-  const NUM_QUADS_PER_SIDE = NUM_PATCHES * GRID_SIZE;
-  const MARGIN = 3;
 
-  for (var patch_j = 0; patch_j < NUM_PATCHES; ++patch_j) {
-    for (var patch_i = 0; patch_i < NUM_PATCHES; ++patch_i) {
-      const verts   = [];
-      const indices = [];
-      const uvs     = [];
-
-      for (var j = 0; j <= GRID_SIZE; ++j) {
-        for (var i = 0; i <= GRID_SIZE; ++i) {
-          const ii = i + patch_i * GRID_SIZE;
-          const jj = j + patch_j * GRID_SIZE;
-          const u  = ii / NUM_QUADS_PER_SIDE;
-          const v  = jj / NUM_QUADS_PER_SIDE;
-
-          const a = 2.0 * (u - 0.5);
-          const b = 2.0 * (v - 0.5);
-          const theta = Math.atan2(b, a);
-          var r = Math.sqrt(a * a + b * b) / ftheta_scale;
-          if (format == "ldi3") r = 0.5 * r + 0.5 * Math.pow(r, ftheta_inflation);
-          const phi = r * Math.PI / 2.0;
-
-          const x = Math.cos(theta) * Math.sin(phi);
-          const y = Math.sin(theta) * Math.sin(phi);
-          const z = -Math.cos(phi);
-
-          // TODO: the 10's here are a hack for frustum culling. 10 might not be optimal
-          verts.push(x * 10, y * 10, z * 10);
-          uvs.push(u, v);
-        }
-      }
-
-      for (var j = 0; j < GRID_SIZE; ++j) {
-        for (var i = 0; i < GRID_SIZE; ++i) {
-          // Skip quads outside the image circle.
-          const ii = i + patch_i * GRID_SIZE;
-          const jj = j + patch_j * GRID_SIZE;
-          const di = ii - NUM_QUADS_PER_SIDE / 2;
-          const dj = jj - NUM_QUADS_PER_SIDE / 2;
-          if (di * di + dj * dj > (NUM_QUADS_PER_SIDE-MARGIN) * (NUM_QUADS_PER_SIDE-MARGIN) / 4) continue;
-
-          const a = i + (GRID_SIZE + 1) * j;
-          const b = a + 1;
-          const c = a + (GRID_SIZE + 1);
-          const d = c + 1;
-          indices.push(a, c, b);
-          indices.push(c, d, b);
-        }
-      }
-
-      if (indices.length > 0) {
-        const geometry = new THREE.BufferGeometry();
-        geometry.setIndex(indices);
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-        geometry.computeBoundingSphere();
-        geometry.originalBoundingSphere = geometry.boundingSphere.clone();
-        geometry.boundingSphere.radius *= 1.1;
-
-        const mesh = new THREE.Mesh(geometry, material);
-
-        if (format == "ldi2") {
-          if (order == 0) {
-            ftheta_fg_geoms.push(geometry);
-            ftheta_fg_meshes.push(mesh);
-          } else if (order == 1) {
-            ftheta_bg_geoms.push(geometry);
-          }
-        } else if (format == "ldi3") {
-          if (order == 0) {
-            ftheta_bg_geoms.push(geometry);
-            ftheta_bg_meshes.push(mesh);
-          } else { // this puts L1 and L2 together
-            ftheta_fg_geoms.push(geometry);
-          }
-          if (order == 1) {
-            ftheta_mid_meshes.push(mesh);
-          }
-          if (order == 2) {
-            ftheta_fg_meshes.push(mesh);
-          }
-        }
-
-        // We can only do frustum culling in Chrome with ftheta projection, because we
-        // need to be able to update the bounding sphere centers with the current
-        // frame's rotation matrix outside the shader. Oculus is a flavor of Chrome.
-        // We don't really need to do this on desktop / mobile as an optimization, and it
-        // can sometimes cause artifacts, so now its only on Oculus.
-        mesh.frustumCulled = is_oculus;
-        mesh.onBeforeRender = function () { num_patches_not_culled += 1; };
-
-        //const color = (patch_i + 3542) * (patch_j + 3444) * 329482983;
-        //const wireframe_material = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide, depthTest: false, transparent: false, wireframe:true});
-        //const mesh = new THREE.Mesh(geometry, wireframe_material);
-
-        mesh.renderOrder = order;
-        world_group.add(mesh);
-      }
-    }
-  }
-
-}
 
 // Lifecast's rendering pipeline uses a different coordinate system than THREE.js, so we
 // need to convert.
@@ -758,12 +638,12 @@ function updateFthetaRotationUniforms(video_time) {
   var start_time = video_time - firefox_fudge_time;
   var start_frame = Math.max(0, Math.floor(start_time * metadata.fps));
 
-  uniforms.uFirstFrameInFthetaTable.value = start_frame;
+  fthetaMesh.uniforms.uFirstFrameInFthetaTable.value = start_frame;
   var i = 0;
   for (var frame_index = start_frame; frame_index < start_frame + FTHETA_UNIFORM_ROTATION_BUFFER_SIZE; ++frame_index) {
     var clamp_frame_index = Math.min(frame_index, metadata.frame_to_rotation.length - 1); // Repeat the last frame's data if we go past the end.
     var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[clamp_frame_index]);
-    uniforms.uFrameIndexToFthetaRotation.value[i].fromArray(R);
+    fthetaMesh.uniforms.uFrameIndexToFthetaRotation.value[i].fromArray(R);
     ++i;
   }
 }
@@ -878,14 +758,6 @@ export function init({
   lock_position   = _lock_position;
   create_button_url = _create_button_url;
 
-  if (_ftheta_scale == null) {
-    if (_format == "ldi2") _ftheta_scale = 1.2;
-    else if (_format == "ldi3") _ftheta_scale = 1.15;
-    else { console.log("Error, unknown format: ", _format); }
-  }
-  console.log("_format=", _format);
-  console.log("_ftheta_scale=", _ftheta_scale);
-
 
   if (is_ios) {
     if (window.innerHeight > window.innerWidth) { // portrait
@@ -913,7 +785,7 @@ export function init({
       // Set uniforms from metadata
       if (photo_mode) {
         var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[0]);
-        uniforms.uFthetaRotation.value = R;
+        fthetaMesh.uniforms.uFthetaRotation.value = R;
         rotateFthetaMeshBoundingSpheres(R);
       } else {
         updateFthetaRotationUniforms(0.0);
@@ -999,7 +871,7 @@ export function init({
         if (metadata) {
           if (frame_index >= metadata.frame_to_rotation.length) frame_index = metadata.frame_to_rotation.length - 1;
           var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[frame_index]);
-          uniforms.uFthetaRotation.value = R;
+          fthetaMesh.uniforms.uFthetaRotation.value = R;
           rotateFthetaMeshBoundingSpheres(R);
 
           // Force view recenter on specified frames
@@ -1033,102 +905,8 @@ export function init({
   world_group = new THREE.Group();
   scene.add(world_group);
 
-  // Make the initial shader uniforms.
-  var placeholder_ftheta_rotation_arr = new Array(FTHETA_UNIFORM_ROTATION_BUFFER_SIZE);
-  for (var i = 0; i < FTHETA_UNIFORM_ROTATION_BUFFER_SIZE; ++i) {
-    placeholder_ftheta_rotation_arr[i] = new THREE.Matrix3();
-  }
-  uniforms = {
-    uTexture: { value: texture },
-    uDistCamFromOrigin: { value: 0.0 },
-    uFthetaRotation: { value: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0] },
-    uFirstFrameInFthetaTable: { value: 0 },
-    uFrameIndexToFthetaRotation: { value: placeholder_ftheta_rotation_arr },
-    uCurrFrameChrome: { value: 0 },
-  };
-
-  // Make the foreground mesh material.
-  var shader_prefix = "";
-  if (is_chrome)  shader_prefix += "#define CHROME\n";
-  if (photo_mode) shader_prefix += "#define PHOTO\n";
-  if (_metadata_url == "") shader_prefix += "#define NO_METADATA\n";
-  if (_decode_12bit) shader_prefix += "#define DECODE_12BIT\n";
-
-  //// LDI2 materials ////
-
-  const ldi2_fg_material = new THREE.ShaderMaterial({
-    vertexShader:   shader_prefix + LDI2_fthetaFgVertexShader,
-    fragmentShader: shader_prefix + LDI2_fthetaFgFragmentShader,
-    uniforms: uniforms,
-    depthTest: true,
-    depthWrite: true,
-    transparent: false,
-    wireframe: false
-  });
-  ldi2_fg_material.side = THREE.DoubleSide;
-
-  const ldi2_bg_material = new THREE.ShaderMaterial({
-    vertexShader:   shader_prefix + LDI2_fthetaBgVertexShader,
-    fragmentShader: shader_prefix + LDI2_fthetaBgFragmentShader,
-    uniforms: uniforms,
-    depthTest: true,
-    depthWrite: true,
-    transparent: false,
-    wireframe: false
-  });
-  ldi2_bg_material.side = THREE.DoubleSide;
-  ldi2_bg_material.depthFunc = THREE.LessDepth;
-
-  //// LDI3 materials ////
-
-  const ldi3_layer0_material = new THREE.ShaderMaterial({
-    vertexShader:   shader_prefix + LDI3_fthetaBgVertexShader,
-    fragmentShader: shader_prefix + LDI3_fthetaBgFragmentShader,
-    uniforms: uniforms,
-    depthTest: true,
-    depthWrite: true,
-    transparent: false,
-    wireframe: false
-  });
-  ldi3_layer0_material.side = THREE.DoubleSide;
-  ldi3_layer0_material.depthFunc = THREE.LessDepth;
-
-  const ldi3_layer1_material = new THREE.ShaderMaterial({
-    vertexShader:   shader_prefix + LDI3_fthetaFgVertexShader,
-    fragmentShader: shader_prefix + LDI3_fthetaFgFragmentShader,
-    uniforms: uniforms,
-    depthTest: true,
-    depthWrite: true,
-    transparent: true,
-    wireframe: false
-  });
-  ldi3_layer1_material.side = THREE.DoubleSide;
-  ldi3_layer1_material.depthFunc = THREE.LessEqualDepth;
-
-  const ldi3_layer2_material = new THREE.ShaderMaterial({
-    vertexShader:    "#define LAYER2\n" + shader_prefix + LDI3_fthetaFgVertexShader,
-    fragmentShader:  "#define LAYER2\n" + shader_prefix + LDI3_fthetaFgFragmentShader,
-    uniforms: uniforms,
-    depthTest: true,
-    depthWrite: true,
-    transparent: true,
-    wireframe: false
-  });
-  ldi3_layer2_material.side = THREE.DoubleSide;
-  ldi3_layer2_material.depthFunc = THREE.LessEqualDepth;
-
-  if (_format == "ldi2") {
-    const inflation = 1.0;
-    makeFthetaMesh(_format, ldi2_fg_material, 32, 14, 0, _ftheta_scale, inflation);
-    makeFthetaMesh(_format, ldi2_bg_material, 32, 14, 1, _ftheta_scale, inflation);
-  } else if (_format == "ldi3") {
-    const inflation = 3.0;
-    makeFthetaMesh(_format, ldi3_layer0_material, 32, 16, 0, _ftheta_scale, inflation);
-    makeFthetaMesh(_format, ldi3_layer1_material, 32, 16, 1, _ftheta_scale, inflation);
-    makeFthetaMesh(_format, ldi3_layer2_material, 32, 16, 2, _ftheta_scale, inflation);
-  } else {
-    console.log("Unrecognized format: ", _format);
-  }
+  fthetaMesh = new FthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture)
+  world_group.add(fthetaMesh)
 
   // Make the point sprite for VR buttons.
   const vrbutton_geometry = new THREE.PlaneGeometry(0.1, 0.1);
@@ -1269,13 +1047,13 @@ export function init({
     }
     if (key == "s" && slideshow.length > 0) {
       slideshow_index = (slideshow_index + 1) % slideshow.length;
-      uniforms.uTexture.value = new THREE.TextureLoader().load(slideshow[slideshow_index]);
+      fthetaMesh.uniforms.uTexture.value = new THREE.TextureLoader().load(slideshow[slideshow_index]);
 
-      uniforms.uTexture.value.format = THREE.RGBAFormat;
-      uniforms.uTexture.value.type = THREE.UnsignedByteType;
-      uniforms.uTexture.value.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
-      uniforms.uTexture.value.magFilter = THREE.LinearFilter;
-      uniforms.uTexture.value.generateMipmaps = false;
+      fthetaMesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
+      fthetaMesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
+      fthetaMesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
+      fthetaMesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
+      fthetaMesh.uniforms.uTexture.value.generateMipmaps = false;
 
       if (_format == "ldi2") {
         ldi2_fg_material.needsUpdate = true;
