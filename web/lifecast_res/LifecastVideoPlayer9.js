@@ -1056,23 +1056,23 @@ export function init({
       ldi_ftheta_mesh.uniforms.uTexture.value.generateMipmaps = false;
 
       if (_format == "ldi2") {
-        ldi2_fg_material.needsUpdate = true;
-        ldi2_bg_material.needsUpdate = true;
+        ldi_ftheta_mesh.ldi2_fg_material.needsUpdate = true;
+        ldi_ftheta_mesh.ldi2_bg_material.needsUpdate = true;
       }
       if (_format == "ldi3") {
-        ldi3_layer0_material.needsUpdate = true;
-        ldi3_layer1_material.needsUpdate = true;
-        ldi3_layer2_material.needsUpdate = true;
+        ldi_ftheta_mesh.ldi3_layer0_material.needsUpdate = true;
+        ldi_ftheta_mesh.ldi3_layer1_material.needsUpdate = true;
+        ldi_ftheta_mesh.ldi3_layer2_material.needsUpdate = true;
       }
     }
 
     if (_format == "ldi2"){
-      if (key == "x") { for (var m of ftheta_fg_meshes) { m.visible = !m.visible; } }
+      if (key == "x") { for (var m of ldi_ftheta_mesh.ftheta_fg_meshes) { m.visible = !m.visible; } }
     }
     if (_format == "ldi3") {
-      if (key == "z") { for (var m of ftheta_bg_meshes) { m.visible = !m.visible; } }
-      if (key == "x") { for (var m of ftheta_mid_meshes) { m.visible = !m.visible; } }
-      if (key == "c") { for (var m of ftheta_fg_meshes) { m.visible = !m.visible; } }
+      if (key == "z") { for (var m of ldi_ftheta_mesh.ftheta_bg_meshes) { m.visible = !m.visible; } }
+      if (key == "x") { for (var m of ldi_ftheta_mesh.ftheta_mid_meshes) { m.visible = !m.visible; } }
+      if (key == "c") { for (var m of ldi_ftheta_mesh.ftheta_fg_meshes) { m.visible = !m.visible; } }
     }
 
   });
