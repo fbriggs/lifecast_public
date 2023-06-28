@@ -50,7 +50,7 @@ if (use_amplitude) {
   amplitude.getInstance().init("8438e5106882c14826232edcc33207a4", null, {includeReferrer: true, includeUtm: true, batchEvents: false});
 }
 
-import { FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, FthetaMesh } from "./FthetaMesh.js";
+import { FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh } from "./LdiFthetaMesh.js";
 import * as THREE from './three149.module.min.js';
 //import {FontLoader} from "./FontLoader.js";
 //import {TextGeometry} from "./TextGeometry.js";
@@ -72,7 +72,7 @@ const CubeFace = {
 
 //let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
 let container, camera, scene, renderer, vr_controller0, vr_controller1;
-let fthetaMesh;
+let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let debug_log = "";
 let debug_msg_count = 0;
@@ -501,7 +501,7 @@ function updateControlsAndButtons() {
 
 
 function render() {
-  fthetaMesh.num_patches_not_culled = 0;
+  ldi_ftheta_mesh.num_patches_not_culled = 0;
   // The fragment shader uses the distance from the camera to the origin to determine how
   // aggressively to fade out fragments that might be part of a streaky triangle. We need
   // to compute that distance differently depending on whether we are in VR or not.
@@ -512,7 +512,7 @@ function render() {
 
   var cam_position_for_shader =
     renderer.xr.isPresenting ? vr_camera_position : novr_camera_position;
-  fthetaMesh.uniforms.uDistCamFromOrigin.value = cam_position_for_shader.length();
+  ldi_ftheta_mesh.uniforms.uDistCamFromOrigin.value = cam_position_for_shader.length();
 
   updateGamepad(vr_controller0);
   updateGamepad(vr_controller1);
@@ -638,12 +638,12 @@ function updateFthetaRotationUniforms(video_time) {
   var start_time = video_time - firefox_fudge_time;
   var start_frame = Math.max(0, Math.floor(start_time * metadata.fps));
 
-  fthetaMesh.uniforms.uFirstFrameInFthetaTable.value = start_frame;
+  ldi_ftheta_mesh.uniforms.uFirstFrameInFthetaTable.value = start_frame;
   var i = 0;
   for (var frame_index = start_frame; frame_index < start_frame + FTHETA_UNIFORM_ROTATION_BUFFER_SIZE; ++frame_index) {
     var clamp_frame_index = Math.min(frame_index, metadata.frame_to_rotation.length - 1); // Repeat the last frame's data if we go past the end.
     var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[clamp_frame_index]);
-    fthetaMesh.uniforms.uFrameIndexToFthetaRotation.value[i].fromArray(R);
+    ldi_ftheta_mesh.uniforms.uFrameIndexToFthetaRotation.value[i].fromArray(R);
     ++i;
   }
 }
@@ -785,7 +785,7 @@ export function init({
       // Set uniforms from metadata
       if (photo_mode) {
         var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[0]);
-        fthetaMesh.uniforms.uFthetaRotation.value = R;
+        ldi_ftheta_mesh.uniforms.uFthetaRotation.value = R;
         rotateFthetaMeshBoundingSpheres(R);
       } else {
         updateFthetaRotationUniforms(0.0);
@@ -871,7 +871,7 @@ export function init({
         if (metadata) {
           if (frame_index >= metadata.frame_to_rotation.length) frame_index = metadata.frame_to_rotation.length - 1;
           var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[frame_index]);
-          fthetaMesh.uniforms.uFthetaRotation.value = R;
+          ldi_ftheta_mesh.uniforms.uFthetaRotation.value = R;
           rotateFthetaMeshBoundingSpheres(R);
 
           // Force view recenter on specified frames
@@ -905,8 +905,8 @@ export function init({
   world_group = new THREE.Group();
   scene.add(world_group);
 
-  fthetaMesh = new FthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture)
-  world_group.add(fthetaMesh)
+  ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture)
+  world_group.add(ldi_ftheta_mesh)
 
   // Make the point sprite for VR buttons.
   const vrbutton_geometry = new THREE.PlaneGeometry(0.1, 0.1);
@@ -1047,13 +1047,13 @@ export function init({
     }
     if (key == "s" && slideshow.length > 0) {
       slideshow_index = (slideshow_index + 1) % slideshow.length;
-      fthetaMesh.uniforms.uTexture.value = new THREE.TextureLoader().load(slideshow[slideshow_index]);
+      ldi_ftheta_mesh.uniforms.uTexture.value = new THREE.TextureLoader().load(slideshow[slideshow_index]);
 
-      fthetaMesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
-      fthetaMesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
-      fthetaMesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
-      fthetaMesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
-      fthetaMesh.uniforms.uTexture.value.generateMipmaps = false;
+      ldi_ftheta_mesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
+      ldi_ftheta_mesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
+      ldi_ftheta_mesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
+      ldi_ftheta_mesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
+      ldi_ftheta_mesh.uniforms.uTexture.value.generateMipmaps = false;
 
       if (_format == "ldi2") {
         ldi2_fg_material.needsUpdate = true;

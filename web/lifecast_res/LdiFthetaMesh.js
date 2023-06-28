@@ -13,36 +13,28 @@ import * as THREE from './three149.module.min.js';
 export const FTHETA_UNIFORM_ROTATION_BUFFER_SIZE = 60; // This MUST match the uniform array size in fgVertexShader
 
 
-/**
- * That class is a THREE Object3D displaying an LDI.
- * Thus it should contains all code related with the LDI geometry and material (texture)
- * It should not contain code related with the player (pause, play action...; mouse interaction; scene creation, camera/vr creation)
- * TODO
- * - uniforms must not be modified outside
- * - update() must be added in that class
- * - texture must be create in that class (video?)
- * - updateFthetaRotationUniforms functin must be added as method here
+/*
+ That class is a THREE Object3D displaying a LDI.
  */
-export class FthetaMesh extends THREE.Object3D {
-
+export class LdiFthetaMesh extends THREE.Object3D {
     ftheta_fg_geoms = []; // references to all of the patches in the f-theta mesh (foreground)
     ftheta_bg_geoms = []; // references to all of the patches in the f-theta mesh (background)
     ftheta_fg_meshes = []; // above is for the geometry (so we can rotate). this one is for the Mesh so we can toggle visibility for debug purposes
     ftheta_mid_meshes = []; // toggle visibility for debug purposes
     ftheta_bg_meshes = []; // toggle visibility for debug purposes
     num_patches_not_culled = 0; // Used for performance stats (want to know how many patches are being draw in various scenes).
+    ftheta_scale = null
 
     constructor(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture) {
 
         super()
 
-        let _ftheta_scale = null
-        if (_format == "ldi2") _ftheta_scale = 1.2;
-        else if (_format == "ldi3") _ftheta_scale = 1.15;
+        if (_format == "ldi2") this.ftheta_scale = 1.2;
+        else if (_format == "ldi3") this.ftheta_scale = 1.15;
         else { console.log("Error, unknown format: ", _format); }
 
         console.log("_format=", _format);
-        console.log("_ftheta_scale=", _ftheta_scale);
+        console.log("_ftheta_scale=", this.ftheta_scale);
 
 
         // Make the initial shader uniforms.
@@ -131,19 +123,19 @@ export class FthetaMesh extends THREE.Object3D {
 
         if (_format == "ldi2") {
             const inflation = 1.0;
-            this.makeFthetaMesh(_format, ldi2_fg_material, 32, 14, 0, _ftheta_scale, inflation);
-            this.makeFthetaMesh(_format, ldi2_bg_material, 32, 14, 1, _ftheta_scale, inflation);
+            this.makeFthetaMesh(_format, ldi2_fg_material, 32, 14, 0, inflation);
+            this.makeFthetaMesh(_format, ldi2_bg_material, 32, 14, 1, inflation);
         } else if (_format == "ldi3") {
             const inflation = 3.0;
-            this.makeFthetaMesh(_format, ldi3_layer0_material, 32, 16, 0, _ftheta_scale, inflation);
-            this.makeFthetaMesh(_format, ldi3_layer1_material, 32, 16, 1, _ftheta_scale, inflation);
-            this.makeFthetaMesh(_format, ldi3_layer2_material, 32, 16, 2, _ftheta_scale, inflation);
+            this.makeFthetaMesh(_format, ldi3_layer0_material, 32, 16, 0, inflation);
+            this.makeFthetaMesh(_format, ldi3_layer1_material, 32, 16, 1, inflation);
+            this.makeFthetaMesh(_format, ldi3_layer2_material, 32, 16, 2, inflation);
         } else {
             console.log("Unrecognized format: ", _format);
         }
     }
 
-    makeFthetaMesh(format, material, GRID_SIZE, NUM_PATCHES, order, ftheta_scale, ftheta_inflation, is_oculus) {
+    makeFthetaMesh(format, material, GRID_SIZE, NUM_PATCHES, order, ftheta_inflation, is_oculus) {
         const NUM_QUADS_PER_SIDE = NUM_PATCHES * GRID_SIZE;
         const MARGIN = 3;
 
@@ -163,7 +155,7 @@ export class FthetaMesh extends THREE.Object3D {
                         const a = 2.0 * (u - 0.5);
                         const b = 2.0 * (v - 0.5);
                         const theta = Math.atan2(b, a);
-                        var r = Math.sqrt(a * a + b * b) / ftheta_scale;
+                        var r = Math.sqrt(a * a + b * b) / this.ftheta_scale;
                         if (format == "ldi3") r = 0.5 * r + 0.5 * Math.pow(r, ftheta_inflation);
                         const phi = r * Math.PI / 2.0;
 
