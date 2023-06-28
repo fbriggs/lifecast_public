@@ -60,7 +60,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
         //// LDI2 materials ////
 
-        const ldi2_fg_material = new THREE.ShaderMaterial({
+        const ldi2_fg_material = this.ldi2_fg_material = new THREE.ShaderMaterial({
             vertexShader:   shader_prefix + LDI2_fthetaFgVertexShader,
             fragmentShader: shader_prefix + LDI2_fthetaFgFragmentShader,
             uniforms: this.uniforms,
@@ -71,7 +71,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
         });
         ldi2_fg_material.side = THREE.DoubleSide;
 
-        const ldi2_bg_material = new THREE.ShaderMaterial({
+        const ldi2_bg_material = this.ldi2_bg_material = new THREE.ShaderMaterial({
             vertexShader:   shader_prefix + LDI2_fthetaBgVertexShader,
             fragmentShader: shader_prefix + LDI2_fthetaBgFragmentShader,
             uniforms: this.uniforms,
@@ -85,7 +85,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
         //// LDI3 materials ////
 
-        const ldi3_layer0_material = new THREE.ShaderMaterial({
+        const ldi3_layer0_material = this.ldi3_layer0_material = new THREE.ShaderMaterial({
             vertexShader:   shader_prefix + LDI3_fthetaBgVertexShader,
             fragmentShader: shader_prefix + LDI3_fthetaBgFragmentShader,
             uniforms: this.uniforms,
@@ -97,7 +97,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
         ldi3_layer0_material.side = THREE.DoubleSide;
         ldi3_layer0_material.depthFunc = THREE.LessDepth;
 
-        const ldi3_layer1_material = new THREE.ShaderMaterial({
+        const ldi3_layer1_material = this.ldi3_layer1_material = new THREE.ShaderMaterial({
             vertexShader:   shader_prefix + LDI3_fthetaFgVertexShader,
             fragmentShader: shader_prefix + LDI3_fthetaFgFragmentShader,
             uniforms: this.uniforms,
@@ -109,7 +109,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
         ldi3_layer1_material.side = THREE.DoubleSide;
         ldi3_layer1_material.depthFunc = THREE.LessEqualDepth;
 
-        const ldi3_layer2_material = new THREE.ShaderMaterial({
+        const ldi3_layer2_material = this.ldi3_layer2_material = new THREE.ShaderMaterial({
             vertexShader:    "#define LAYER2\n" + shader_prefix + LDI3_fthetaFgVertexShader,
             fragmentShader:  "#define LAYER2\n" + shader_prefix + LDI3_fthetaFgFragmentShader,
             uniforms: this.uniforms,
@@ -226,7 +226,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
                     // We don't really need to do this on desktop / mobile as an optimization, and it
                     // can sometimes cause artifacts, so now its only on Oculus.
                     mesh.frustumCulled = is_oculus;
-                    mesh.onBeforeRender = function () { this.num_patches_not_culled += 1; };
+                    mesh.onBeforeRender = () => { this.num_patches_not_culled += 1; };
 
                     //const color = (patch_i + 3542) * (patch_j + 3444) * 329482983;
                     //const wireframe_material = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide, depthTest: false, transparent: false, wireframe:true});
