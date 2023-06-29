@@ -545,7 +545,7 @@ function render() {
     resetVRToCenter();
   }
 
-  //console.log("num_patches_not_culled=", num_patches_not_culled);
+  // console.log("num_patches_not_culled=", ldi_ftheta_mesh.num_patches_not_culled);
 }
 
 function animate() {
@@ -617,11 +617,11 @@ function convertRotationMatrixLifecastToThreeJs(R) {
 function rotateFthetaMeshBoundingSpheres(R) {
   // Update bounding spheres for patches.
   var Rm = new THREE.Matrix3().fromArray(R);
-  for (var p of ftheta_fg_geoms) {
+  for (var p of ldi_ftheta_mesh.ftheta_fg_geoms) {
     p.boundingSphere.center.copy(p.originalBoundingSphere.center);
     p.boundingSphere.center.applyMatrix3(Rm);
   }
-  for (var p of ftheta_bg_geoms) {
+  for (var p of ldi_ftheta_mesh.ftheta_bg_geoms) {
     p.boundingSphere.center.copy(p.originalBoundingSphere.center);
     p.boundingSphere.center.applyMatrix3(Rm);
   }
@@ -905,7 +905,7 @@ export function init({
   world_group = new THREE.Group();
   scene.add(world_group);
 
-  ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture)
+  ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
 
   // Make the point sprite for VR buttons.

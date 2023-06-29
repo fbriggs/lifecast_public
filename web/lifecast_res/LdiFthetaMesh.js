@@ -25,14 +25,17 @@ export class LdiFthetaMesh extends THREE.Object3D {
     num_patches_not_culled = 0; // Used for performance stats (want to know how many patches are being draw in various scenes).
     ftheta_scale = null
 
-    constructor(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture) {
+    constructor(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale = null) {
 
         super()
 
-        if (_format == "ldi2") this.ftheta_scale = 1.2;
-        else if (_format == "ldi3") this.ftheta_scale = 1.15;
-        else { console.log("Error, unknown format: ", _format); }
-
+        if (_ftheta_scale == null) {
+            if (_format == "ldi2") this.ftheta_scale = 1.2;
+            else if (_format == "ldi3") this.ftheta_scale = 1.15;
+            else { console.log("Error, unknown format: ", _format); }
+        } else {
+            this.ftheta_scale = _ftheta_scale
+        }
         console.log("_format=", _format);
         console.log("_ftheta_scale=", this.ftheta_scale);
 
