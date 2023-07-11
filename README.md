@@ -23,6 +23,3 @@ https://drive.google.com/file/d/197Ea3MHUKMsS4BUy86iVwGukmClV0V_9/view?usp=share
 
 An example page is available in the /web directory of this repo.
 
-Refer to this tutorial for more information:
-
-https://lifecastvr.com/tutorial_webvr.html
