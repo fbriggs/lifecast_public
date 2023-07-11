@@ -1,11 +1,10 @@
-#!/usr/bin/env python2
-from SimpleHTTPServer import SimpleHTTPRequestHandler
-import BaseHTTPServer
+#!/usr/bin/env python3
+from http.server import SimpleHTTPRequestHandler, HTTPServer
 
-class CORSRequestHandler (SimpleHTTPRequestHandler):
-    def end_headers (self):
+class CORSRequestHandler(SimpleHTTPRequestHandler):
+    def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
-        SimpleHTTPRequestHandler.end_headers(self)
+        super().end_headers()
 
 if __name__ == '__main__':
-    BaseHTTPServer.test(CORSRequestHandler, BaseHTTPServer.HTTPServer)
+    HTTPServer(('', 8000), CORSRequestHandler).serve_forever()
