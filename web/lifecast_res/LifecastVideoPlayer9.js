@@ -522,7 +522,7 @@ function render() {
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
-  if (cam_mode == "default" && !is_ios && Date.now() - mouse_last_moved_time > 5000) {
+  if (cam_mode == "default" && (!is_ios || is_ios && embed_mode) && Date.now() - mouse_last_moved_time > 5000) {
     let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
     //console.log('Setting fov to ' + fov);
     camera.fov = fov;
