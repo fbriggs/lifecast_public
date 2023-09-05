@@ -112,6 +112,8 @@ let has_played_video = false;
 
 let get_vr_button;
 
+let looking_glass_config;
+
 // Used for IMU based control on mobile
 let got_orientation_data = false;
 let init_orientation_a = 0;
@@ -447,7 +449,7 @@ function updateControlsAndButtons() {
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "inline";
-    vrbutton3d.visible = vr_session_active; // Only show if we are in VR.
+    vrbutton3d.visible = vr_session_active && (!looking_glass_config); // Only show if we are in VR and its not Looking Glass
     return;
   } else {
     vrbutton3d.rotation.set(0, 0, 0);
@@ -461,7 +463,7 @@ function updateControlsAndButtons() {
     byId("pause_button").style.display  = "none";
     byId("buffering_button").style.display = "none";
     byId("rewind_button").style.display = "inline";
-    vrbutton3d.visible = vr_session_active; // Only show if we are in VR.
+    vrbutton3d.visible = vr_session_active && (!looking_glass_config); // Only show if we are in VR and its not Looking Glass
     return;
   }
 
@@ -759,11 +761,12 @@ export function init({
   lock_position   = _lock_position;
   create_button_url = _create_button_url;
 
-  let _enter_xr_button_title = "ENTER VR";
-  let _exit_xr_button_title = "EXIT VR";
-  if(_looking_glass_config) {
-    _enter_xr_button_title = "START LOOKING GLASS";
-    _exit_xr_button_title =  "EXIT LOOKING GLASS";
+  looking_glass_config = _looking_glass_config;
+  let enter_xr_button_title = "ENTER VR";
+  let exit_xr_button_title = "EXIT VR";
+  if(looking_glass_config) {
+    enter_xr_button_title = "START LOOKING GLASS";
+    exit_xr_button_title =  "EXIT LOOKING GLASS";
   }
 
   if (is_ios) {
@@ -970,13 +973,13 @@ export function init({
       // have permissions and can tell if this is the case because we will have some data)
       setTimeout(function() {
         if (!got_orientation_data) {
-          get_vr_button = HelpGetVR.createBanner(renderer, _enter_xr_button_title, _exit_xr_button_title);
+          get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
           document.body.appendChild(get_vr_button);
         }
       }, 1000);
 
     } else {
-      get_vr_button = HelpGetVR.createBanner(renderer, _enter_xr_button_title, _exit_xr_button_title);
+      get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
       document.body.appendChild(get_vr_button);
     }
 
