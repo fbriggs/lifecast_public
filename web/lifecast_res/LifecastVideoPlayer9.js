@@ -1189,7 +1189,7 @@ export function init({
     // Create an event handler for the Oculus reset to center button. We have to wait to
     // construct the handler here to get a non-null XReferenceSpace.
     xr_ref_space = renderer.xr.getReferenceSpace();
-    xr_ref_space.addEventListener("reset", reset_event_handler);
+    if(xr_ref_space.addEventListener) xr_ref_space.addEventListener("reset", reset_event_handler);
 
     // Move the world_group back to the origin 1 frame from now (doing it now wont work).
     delay1frame_reset = true; // Calls resetVRToCenter(); 1 frame from now.
@@ -1202,7 +1202,7 @@ export function init({
 
     // Destroy the handler we created on sessionstart. This way we don't get multiple
     // handlers if the user goes back and forth between VR and non.
-    xr_ref_space.removeEventListener("reset", reset_event_handler);
+    if(xr_ref_space.removeEventListener) xr_ref_space.removeEventListener("reset", reset_event_handler);
 
     // When we enter VR, toggle on the VR-only 3d buttons.
     vr_session_active = false;
