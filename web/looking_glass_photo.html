@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lifecast Looking Glass Example</title>
+<meta charset="UTF-8">
+<meta name="description" content="Volumetric video for Looking Glass with Lifecast.">
+<meta name="keywords" content="volumetric, volumetric video, looking glass, lookingglass">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<script type="module">
+  import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer9.js';
+  import { LookingGlassWebXRPolyfill, LookingGlassConfig } from "https://unpkg.com/@lookingglass/webxr@0.4.0/dist/bundle/webxr.js"
+
+  const config = LookingGlassConfig;
+  config.targetX = 0;
+  config.targetY = 2;       // This is to correct for an offset that Looking Glass adds.
+  config.targetZ = -2.0;    // This is an aesthetic choice.
+  config.targetDiam = 3;    // This affects which part of the scene is in focus.
+  config.fovy = 70 * Math.PI / 180;
+  config.depthiness = 0.75;  
+  new LookingGlassWebXRPolyfill();
+
+  LifecastVideoPlayer.init({
+    _format: "ldi3",
+    _cam_mode: "orbit", // Orbit cam allows us to move the camera with the mouse in Looking Glass
+    _looking_glass_config: config,
+    _enter_xr_button_title: "START LOOKING GLASS",
+    _exit_xr_button_title: "EXIT LOOKING GLASS",
+    _media_url: "media/ldi3.png",
+  });
+</script>
+
+</head>
+<body>
+</body>
+</html>
