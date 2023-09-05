@@ -820,7 +820,18 @@ export function init({
   var ext = filenameExtension(_media_url);
   if (ext == "png" || ext == "jpg") {
     photo_mode = true;
-    texture = new THREE.TextureLoader().load(_media_url);
+    texture = new THREE.TextureLoader().load(
+      _media_url,
+      function(texture) {// onLoad callback
+        // Nothing to do
+      },
+      function(xhr) { // Progress callback
+        //const percentage = (xhr.loaded / xhr.total) * 100;
+      },
+      function(error) { // error callback
+        document.documentElement.innerHTML = "Error loading texture: "  + _media_url;
+      }
+    );
     // Some of this isn't necessary, but makes the texture consistent between Photo/Video.
     texture.format = THREE.RGBAFormat;
     texture.type = THREE.UnsignedByteType;
@@ -848,13 +859,16 @@ export function init({
     video.preload = "auto";
     video.addEventListener("waiting", function() { video_is_buffering = true; });
     video.addEventListener("playing", function() { video_is_buffering = false; });
+    video.addEventListener("error",     function() {
+      document.documentElement.innerHTML = "Error loading video URL: "  + best_media_url;
+    });
     document.body.appendChild(video);
 
     // Log analytics events
     if (use_amplitude) {
       video.addEventListener("abort",     function() { amplitude.getInstance().logEvent('video_player_abort');    });
       video.addEventListener("ended",     function() { amplitude.getInstance().logEvent('video_player_ended');    });
-      video.addEventListener("error",     function() { amplitude.getInstance().logEvent('video_player_error');    });
+      //video.addEventListener("error",     function() { amplitude.getInstance().logEvent('video_player_error');    });
       //video.addEventListener("pause",     function() { amplitude.getInstance().logEvent('video_player_pause');    });
       //video.addEventListener("play",      function() { amplitude.getInstance().logEvent('video_player_play');     });
       video.addEventListener("stalled",   function() { amplitude.getInstance().logEvent('video_player_stalled');  });
