@@ -13,18 +13,19 @@
 
   const config = LookingGlassConfig;
   config.tileHeight = 512;
-  config.numViews = 64;
-  config.targetY = 0
-  config.targetZ = 0
-  config.targetDiam = 3
-  config.fovy = (14 * Math.PI) / 180
+  config.numViews = 45;
+  config.targetX = 0;
+  config.targetY = 2;       // This is to correct for an offset that Looking Glass adds.
+  config.targetZ = -2.0;    // This is an aesthetic choice.
+  config.targetDiam = 3;    // This affects which part of the scene is in focus.
+  config.fovy = 70 * Math.PI / 180;
+  config.depthiness = 0.75;  
   new LookingGlassWebXRPolyfill();
 
   LifecastVideoPlayer.init({
     _format: "ldi3",
-    _cam_mode: "orbit",
-    _media_url: "front_page_ldi3_example.jpg",
-    _looking_glass: true
+    _cam_mode: "orbit", // Orbit cam allows us to move the camera with the mouse in Looking Glass
+    _media_url: "media/ldi3.png",
   });
 </script>
 
