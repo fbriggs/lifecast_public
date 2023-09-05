@@ -729,8 +729,6 @@ export function init({
   _lock_position = false,
   _create_button_url = "",
   _decode_12bit = true,
-  _enter_xr_button_title = "ENTER VR",
-  _exit_xr_button_title = "EXIT VR",
   _looking_glass_config = null
 }={}) {
   if (use_amplitude) {
@@ -761,6 +759,12 @@ export function init({
   lock_position   = _lock_position;
   create_button_url = _create_button_url;
 
+  let _enter_xr_button_title = "ENTER VR";
+  let _exit_xr_button_title = "EXIT VR";
+  if(_looking_glass_config) {
+    _enter_xr_button_title = "START LOOKING GLASS";
+    _exit_xr_button_title =  "EXIT LOOKING GLASS";
+  }
 
   if (is_ios) {
     if (window.innerHeight > window.innerWidth) { // portrait
@@ -1175,19 +1179,13 @@ export function init({
 
   let xr_ref_space;
   renderer.xr.addEventListener('sessionstart', function(event) {
-    console.log("---------------Starting XR Session");
-    
     // Wait 1 second for looking glass's popup window to open before trying to install an
     // event handler in it, so we can play/pause while that screen is selected.
     if (_looking_glass_config) {
       setTimeout(() => {
-        console.log("_looking_glass_config=", _looking_glass_config)
-        console.log("_looking_glass_config.popup=", _looking_glass_config.popup)
-    
         //  Looking glass creates a separate window. We need to add event handlers to that window
         // to be able to play/pause.
         if(_looking_glass_config.popup) {
-          console.log("---- Adding event handler for looking glass popup");
           _looking_glass_config.popup.addEventListener('keydown', function(e) {
             if (e.key == " ") toggleVideoPlayPause();
           });
