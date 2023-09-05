@@ -24,7 +24,7 @@ THE SOFTWARE.
 */
 
 class HelpGetVR {
-  static createBanner( renderer ) {
+  static createBanner(renderer, enter_xr_button_title, exit_xr_button_title) {
 
     var banner = document.createElement( 'div' );
 
@@ -33,17 +33,17 @@ class HelpGetVR {
       async function onSessionStarted( session ) {
         session.addEventListener( 'end', onSessionEnded );
         await renderer.xr.setSession( session );
-        banner.innerHTML = 'EXIT VR';
+        banner.innerHTML = exit_xr_button_title;
         currentSession = session;
       }
 
       function onSessionEnded() {
         currentSession.removeEventListener( 'end', onSessionEnded );
-        banner.innerHTML = 'ENTER VR';
+        banner.innerHTML = enter_xr_button_title;
         currentSession = null;
       }
 
-      banner.innerHTML = 'ENTER VR';
+      banner.innerHTML = enter_xr_button_title;
       banner.style.cursor = 'pointer';
       banner.onmouseenter = function () {
         banner.style.opacity = '1.0';
