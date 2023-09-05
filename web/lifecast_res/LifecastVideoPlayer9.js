@@ -1195,8 +1195,6 @@ export function init({
         } 
       }, 1000);
     }
-    
-
 
     if (use_amplitude) {
       amplitude.getInstance().logEvent('video_player_entervr');
