@@ -728,7 +728,9 @@ export function init({
   _next_video_thumbnail = "",
   _lock_position = false,
   _create_button_url = "",
-  _decode_12bit = true
+  _decode_12bit = true,
+  _enter_xr_button_title = "ENTER VR",
+  _exit_xr_button_title = "EXIT VR",
 }={}) {
   if (use_amplitude) {
     amplitude.getInstance().logEvent('video_player_init', {
@@ -949,13 +951,13 @@ export function init({
       // have permissions and can tell if this is the case because we will have some data)
       setTimeout(function() {
         if (!got_orientation_data) {
-          get_vr_button = HelpGetVR.createBanner(renderer);
+          get_vr_button = HelpGetVR.createBanner(renderer, _enter_xr_button_title, _exit_xr_button_title);
           document.body.appendChild(get_vr_button);
         }
       }, 1000);
 
     } else {
-      get_vr_button = HelpGetVR.createBanner(renderer);
+      get_vr_button = HelpGetVR.createBanner(renderer, _enter_xr_button_title, _exit_xr_button_title);
       document.body.appendChild(get_vr_button);
     }
 
