@@ -22,41 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-let use_amplitude = false;
-if (use_amplitude) {
-  (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};var r=t.createElement("script")
-  ;r.type="text/javascript"
-  ;r.integrity="sha384-tzcaaCH5+KXD4sGaDozev6oElQhsVfbJvdi3//c2YvbY02LrNlbpGdt3Wq4rWonS"
-  ;r.crossOrigin="anonymous";r.async=true
-  ;r.src="https://cdn.amplitude.com/libs/amplitude-8.5.0-min.gz.js"
-  ;r.onload=function(){if(!e.amplitude.runQueuedFunctions){
-  console.log("[Amplitude] Error: could not load SDK")}}
-  ;var i=t.getElementsByTagName("script")[0];i.parentNode.insertBefore(r,i)
-  ;function s(e,t){e.prototype[t]=function(){
-  this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));return this}}
-  var o=function(){this._q=[];return this}
-  ;var a=["add","append","clearAll","prepend","set","setOnce","unset","preInsert","postInsert","remove"]
-  ;for(var c=0;c<a.length;c++){s(o,a[c])}n.Identify=o;var u=function(){this._q=[]
-  ;return this}
-  ;var l=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"]
-  ;for(var p=0;p<l.length;p++){s(u,l[p])}n.Revenue=u
-  ;var d=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","enableTracking","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId","groupIdentify","onInit","logEventWithTimestamp","logEventWithGroups","setSessionId","resetSessionId"]
-  ;function v(e){function t(t){e[t]=function(){
-  e._q.push([t].concat(Array.prototype.slice.call(arguments,0)))}}
-  for(var n=0;n<d.length;n++){t(d[n])}}v(n);n.getInstance=function(e){
-  e=(!e||e.length===0?"$default_instance":e).toLowerCase()
-  ;if(!Object.prototype.hasOwnProperty.call(n._iq,e)){n._iq[e]={_q:[]};v(n._iq[e])
-  }return n._iq[e]};e.amplitude=n})(window,document);
-  amplitude.getInstance().init("8438e5106882c14826232edcc33207a4", null, {includeReferrer: true, includeUtm: true, batchEvents: false});
-}
-
-import { FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh } from "./LdiFthetaMesh.js";
+import {FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh} from "./LdiFthetaMesh.js";
 import * as THREE from './three149.module.min.js';
-//import {FontLoader} from "./FontLoader.js";
-//import {TextGeometry} from "./TextGeometry.js";
 import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
-
+import {HTMLMesh} from './HTMLMesh.js';
 import {HelpGetVR} from './HelpGetVR9.js';
 
 const CubeFace = {
@@ -70,17 +40,28 @@ const CubeFace = {
   TOP_RIGHT:    7
 };
 
-//let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
-let container, camera, scene, renderer, vr_controller0, vr_controller1;
-let ldi_ftheta_mesh;
-let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
+let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
+let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
-let debug_font, text_geom, text_mesh, text_material;
+
+let container, camera, scene, renderer, vr_controller0, vr_controller1;
+let hand0, hand1; // for XR hand-tracking
+let ldi_ftheta_mesh;
+let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
+let prev_vr_camera_position;
+
 let video;
 let vid_framerate = 30;
 let nonvr_menu_fade_counter = 0;
 let mouse_is_down = false;
+
+let prev_mouse_u = 0.5;
+let prev_mouse_v = 0.5;
+let cam_drag_u = 0.0;
+let cam_drag_v = 0.0;
+let right_mouse_is_down = false;
+
 let nonvr_controls;
 let video_is_buffering = false;
 let vr_session_active = false; // true if we are in VR
@@ -101,7 +82,6 @@ let next_video_thumbnail;
 let slideshow;
 let slideshow_index = 0;
 
-let replay_count = 0; // just for analytics to see if people are replaying
 let lock_position = false;
 let orbit_controls;
 let create_button_url;
@@ -143,13 +123,14 @@ let anim_z_speed = 6100;
 let anim_u_speed = 4500;
 let anim_v_speed = 5100;
 
+let AUTO_CAM_MOVE_TIME = 5000;
+
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
 var is_safari =  navigator.userAgent.indexOf("Safari")  != -1;
 var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
 var is_chrome =  (navigator.userAgent.indexOf("Chrome")  != -1) || is_oculus;
 var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
 // TODO: android?
-
 
 function byId(id) { return document.getElementById( id ); };
 
@@ -283,30 +264,20 @@ function makeNonVrControls() {
   document.body.appendChild(nonvr_controls);
 }
 
-/*
-// WARNING: possible memory leak. don't use in production.
 function debugLog(message) {
   ++debug_msg_count;
-  if (debug_msg_count > 15) {
+  if (debug_msg_count > 30) {
+    //return; // HACK: stop adding new messages once we reach a limit
     debug_log = "";
     debug_msg_count = 0;
   }
-  debug_log += message + "\n";
+  debug_log += message + "<br>";
   setDebugText(debug_log);
 }
 
-// WARNING: possible memory leak. don't use in production.
 function setDebugText(message) {
-  if (debug_font == null) return;
-  if (text_mesh != null) scene.remove(text_mesh);
-  text_geom = new THREE.TextGeometry(
-    message,
-    {font: debug_font, size: 0.05, height: 0, curveSegments: 3, bevelEnabled: false});
-  text_mesh = new THREE.Mesh(text_geom, text_material);
-  text_mesh.position.set(-0.5, 0.5, -1);
-  world_group.add(text_mesh);
+  debug_text_div.innerHTML = message;
 }
-*/
 
 function handleGenericButtonPress() {
   if (photo_mode) {
@@ -318,6 +289,7 @@ function handleGenericButtonPress() {
 
 function resetVRToCenter() {
   if (!renderer.xr.isPresenting) return;
+  delay1frame_reset = false;
 
   // Sadly, the code below is close but not quite right (it doesn't get 0 when the Oculus
   // reset button is pressed). Whatever is in renderer.xr.getCamera() isn't the position
@@ -338,6 +310,7 @@ function resetVRToCenter() {
     var avg_x = (p0.x + p1.x) / 2.0;
     var avg_y = (p0.y + p1.y) / 2.0;
     var avg_z = (p0.z + p1.z) / 2.0;
+
     world_group.position.set(avg_x, avg_y, avg_z);
   }
 }
@@ -349,14 +322,6 @@ function playVideoIfReady() {
     return;
   }
   if (!video) return;
-
-  // Log replays for analytics.
-  if (video.ended) {
-    replay_count += 1;
-    if (use_amplitude) {
-      amplitude.getInstance().logEvent('video_player_replay', { "replay_count": replay_count });
-    }
-  }
 
   video.play();
   has_played_video = true;
@@ -510,8 +475,20 @@ function render() {
   var novr_camera_position = camera.position;
 
   var vr_camera_position = renderer.xr.getCamera().position.clone();
-  vr_camera_position.sub(world_group.position); // Subtract this to account for shifts in the world_group for view resets.
 
+  // During the first few frames of VR, the camera position from head tracking is often
+  // unreliable. For example, on the Vision Pro, it usually teleports ~1 meter after 1, 2
+  // or sometimes 3 frames (its random). Instead of handling this with a timer, we'll just
+  // detect any time the tracking jumps by an unreasonable amount (0.25m in 1 frame).
+  if (prev_vr_camera_position) {
+    const TRACKING_JUMP_THRESHOLD_SQ = 0.25 * 0.25;
+    if (vr_camera_position.distanceToSquared(prev_vr_camera_position) > TRACKING_JUMP_THRESHOLD_SQ) {
+      resetVRToCenter();
+    }
+  }
+  prev_vr_camera_position = vr_camera_position.clone();
+
+  vr_camera_position.sub(world_group.position); // Subtract this to account for shifts in the world_group for view resets.
   var cam_position_for_shader =
     renderer.xr.isPresenting ? vr_camera_position : novr_camera_position;
   ldi_ftheta_mesh.uniforms.uDistCamFromOrigin.value = cam_position_for_shader.length();
@@ -524,28 +501,34 @@ function render() {
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
-  if (cam_mode == "default" && (!is_ios || is_ios && embed_mode) && Date.now() - mouse_last_moved_time > 5000) {
-    let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
-    //console.log('Setting fov to ' + fov);
-    camera.fov = fov;
-    let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
-    let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
-    let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
-    camera.position.set(x, y, z);
-    let u = anim_u_offset + anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
-    let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
-    camera.lookAt(u, v, -4.0);
-    camera.updateProjectionMatrix();
+  if (cam_mode == "default" && (!is_ios || is_ios && embed_mode)) {
+    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+      let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
+      //console.log('Setting fov to ' + fov);
+      camera.fov = fov;
+      let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+      let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
+      let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
+      camera.position.set(x, y, z);
+      let u = anim_u_offset + anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
+      let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
+      camera.lookAt(u, v, -4.0);
+      camera.updateProjectionMatrix();
+    } else {
+      if (!right_mouse_is_down) {
+        cam_drag_u *= 0.97;
+        cam_drag_v *= 0.97;
+      }
+      camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
+      camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
+    }
   }
 
   renderer.render(scene, camera);
 
   // Reset the view center if we started a VR session 1 frame earlier (we have to wait 1
   // frame to get correct data).
-  if (delay1frame_reset) {
-    delay1frame_reset = false;
-    resetVRToCenter();
-  }
+  if (delay1frame_reset) { resetVRToCenter(); }
 
   // console.log("num_patches_not_culled=", ldi_ftheta_mesh.num_patches_not_culled);
 }
@@ -555,9 +538,7 @@ function animate() {
 }
 
 function initVrController(vr_controller) {
-  if (!vr_controller) {
-      return;
-  }
+  if (!vr_controller) { return; }
 
   // This is used to prevent the same button press from being handled multiple times.
   vr_controller.lockout_timer = 0;
@@ -573,11 +554,20 @@ function initVrController(vr_controller) {
   vr_controller.button_B = false;
 }
 
+// See https://fossies.org/linux/three.js/examples/webxr_vr_handinput_cubes.html
+function initHandController(hand) {
+  if (!hand) { return; }
+
+  hand.addEventListener('pinchend', function() {
+    handleGenericButtonPress();
+  });
+}
+
 function updateGamepad(vr_controller) {
   if (!vr_controller) return;
   if (!vr_controller.gamepad) return;
 
-  // Uncomment to show button state. Warning: might leak memory.
+  // Uncomment to show button state
   //console.log("buttons=" + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
   //setDebugText("buttons=" + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
 
@@ -601,8 +591,6 @@ function updateGamepad(vr_controller) {
     }
   }
 }
-
-
 
 // Lifecast's rendering pipeline uses a different coordinate system than THREE.js, so we
 // need to convert.
@@ -733,19 +721,6 @@ export function init({
   _decode_12bit = true,
   _looking_glass_config = null
 }={}) {
-  if (use_amplitude) {
-    amplitude.getInstance().logEvent('video_player_init', {
-      "url": window.location.href,
-      "referrer": document.referrer,
-      "user_agent": navigator.userAgent,
-      "is_firefox": is_firefox,
-      "is_safari": is_safari,
-      "is_oculus": is_oculus,
-      "is_chrome": is_chrome,
-      "is_ios": is_ios
-    });
-  }
-
   if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
     _format = "ldi3";
     console.log("Inferred format 'ldi3' from filename");
@@ -872,17 +847,6 @@ export function init({
     });
     document.body.appendChild(video);
 
-    // Log analytics events
-    if (use_amplitude) {
-      video.addEventListener("abort",     function() { amplitude.getInstance().logEvent('video_player_abort');    });
-      video.addEventListener("ended",     function() { amplitude.getInstance().logEvent('video_player_ended');    });
-      //video.addEventListener("error",     function() { amplitude.getInstance().logEvent('video_player_error');    });
-      //video.addEventListener("pause",     function() { amplitude.getInstance().logEvent('video_player_pause');    });
-      //video.addEventListener("play",      function() { amplitude.getInstance().logEvent('video_player_play');     });
-      video.addEventListener("stalled",   function() { amplitude.getInstance().logEvent('video_player_stalled');  });
-      video.addEventListener("waiting",   function() { amplitude.getInstance().logEvent('video_player_buffering');  });
-    }
-
     var frame_callback = function() {};
     if (is_chrome) {
       frame_callback = function(frame_index) {
@@ -942,16 +906,32 @@ export function init({
   vrbutton3d.position.set(0, 0, -1);
   world_group.add(vrbutton3d);
 
-  // Load the debug font.
-  /*
+  // See https://github.com/mrdoob/three.js/blob/dev/examples/webxr_vr_sandbox.html
+  // for more examples of using HTMLMesh.
   if (enable_debug_text) {
-    var font_loader = new FontLoader();
-    font_loader.load( 'https://cdn.skypack.dev/three@0.130.1/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-      debug_font = font;
-      text_material = new THREE.MeshBasicMaterial({color: 0xffffff});
-    });
+    debug_text_div = document.createElement("debug_text_div");
+    debug_text_div.innerHTML = "";
+    debug_text_div.style.width = '400px';
+    debug_text_div.style.height = '600px';
+    debug_text_div.style.backgroundColor = 'rgba(128, 128, 128, 0.9)';
+    debug_text_div.style.fontFamily = 'Arial';
+    debug_text_div.style.fontSize = '14px';
+    debug_text_div.style.padding = '10px';
+    // We have to add the div to the document.body or it wont render.
+    // But to keep it out of view (in 2D), move it far offscreen.
+    debug_text_div.style.position = 'absolute';
+    debug_text_div.style.left = '-1000px';
+    debug_text_div.style.top = '-1000px';
+    document.body.appendChild(debug_text_div);
+
+    debug_text_mesh = new HTMLMesh(debug_text_div);
+    debug_text_mesh.position.x = -0.5;
+    debug_text_mesh.position.y = 0.25;
+    debug_text_mesh.position.z = -1.0;
+    debug_text_mesh.rotation.y = Math.PI / 4;
+    debug_text_mesh.scale.setScalar(1.5);
+    world_group.add(debug_text_mesh);
   }
-  */
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -959,7 +939,7 @@ export function init({
     depth: true
   });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.outputEncoding = THREE.sRGBEncoding; // TODO: I dont know if this is correct or even does anything.
+  renderer.outputEncoding = THREE.sRGBEncoding; // TODO: I dont know if this is correct or even does anything. TODO: check Vision Pro
   container.appendChild(renderer.domElement);
   window.addEventListener('resize', onWindowResize);
 
@@ -989,6 +969,7 @@ export function init({
       renderer.xr.setFramebufferScaleFactor(1.0);
       renderer.xr.setFoveation(0.5);
     } else if (_format == "ldi3") {
+      // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
       renderer.xr.setFramebufferScaleFactor(0.95);
       renderer.xr.setFoveation(0.9);
     }
@@ -996,15 +977,11 @@ export function init({
   }
 
   // Non_VR mouse camera controls.
-
   if (cam_mode == "default" && !is_ios) {
-      container.addEventListener('mousemove', function(e) {
-      let u = (e.clientX / window.innerWidth - 0.5) * 2.0;
-      let v = (e.clientY / window.innerHeight - 0.5) * 2.0;
+    container.addEventListener('mousemove', function(e) {
+      prev_mouse_u = (e.clientX / window.innerWidth - 0.5) * 2.0;
+      prev_mouse_v = (e.clientY / window.innerHeight - 0.5) * 2.0;
       mouse_last_moved_time = Date.now();
-
-      camera.position.set(-u * 0.2, v * 0.2, 0.0);
-      camera.lookAt(0, 0, -0.3);
     });
   }
 
@@ -1032,11 +1009,16 @@ export function init({
     }, false);
   }
 
-  // VR trigger button to play/pause
+  // VR trigger button to play/pause (or pinch gesture)
   vr_controller0 = renderer.xr.getController(0);
   vr_controller1 = renderer.xr.getController(1);
   initVrController(vr_controller0);
   initVrController(vr_controller1);
+
+  hand0 = renderer.xr.getHand(0);
+  hand1 = renderer.xr.getHand(1);
+  initHandController(hand0);
+  initHandController(hand1);
 
   // Disable right click on play/pause button
   const images = document.getElementsByTagName('img');
@@ -1061,8 +1043,21 @@ export function init({
       if (!mouse_is_down) nonvr_menu_fade_counter = Math.min(60, nonvr_menu_fade_counter + 5);
     });
   }
-  document.addEventListener('mousedown', e => { mouse_is_down = true; });
-  document.addEventListener('mouseup', e => { mouse_is_down = false; });
+
+  document.addEventListener('mousedown', e => {
+    mouse_is_down = true;
+    if (e.button == 2) right_mouse_is_down = true;
+  });
+  document.addEventListener('mouseup', e => {
+    mouse_is_down = false;
+    if (e.button == 2) right_mouse_is_down = false;
+  });
+  document.addEventListener('mousemove', e => {
+    if(right_mouse_is_down) {
+      cam_drag_u -= event.movementX / 2000.0;
+      cam_drag_v += event.movementY / 2000.0;
+    }
+  });
 
   document.addEventListener('keydown', function(event) {
     const key = event.key;
@@ -1192,12 +1187,8 @@ export function init({
           _looking_glass_config.popup.addEventListener('keydown', function(e) {
             if (e.key == " ") toggleVideoPlayPause();
           });
-        } 
+        }
       }, 1000);
-    }
-
-    if (use_amplitude) {
-      amplitude.getInstance().logEvent('video_player_entervr');
     }
 
     // Start the video playing automatically if the user enters VR.
@@ -1218,10 +1209,6 @@ export function init({
   });
 
   renderer.xr.addEventListener('sessionend', function(event) {
-    if (use_amplitude) {
-      amplitude.getInstance().logEvent('video_player_exitvr');
-    }
-
     // Destroy the handler we created on sessionstart. This way we don't get multiple
     // handlers if the user goes back and forth between VR and non.
     if(xr_ref_space.removeEventListener) xr_ref_space.removeEventListener("reset", reset_event_handler);
