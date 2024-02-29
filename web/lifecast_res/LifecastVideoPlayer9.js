@@ -539,6 +539,7 @@ function animate() {
 
 function initVrController(vr_controller) {
   if (!vr_controller) { return; }
+  if (!vr_controller.lockout_timer) { return; }
 
   // This is used to prevent the same button press from being handled multiple times.
   vr_controller.lockout_timer = 0;
