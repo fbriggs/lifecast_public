@@ -525,17 +525,36 @@ function render() {
       camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
     }
   }
+
+
   // If hand pinch controls are enabled, update the camera position
   if (pinch_start_position && hand1 && hand1.position) {
+    /*
     let hand = renderer.xr.getHand(1);
     let current_hand_pos = hand.hand['index-finger-tip'].transform.position;
     if (current_hand_pos) {
       // Subtract the current hand position from the pinch start position to get the delta
-      let delta = current_hand_pos.sub(pinch_start_position);
+      //let delta = current_hand_pos.sub(pinch_start_position);
       // Set the camera position to the delta
       let t = Math.sin(.001 * Date.now() / Math.PI) * 0.5;
-      world_group.position.set(-delta.x, delta.y, delta.z + t);
-
+      //let fingerPos = getFingerPos()
+      //world_group.position.set(fingerPos.x, fingerPos.y, fingerPos.z);
+      //world_group.position.x = pinch_start_position.x - current_hand_pos.x;
+      //world_group.position.x = t;
+    }
+    */
+    const rightHand = renderer.xr.getHand(1);
+    if (rightHand) {
+      const indexFingerTip = rightHand.joints['index-finger-tip'];
+      if (indexFingerTip && indexFingerTip.visible) {
+        const position = indexFingerTip.position;
+        console.log(`Index Finger Tip Position: x=${position.x}, y=${position.y}, z=${position.z}`);
+        world_group.position.set(
+          world_pos_at_pinch_start.x - pinch_start_position.x + indexFingerTip.position.x,
+          world_pos_at_pinch_start.y - pinch_start_position.y + indexFingerTip.position.y,
+          world_pos_at_pinch_start.z - pinch_start_position.z + indexFingerTip.position.z
+        )
+      }
     }
   }
 
@@ -602,7 +621,7 @@ function initHandControllers(handleft, handright) {
 
   handright.addEventListener('pinchstart', function() {
     // Save the pinch start position
-    pinch_start_position = handright.position.clone();
+    pinch_start_position = handright.joints['index-finger-tip'].position.clone();
     world_pos_at_pinch_start = world_group.position.clone();
     world_rot_at_pinch_start = world_group.rotation.clone();
   });
