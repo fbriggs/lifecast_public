@@ -47,6 +47,9 @@ let debug_msg_count = 0;
 
 let container, camera, scene, renderer, vr_controller0, vr_controller1;
 let hand0, hand1; // for XR hand-tracking
+let pinch_start_position;
+let world_pos_at_pinch_start;
+let world_rot_at_pinch_start;
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
@@ -504,7 +507,6 @@ function render() {
   if (cam_mode == "default" && (!is_ios || is_ios && embed_mode)) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
-      //console.log('Setting fov to ' + fov);
       camera.fov = fov;
       let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
@@ -523,6 +525,19 @@ function render() {
       camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
     }
   }
+  // If hand pinch controls are enabled, update the camera position
+  if (pinch_start_position && hand1 && hand1.position) {
+    let hand = renderer.xr.getHand(1);
+    let current_hand_pos = hand.hand['index-finger-tip'].transform.position;
+    if (current_hand_pos) {
+      // Subtract the current hand position from the pinch start position to get the delta
+      let delta = current_hand_pos.sub(pinch_start_position);
+      // Set the camera position to the delta
+      let t = Math.sin(.001 * Date.now() / Math.PI) * 0.5;
+      world_group.position.set(-delta.x, delta.y, delta.z + t);
+
+    }
+  }
 
   renderer.render(scene, camera);
 
@@ -531,6 +546,25 @@ function render() {
   if (delay1frame_reset) { resetVRToCenter(); }
 
   // console.log("num_patches_not_culled=", ldi_ftheta_mesh.num_patches_not_culled);
+}
+
+function getFingerPos() {
+  // Check if the XR session is available and hand input is tracked
+  if (session && session.inputSources) {
+    for (let inputSource of session.inputSources) {
+      if (inputSource.hand && inputSource.handedness === 'right') {
+        // Assuming the API provides a method to get the joint's pose
+        let indexTipPose = inputSource.hand.get('index-finger-tip');
+        if (indexTipPose) {
+          // Return the position if available
+          return indexTipPose.position;
+        }
+      }
+    }
+  }
+  // Log an error and return null if the position is not available
+  console.error("Index finger position not available.");
+  return null;
 }
 
 function animate() {
@@ -556,12 +590,26 @@ function initVrController(vr_controller) {
 }
 
 // See https://fossies.org/linux/three.js/examples/webxr_vr_handinput_cubes.html
-function initHandController(hand) {
-  if (!hand) { return; }
+function initHandControllers(handleft, handright) {
+  if (!handleft) { return; }
+  if (!handright) { return; }
 
-  hand.addEventListener('pinchend', function() {
+  /*
+  handleft.addEventListener('pinchend', function() {
     handleGenericButtonPress();
   });
+  */
+
+  handright.addEventListener('pinchstart', function() {
+    // Save the pinch start position
+    pinch_start_position = handright.position.clone();
+    world_pos_at_pinch_start = world_group.position.clone();
+    world_rot_at_pinch_start = world_group.rotation.clone();
+  });
+  handright.addEventListener('pinchend', function() {
+    pinch_start_position = null;
+  });
+
 }
 
 function updateGamepad(vr_controller) {
@@ -1018,8 +1066,7 @@ export function init({
 
   hand0 = renderer.xr.getHand(0);
   hand1 = renderer.xr.getHand(1);
-  initHandController(hand0);
-  initHandController(hand1);
+  initHandControllers(hand0, hand1);
 
   // Disable right click on play/pause button
   const images = document.getElementsByTagName('img');
@@ -1095,6 +1142,20 @@ export function init({
       if (key == "c") { for (var m of ldi_ftheta_mesh.ftheta_fg_meshes) { m.visible = !m.visible; } }
     }
 
+    if (key == 'w') {
+      // Move the camera position by editing world_group
+      let cam = world_group.position;
+      cam.z += 0.1;
+    } else if (key == 's') {
+      let cam = world_group.position;
+      cam.z -= 0.1;
+    } else if (key == 'a') {
+      let cam = world_group.position;
+      cam.x += 0.1;
+    } else if (key == 'd') {
+      let cam = world_group.position;
+      cam.x -= 0.1;
+    }
   });
 
   if (cam_mode == "vscroll") {
