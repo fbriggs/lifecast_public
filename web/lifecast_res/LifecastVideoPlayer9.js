@@ -28,6 +28,7 @@ import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
 import {HelpGetVR} from './HelpGetVR9.js';
+import {GestureControlModule} from './GestureControlModule.js';
 
 const CubeFace = {
   FRONT_LEFT:   0,
@@ -40,16 +41,25 @@ const CubeFace = {
   TOP_RIGHT:    7
 };
 
-let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
+
+const gestureControl = new GestureControlModule();
+
+let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
 
 let container, camera, scene, renderer, vr_controller0, vr_controller1;
 let hand0, hand1; // for XR hand-tracking
+let pinch_start_position;
+let pinch_double_start_position;
+let world_pos_at_pinch_start;
+let world_rot_at_pinch_start;
+let pinchGestureScale = 1.0;
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
+let left_finger_indicator, right_finger_indicator;
 
 let video;
 let vid_framerate = 30;
@@ -499,12 +509,20 @@ function render() {
   updateControlsAndButtons();
   if (lock_position) { resetVRToCenter(); }
 
+  if (handsAvailable()) {
+    const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
+    const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
+    gestureControl.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
+    gestureControl.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
+    right_finger_indicator.position.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+  }
+
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
   if (cam_mode == "default" && (!is_ios || is_ios && embed_mode)) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
-      //console.log('Setting fov to ' + fov);
       camera.fov = fov;
       let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
@@ -524,6 +542,46 @@ function render() {
     }
   }
 
+
+  // If hand pinch controls are enabled, update the camera position
+  if (pinch_start_position && handsAvailable()) {
+    const rightHand = renderer.xr.getHand(1);
+    if (rightHand && rightHand.joints) {
+      const indexFingerTip = rightHand.joints['index-finger-tip'];
+      if (indexFingerTip && indexFingerTip.visible) {
+        const position = indexFingerTip.position;
+        console.log(`Index Finger Tip Position: x=${position.x}, y=${position.y}, z=${position.z}`);
+        /*
+        world_group.position.set(
+          world_pos_at_pinch_start.x - pinch_start_position.x + indexFingerTip.position.x,
+          world_pos_at_pinch_start.y - pinch_start_position.y + indexFingerTip.position.y,
+          world_pos_at_pinch_start.z - pinch_start_position.z + indexFingerTip.position.z
+        )
+        */
+      }
+    }
+    if (pinch_double_start_position && handsAvailable()) {
+      // Scale: get distance between pinch_start_position and pinch_double_start_position
+      const pinchGestureInitialDistance = pinch_start_position.distanceTo(pinch_double_start_position);
+      const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
+      const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
+
+      const pinchGestureCurrentDistance = indexFingerTipPosR.distanceTo(indexFingerTipPosL);
+      const pinchGestureScaleDiff =  pinchGestureCurrentDistance / pinchGestureInitialDistance;
+      /*
+      world_group.scale.x = pinchGestureScaleDiff * pinchGestureScale;
+      world_group.scale.y = pinchGestureScaleDiff * pinchGestureScale;
+      world_group.scale.z = pinchGestureScaleDiff * pinchGestureScale;
+      */
+    }
+  }
+  console.log(`World Group Position: x=${world_group.position.x}, y=${world_group.position.y}, z=${world_group.position.z}`);
+  console.log(`World Group Scale: x=${world_group.scale.x}, y=${world_group.scale.y}, z=${world_group.scale.z}`);
+
+  const cameraTransformation = gestureControl.getCurrentTransformation();
+  world_group.matrix.identity().multiply(cameraTransformation);
+  world_group.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale); // Decompose matrix to position, quaternion, and scale
+
   renderer.render(scene, camera);
 
   // Reset the view center if we started a VR session 1 frame earlier (we have to wait 1
@@ -531,6 +589,10 @@ function render() {
   if (delay1frame_reset) { resetVRToCenter(); }
 
   // console.log("num_patches_not_culled=", ldi_ftheta_mesh.num_patches_not_culled);
+}
+
+function handsAvailable() {
+  return hand0 && hand1 && hand0.joints && hand1.joints && hand0.joints['index-finger-tip'] && hand1.joints['index-finger-tip'];
 }
 
 function animate() {
@@ -556,11 +618,26 @@ function initVrController(vr_controller) {
 }
 
 // See https://fossies.org/linux/three.js/examples/webxr_vr_handinput_cubes.html
-function initHandController(hand) {
-  if (!hand) { return; }
+function initHandControllers(handleft, handright) {
+  if (!handleft) { return; }
+  if (!handright) { return; }
 
-  hand.addEventListener('pinchend', function() {
-    handleGenericButtonPress();
+  handright.addEventListener('pinchstart', function() {
+    debugLog("Right pinchstart");
+    gestureControl.rightPinchStart();
+  });
+  handright.addEventListener('pinchend', function() {
+    debugLog("Right pinchend");
+    gestureControl.rightPinchEnd();
+  });
+
+  handleft.addEventListener('pinchstart', function() {
+    debugLog("Left pinchstart");
+    gestureControl.leftPinchStart();
+  });
+  handleft.addEventListener('pinchend', function() {
+    debugLog("Left pinchend");
+    gestureControl.leftPinchEnd();
   });
 }
 
@@ -674,6 +751,13 @@ function getRotationMatrix( alpha, beta, gamma ) {
   ];
 };
 
+function createFingertipIndicator(color) {
+  const geometry = new THREE.SphereGeometry(0.005, 8, 8);
+  const material = new THREE.MeshBasicMaterial({ color: color });
+  const sphere = new THREE.Mesh(geometry, material);
+  return sphere;
+}
+
 export function updateEmbedControls(
     _fov, _x, _y, _z, _u, _v,
     _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
@@ -720,6 +804,7 @@ export function init({
   _lock_position = false,
   _create_button_url = "",
   _decode_12bit = true,
+  _enable_pinch_world_drag = false,
   _looking_glass_config = null
 }={}) {
   if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
@@ -894,6 +979,11 @@ export function init({
   world_group = new THREE.Group();
   scene.add(world_group);
 
+  left_finger_indicator = createFingertipIndicator(0x00008f);
+  right_finger_indicator = createFingertipIndicator(0x8f0000);
+  scene.add(left_finger_indicator);
+  scene.add(right_finger_indicator);
+
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
 
@@ -1018,8 +1108,7 @@ export function init({
 
   hand0 = renderer.xr.getHand(0);
   hand1 = renderer.xr.getHand(1);
-  initHandController(hand0);
-  initHandController(hand1);
+  initHandControllers(hand0, hand1);
 
   // Disable right click on play/pause button
   const images = document.getElementsByTagName('img');
@@ -1095,6 +1184,20 @@ export function init({
       if (key == "c") { for (var m of ldi_ftheta_mesh.ftheta_fg_meshes) { m.visible = !m.visible; } }
     }
 
+    if (key == 'w') {
+      // Move the camera position by editing world_group
+      let cam = world_group.position;
+      cam.z += 0.1;
+    } else if (key == 's') {
+      let cam = world_group.position;
+      cam.z -= 0.1;
+    } else if (key == 'a') {
+      let cam = world_group.position;
+      cam.x += 0.1;
+    } else if (key == 'd') {
+      let cam = world_group.position;
+      cam.x -= 0.1;
+    }
   });
 
   if (cam_mode == "vscroll") {
