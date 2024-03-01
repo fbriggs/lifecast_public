@@ -48,8 +48,10 @@ let debug_msg_count = 0;
 let container, camera, scene, renderer, vr_controller0, vr_controller1;
 let hand0, hand1; // for XR hand-tracking
 let pinch_start_position;
+let pinch_double_start_position;
 let world_pos_at_pinch_start;
 let world_rot_at_pinch_start;
+let pinchGestureScale = 1.0;
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
@@ -529,20 +531,6 @@ function render() {
 
   // If hand pinch controls are enabled, update the camera position
   if (pinch_start_position && hand1 && hand1.position) {
-    /*
-    let hand = renderer.xr.getHand(1);
-    let current_hand_pos = hand.hand['index-finger-tip'].transform.position;
-    if (current_hand_pos) {
-      // Subtract the current hand position from the pinch start position to get the delta
-      //let delta = current_hand_pos.sub(pinch_start_position);
-      // Set the camera position to the delta
-      let t = Math.sin(.001 * Date.now() / Math.PI) * 0.5;
-      //let fingerPos = getFingerPos()
-      //world_group.position.set(fingerPos.x, fingerPos.y, fingerPos.z);
-      //world_group.position.x = pinch_start_position.x - current_hand_pos.x;
-      //world_group.position.x = t;
-    }
-    */
     const rightHand = renderer.xr.getHand(1);
     if (rightHand) {
       const indexFingerTip = rightHand.joints['index-finger-tip'];
@@ -556,7 +544,22 @@ function render() {
         )
       }
     }
+    if (pinch_double_start_position && hand0 && hand0.position && hand1 && hand1.position) {
+      // Scale: get distance between pinch_start_position and pinch_double_start_position
+      const pinchGestureInitialDistance = pinch_start_position.distanceTo(pinch_double_start_position);
+      const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
+      const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
+
+      const pinchGestureCurrentDistance = indexFingerTipPosR.distanceTo(indexFingerTipPosL);
+      const pinchGestureScaleDiff =  pinchGestureInitialDistance / pinchGestureCurrentDistance;
+      console.log(`Pinch Gesture Scale: ${pinchGestureScale}`);
+      world_group.scale.x = pinchGestureScaleDiff * pinchGestureScale;
+      world_group.scale.y = pinchGestureScaleDiff * pinchGestureScale;
+      world_group.scale.z = pinchGestureScaleDiff * pinchGestureScale;
+    }
   }
+  console.log(`World Group Position: x=${world_group.position.x}, y=${world_group.position.y}, z=${world_group.position.z}`);
+  console.log(`World Group Scale: x=${world_group.scale.x}, y=${world_group.scale.y}, z=${world_group.scale.z}`);
 
   renderer.render(scene, camera);
 
@@ -565,25 +568,6 @@ function render() {
   if (delay1frame_reset) { resetVRToCenter(); }
 
   // console.log("num_patches_not_culled=", ldi_ftheta_mesh.num_patches_not_culled);
-}
-
-function getFingerPos() {
-  // Check if the XR session is available and hand input is tracked
-  if (session && session.inputSources) {
-    for (let inputSource of session.inputSources) {
-      if (inputSource.hand && inputSource.handedness === 'right') {
-        // Assuming the API provides a method to get the joint's pose
-        let indexTipPose = inputSource.hand.get('index-finger-tip');
-        if (indexTipPose) {
-          // Return the position if available
-          return indexTipPose.position;
-        }
-      }
-    }
-  }
-  // Log an error and return null if the position is not available
-  console.error("Index finger position not available.");
-  return null;
 }
 
 function animate() {
@@ -613,12 +597,6 @@ function initHandControllers(handleft, handright) {
   if (!handleft) { return; }
   if (!handright) { return; }
 
-  /*
-  handleft.addEventListener('pinchend', function() {
-    handleGenericButtonPress();
-  });
-  */
-
   handright.addEventListener('pinchstart', function() {
     // Save the pinch start position
     pinch_start_position = handright.joints['index-finger-tip'].position.clone();
@@ -629,6 +607,16 @@ function initHandControllers(handleft, handright) {
     pinch_start_position = null;
   });
 
+  handleft.addEventListener('pinchstart', function() {
+    if (pinch_start_position) {
+      // handle double-pinch
+      pinch_double_start_position = handleft.joints['index-finger-tip'].position.clone();
+    }
+  });
+  handleft.addEventListener('pinchend', function() {
+    pinch_double_start_position = null;
+    pinchGestureScale = world_group.scale.x;
+  });
 }
 
 function updateGamepad(vr_controller) {
