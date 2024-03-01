@@ -40,7 +40,7 @@ const CubeFace = {
   TOP_RIGHT:    7
 };
 
-let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
+let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
@@ -531,6 +531,7 @@ function render() {
 
   // If hand pinch controls are enabled, update the camera position
   if (pinch_start_position && hand1 && hand1.position) {
+    debugLog(`pinch_start_position: ${pinch_start_position.x}, ${pinch_start_position.y}, ${pinch_start_position.z}`);
     const rightHand = renderer.xr.getHand(1);
     if (rightHand) {
       const indexFingerTip = rightHand.joints['index-finger-tip'];
@@ -545,13 +546,14 @@ function render() {
       }
     }
     if (pinch_double_start_position && hand0 && hand0.position && hand1 && hand1.position) {
+      debugLog(`pinch_double_start_position: ${pinch_double_start_position.x}, ${pinch_double_start_position.y}, ${pinch_double_start_position.z}`);
       // Scale: get distance between pinch_start_position and pinch_double_start_position
       const pinchGestureInitialDistance = pinch_start_position.distanceTo(pinch_double_start_position);
       const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
       const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
 
       const pinchGestureCurrentDistance = indexFingerTipPosR.distanceTo(indexFingerTipPosL);
-      const pinchGestureScaleDiff =  pinchGestureInitialDistance / pinchGestureCurrentDistance;
+      const pinchGestureScaleDiff =  pinchGestureCurrentDistance / pinchGestureInitialDistance;
       console.log(`Pinch Gesture Scale: ${pinchGestureScale}`);
       world_group.scale.x = pinchGestureScaleDiff * pinchGestureScale;
       world_group.scale.y = pinchGestureScaleDiff * pinchGestureScale;
