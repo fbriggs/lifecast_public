@@ -531,7 +531,6 @@ function render() {
 
   // If hand pinch controls are enabled, update the camera position
   if (pinch_start_position && hand1 && hand1.position) {
-    debugLog(`pinch_start_position: ${pinch_start_position.x}, ${pinch_start_position.y}, ${pinch_start_position.z}`);
     const rightHand = renderer.xr.getHand(1);
     if (rightHand) {
       const indexFingerTip = rightHand.joints['index-finger-tip'];
@@ -546,7 +545,6 @@ function render() {
       }
     }
     if (pinch_double_start_position && hand0 && hand0.position && hand1 && hand1.position) {
-      debugLog(`pinch_double_start_position: ${pinch_double_start_position.x}, ${pinch_double_start_position.y}, ${pinch_double_start_position.z}`);
       // Scale: get distance between pinch_start_position and pinch_double_start_position
       const pinchGestureInitialDistance = pinch_start_position.distanceTo(pinch_double_start_position);
       const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
@@ -554,7 +552,6 @@ function render() {
 
       const pinchGestureCurrentDistance = indexFingerTipPosR.distanceTo(indexFingerTipPosL);
       const pinchGestureScaleDiff =  pinchGestureCurrentDistance / pinchGestureInitialDistance;
-      console.log(`Pinch Gesture Scale: ${pinchGestureScale}`);
       world_group.scale.x = pinchGestureScaleDiff * pinchGestureScale;
       world_group.scale.y = pinchGestureScaleDiff * pinchGestureScale;
       world_group.scale.z = pinchGestureScaleDiff * pinchGestureScale;
@@ -600,6 +597,7 @@ function initHandControllers(handleft, handright) {
   if (!handright) { return; }
 
   handright.addEventListener('pinchstart', function() {
+    debugLog("Right pinchstart");
     // Save the pinch start position
     pinch_start_position = handright.joints['index-finger-tip'].position.clone();
     world_pos_at_pinch_start = world_group.position.clone();
@@ -607,17 +605,20 @@ function initHandControllers(handleft, handright) {
   });
   handright.addEventListener('pinchend', function() {
     pinch_start_position = null;
+    debugLog("Movement gesture finished, world pos x = " + world_group.position.x + ", y = " + world_group.position.y + ", z = " + world_group.position.z);
   });
 
   handleft.addEventListener('pinchstart', function() {
     if (pinch_start_position) {
       // handle double-pinch
       pinch_double_start_position = handleft.joints['index-finger-tip'].position.clone();
+      debugLog("Started two-hand pinch gesture");
     }
   });
   handleft.addEventListener('pinchend', function() {
     pinch_double_start_position = null;
     pinchGestureScale = world_group.scale.x;
+    debugLog(`Pinch gesture ended, pinchGestureScale=${pinchGestureScale}`);
   });
 }
 
