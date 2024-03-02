@@ -794,6 +794,7 @@ export function init({
   _lock_position = false,
   _create_button_url = "",
   _decode_12bit = true,
+  _enable_pinch_world_drag = false,
   _looking_glass_config = null
 }={}) {
   if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
