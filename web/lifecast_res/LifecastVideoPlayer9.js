@@ -576,13 +576,8 @@ function render() {
   console.log(`World Group Scale: x=${world_group.scale.x}, y=${world_group.scale.y}, z=${world_group.scale.z}`);
 
   const cameraTransformation = gestureControl.getCurrentTransformation();
-  //camera.matrix.identity().multiply(cameraTransformation); // Apply custom transformation
-  //camera.matrix.decompose(camera.position, camera.quaternion, camera.scale); // Decompose matrix to position, quaternion, and scale
   world_group.matrix.identity().multiply(cameraTransformation); // Apply custom transformation
   world_group.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale); // Decompose matrix to position, quaternion, and scale
-  debugLog("Camera position: " + camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
-  debugLog("Camera quaternion: " + camera.quaternion.x + ", " + camera.quaternion.y + ", " + camera.quaternion.z + ", " + camera.quaternion.w);
-  debugLog("Camera scale: " + camera.scale.x + ", " + camera.scale.y + ", " + camera.scale.z);
 
   renderer.render(scene, camera);
 

@@ -14,7 +14,10 @@ class GestureControlModule {
     this.rightHandPosition = new THREE.Vector3();
     this.leftPinchStartPosition = null;
     this.rightPinchStartPosition = null;
-    this.translation = new THREE.Vector3();
+    this.currentTranslation = new THREE.Vector3();
+    this.prevScale = 1.0;
+    this.currentScale = 1.0;
+    this.pinchDistanceInitial = 1.0;
     this.transformationMatrix = new THREE.Matrix4();
   }
 
@@ -29,7 +32,7 @@ class GestureControlModule {
   }
 
   leftPinchStart() {
-    this.leftPinchStartPosition = this.leftHandPosition.clone().sub(this.translation);
+    this.leftPinchStartPosition = this.leftHandPosition.clone().sub(this.currentTranslation);
   }
 
   leftPinchEnd() {
@@ -38,10 +41,12 @@ class GestureControlModule {
 
   rightPinchStart() {
     this.rightPinchStartPosition = this.rightHandPosition.clone();
+    this.pinchDistanceInitial = this.rightPinchStartPosition.distanceTo(this.leftHandPosition);
   }
 
   rightPinchEnd() {
     this.rightPinchStartPosition = null;
+    this.prevScale = this.currentScale;
   }
 
   getCurrentTransformation() {
@@ -50,9 +55,19 @@ class GestureControlModule {
 
   updateTransformation() {
     if (this.leftPinchStartPosition) {
-      this.translation = this.leftHandPosition.clone().sub(this.leftPinchStartPosition);
+      this.currentTranslation = this.leftHandPosition.clone().sub(this.leftPinchStartPosition);
     }
-    this.transformationMatrix.makeTranslation(this.translation.x, this.translation.y, this.translation.z);
+    if (this.leftPinchStartPosition && this.rightPinchStartPosition) {
+      // Scale
+      let pinchDistanceCurrent = this.rightHandPosition.distanceTo(this.leftHandPosition);
+      this.currentScale = this.prevScale * pinchDistanceCurrent / this.pinchDistanceInitial;
+    }
+
+    // First scale, then translate
+    this.transformationMatrix.identity();
+    this.transformationMatrix.scale(new THREE.Vector3(this.currentScale, this.currentScale, this.currentScale));
+    this.transformationMatrix.setPosition(this.currentTranslation);
+
   }
 }
 
