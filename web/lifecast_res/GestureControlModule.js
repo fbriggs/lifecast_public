@@ -12,9 +12,9 @@ class GestureControlModule {
   constructor() {
     this.leftHandPosition = new THREE.Vector3();
     this.rightHandPosition = new THREE.Vector3();
-    this.isLeftPinching = false;
-    this.isRightPinching = false;
-    this.initialDistance = null;
+    this.leftPinchStartPosition = null;
+    this.rightPinchStartPosition = null;
+    this.translation = new THREE.Vector3();
     this.transformationMatrix = new THREE.Matrix4();
   }
 
@@ -29,21 +29,19 @@ class GestureControlModule {
   }
 
   leftPinchStart() {
-    this.isLeftPinching = true;
+    this.leftPinchStartPosition = this.leftHandPosition.clone().sub(this.translation);
   }
 
   leftPinchEnd() {
-    this.isLeftPinching = false;
-    this.initialDistance = null; // Reset initial distance on releasing pinch
+    this.leftPinchStartPosition = null;
   }
 
   rightPinchStart() {
-    this.isRightPinching = true;
+    this.rightPinchStartPosition = this.rightHandPosition.clone();
   }
 
   rightPinchEnd() {
-    this.isRightPinching = false;
-    this.initialDistance = null; // Reset initial distance on releasing pinch
+    this.rightPinchStartPosition = null;
   }
 
   getCurrentTransformation() {
@@ -51,27 +49,10 @@ class GestureControlModule {
   }
 
   updateTransformation() {
-    if (this.isLeftPinching && this.isRightPinching) {
-      // Both hands are pinching - handle scaling and rotation
-      const currentDistance = this.leftHandPosition.distanceTo(this.rightHandPosition);
-      if (this.initialDistance === null) {
-        this.initialDistance = currentDistance;
-      } else {
-        const scale = currentDistance / this.initialDistance;
-        this.transformationMatrix.makeScale(scale, scale, scale);
-        
-        // Rotation - simplification: compute only if hands maintain initial distance
-        if (Math.abs(currentDistance - this.initialDistance) < 0.1) { // threshold to avoid simultaneous scale and rotate
-          const direction = new THREE.Vector3().subVectors(this.rightHandPosition, this.leftHandPosition).normalize();
-          const angle = Math.atan2(direction.x, direction.z);
-          this.transformationMatrix.makeRotationY(angle);
-        }
-      }
-    } else if (this.isLeftPinching || this.isRightPinching) {
-      // Single hand pinching - handle translation
-      const translation = this.isLeftPinching ? this.leftHandPosition : this.rightHandPosition;
-      this.transformationMatrix.makeTranslation(translation.x, translation.y, translation.z);
+    if (this.leftPinchStartPosition) {
+      this.translation = this.leftHandPosition.clone().sub(this.leftPinchStartPosition);
     }
+    this.transformationMatrix.makeTranslation(this.translation.x, this.translation.y, this.translation.z);
   }
 }
 
