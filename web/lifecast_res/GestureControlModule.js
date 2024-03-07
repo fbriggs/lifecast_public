@@ -23,6 +23,7 @@ class GestureControlModule {
     this.currentRotY = 0;
     this.pinchRotYInitial = 0;
 
+    this.prevTranslation = new THREE.Vector3();
     this.currentTranslation = new THREE.Vector3();
     this.transformationMatrix = new THREE.Matrix4();
   }
@@ -38,11 +39,12 @@ class GestureControlModule {
   }
 
   leftPinchStart() {
-    this.leftPinchStartPosition = this.leftHandPosition.clone().sub(this.currentTranslation);
+    this.leftPinchStartPosition = this.leftHandPosition.clone()
   }
 
   leftPinchEnd() {
     this.leftPinchStartPosition = null;
+    this.prevTranslation = this.currentTranslation.clone();
   }
 
   rightPinchStart() {
@@ -73,7 +75,7 @@ class GestureControlModule {
   updateTransformation() {
     if (this.leftPinchStartPosition) {
       // Translation
-      this.currentTranslation = this.leftHandPosition.clone().sub(this.leftPinchStartPosition);
+      this.currentTranslation = this.leftHandPosition.clone().sub(this.leftPinchStartPosition).add(this.prevTranslation);
     }
     if (this.leftPinchStartPosition && this.rightPinchStartPosition) {
       // Scale
@@ -83,7 +85,7 @@ class GestureControlModule {
       let currentRotY = this.calcPinchRotationY();
       this.currentRotY = this.prevRotY + currentRotY - this.pinchRotYInitial;
     }
-
+    // Transform the world to track the hands as the user "drags" two points in 3D
     this.transformationMatrix.identity();
     // Translate so that leftHandPosition is at the origin
     this.transformationMatrix.setPosition(this.leftHandPosition.clone().negate());

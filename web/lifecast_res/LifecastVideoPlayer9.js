@@ -59,6 +59,7 @@ let pinchGestureScale = 1.0;
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
+let left_finger_indicator, right_finger_indicator;
 
 let video;
 let vid_framerate = 30;
@@ -513,6 +514,8 @@ function render() {
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
     gestureControl.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     gestureControl.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
+    right_finger_indicator.position.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
   }
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
@@ -748,6 +751,13 @@ function getRotationMatrix( alpha, beta, gamma ) {
   ];
 };
 
+function createFingertipIndicator() {
+  const geometry = new THREE.SphereGeometry(0.01, 4, 4);
+  const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  const sphere = new THREE.Mesh(geometry, material);
+  return sphere;
+}
+
 export function updateEmbedControls(
     _fov, _x, _y, _z, _u, _v,
     _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
@@ -968,6 +978,11 @@ export function init({
 
   world_group = new THREE.Group();
   scene.add(world_group);
+
+  left_finger_indicator = createFingertipIndicator();
+  right_finger_indicator = createFingertipIndicator();
+  scene.add(left_finger_indicator);
+  scene.add(right_finger_indicator);
 
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
