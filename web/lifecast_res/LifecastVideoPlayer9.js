@@ -751,9 +751,9 @@ function getRotationMatrix( alpha, beta, gamma ) {
   ];
 };
 
-function createFingertipIndicator() {
-  const geometry = new THREE.SphereGeometry(0.01, 4, 4);
-  const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+function createFingertipIndicator(color) {
+  const geometry = new THREE.SphereGeometry(0.005, 8, 8);
+  const material = new THREE.MeshBasicMaterial({ color: color });
   const sphere = new THREE.Mesh(geometry, material);
   return sphere;
 }
@@ -979,8 +979,8 @@ export function init({
   world_group = new THREE.Group();
   scene.add(world_group);
 
-  left_finger_indicator = createFingertipIndicator();
-  right_finger_indicator = createFingertipIndicator();
+  left_finger_indicator = createFingertipIndicator(0x00008f);
+  right_finger_indicator = createFingertipIndicator(0x8f0000);
   scene.add(left_finger_indicator);
   scene.add(right_finger_indicator);
 
