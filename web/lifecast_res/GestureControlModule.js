@@ -14,10 +14,16 @@ class GestureControlModule {
     this.rightHandPosition = new THREE.Vector3();
     this.leftPinchStartPosition = null;
     this.rightPinchStartPosition = null;
-    this.currentTranslation = new THREE.Vector3();
+
     this.prevScale = 1.0;
     this.currentScale = 1.0;
     this.pinchDistanceInitial = 1.0;
+
+    this.prevRotY = 0;
+    this.currentRotY = 0;
+    this.pinchRotYInitial = 0;
+
+    this.currentTranslation = new THREE.Vector3();
     this.transformationMatrix = new THREE.Matrix4();
   }
 
@@ -40,13 +46,24 @@ class GestureControlModule {
   }
 
   rightPinchStart() {
+    this.pinchDistanceInitial = this.rightHandPosition.distanceTo(this.leftHandPosition);
     this.rightPinchStartPosition = this.rightHandPosition.clone();
-    this.pinchDistanceInitial = this.rightPinchStartPosition.distanceTo(this.leftHandPosition);
+    this.pinchRotYInitial = this.calcPinchRotationY();
   }
 
   rightPinchEnd() {
     this.rightPinchStartPosition = null;
     this.prevScale = this.currentScale;
+    this.prevRotY = this.currentRotY;
+  }
+
+  calcPinchRotationY() {
+    let dz = this.leftHandPosition.z - this.rightHandPosition.z;
+    let dx = this.leftHandPosition.x - this.rightHandPosition.x;
+    if (dx === 0 && dz === 0) {
+      return 0;
+    }
+    return -Math.atan2(dz, dx);
   }
 
   getCurrentTransformation() {
@@ -55,19 +72,25 @@ class GestureControlModule {
 
   updateTransformation() {
     if (this.leftPinchStartPosition) {
+      // Translation
       this.currentTranslation = this.leftHandPosition.clone().sub(this.leftPinchStartPosition);
     }
     if (this.leftPinchStartPosition && this.rightPinchStartPosition) {
       // Scale
       let pinchDistanceCurrent = this.rightHandPosition.distanceTo(this.leftHandPosition);
       this.currentScale = this.prevScale * pinchDistanceCurrent / this.pinchDistanceInitial;
+      // Rotation
+      let currentRotY = this.calcPinchRotationY();
+      this.currentRotY = this.prevRotY + currentRotY - this.pinchRotYInitial;
     }
 
-    // First scale, then translate
     this.transformationMatrix.identity();
+    // Rotate
+    this.transformationMatrix.multiply(new THREE.Matrix4().makeRotationY(this.currentRotY));
+    // Scale
     this.transformationMatrix.scale(new THREE.Vector3(this.currentScale, this.currentScale, this.currentScale));
+    // Translate
     this.transformationMatrix.setPosition(this.currentTranslation);
-
   }
 }
 
