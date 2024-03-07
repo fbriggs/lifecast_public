@@ -85,11 +85,13 @@ class GestureControlModule {
     }
 
     this.transformationMatrix.identity();
-    // Rotate
-    this.transformationMatrix.multiply(new THREE.Matrix4().makeRotationY(this.currentRotY));
-    // Scale
+    // Translate so that leftHandPosition is at the origin
+    this.transformationMatrix.setPosition(this.leftHandPosition.clone().negate());
+    // Scale so that the distance between the hands is this.pinchDistanceCurrent
     this.transformationMatrix.scale(new THREE.Vector3(this.currentScale, this.currentScale, this.currentScale));
-    // Translate
+    // Rotate so that rightHandPosition matches the right hand
+    this.transformationMatrix.multiply(new THREE.Matrix4().makeRotationY(this.currentRotY));
+    // Undo the initial translation
     this.transformationMatrix.setPosition(this.currentTranslation);
   }
 }
