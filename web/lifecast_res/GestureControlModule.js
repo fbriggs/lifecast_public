@@ -87,21 +87,11 @@ class GestureControlModule {
     // Transform the world to track the hands as the user "drags" two points in 3D
     this.transformationMatrix.identity();
     // Translate the first pinch point to the origin
-    let pinchPointWorldPos = this.currentTranslation.clone();
-    if (this.leftHandPosition) {
-      pinchPointWorldPos.add(this.leftHandPosition);
-    }
-    this.transformationMatrix.setPosition(pinchPointWorldPos);
+    this.transformationMatrix.setPosition(this.currentTranslation);
     // Rotate about the y axis (centered on the first pinch point)
-    this.transformationMatrix.multiply(new THREE.Matrix4().makeRotationY(this.currentRotY));
+    //this.transformationMatrix.multiply(new THREE.Matrix4().makeRotationY(this.currentRotY));
     // Scale so that the distance between the hands is this.pinchDistanceCurrent
     this.transformationMatrix.scale(new THREE.Vector3(this.currentScale, this.currentScale, this.currentScale));
-    // Undo the initial translation; now the scene should be rotated and scaled, centered at 0
-    this.transformationMatrix.multiply(new THREE.Matrix4().makeTranslation(
-      -pinchPointWorldPos.x,
-      -pinchPointWorldPos.y,
-      -pinchPointWorldPos.z
-    ));
     // Finally, translate to the correct camera position
     this.transformationMatrix.setPosition(this.currentTranslation);
   }

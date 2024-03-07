@@ -579,7 +579,7 @@ function render() {
   console.log(`World Group Scale: x=${world_group.scale.x}, y=${world_group.scale.y}, z=${world_group.scale.z}`);
 
   const cameraTransformation = gestureControl.getCurrentTransformation();
-  world_group.matrix.identity().multiply(cameraTransformation); // Apply custom transformation
+  world_group.matrix.identity().multiply(cameraTransformation);
   world_group.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale); // Decompose matrix to position, quaternion, and scale
 
   renderer.render(scene, camera);
