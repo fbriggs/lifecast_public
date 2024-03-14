@@ -510,6 +510,9 @@ function render() {
     debugLog("Updating left hand to point: " + indexFingerTipPosL.x + ", " + indexFingerTipPosL.y + ", " + indexFingerTipPosL.z);
     gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    gesture_control.updateTransformation();
+    gesture_control.prevRightHandPosition.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     right_finger_indicator.position.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
   }
