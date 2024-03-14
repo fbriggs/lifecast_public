@@ -42,7 +42,7 @@ const CubeFace = {
 };
 
 
-const gestureControl = new GestureControlModule();
+const gesture_control = new GestureControlModule();
 
 let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
@@ -51,11 +51,6 @@ let debug_msg_count = 0;
 
 let container, camera, scene, renderer, vr_controller0, vr_controller1;
 let hand0, hand1; // for XR hand-tracking
-let pinch_start_position;
-let pinch_double_start_position;
-let world_pos_at_pinch_start;
-let world_rot_at_pinch_start;
-let pinchGestureScale = 1.0;
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
@@ -512,8 +507,8 @@ function render() {
   if (handsAvailable()) {
     const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
-    gestureControl.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
-    gestureControl.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
+    gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
     left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     right_finger_indicator.position.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
   }
@@ -542,45 +537,9 @@ function render() {
     }
   }
 
-
-  // If hand pinch controls are enabled, update the camera position
-  if (pinch_start_position && handsAvailable()) {
-    const rightHand = renderer.xr.getHand(1);
-    if (rightHand && rightHand.joints) {
-      const indexFingerTip = rightHand.joints['index-finger-tip'];
-      if (indexFingerTip && indexFingerTip.visible) {
-        const position = indexFingerTip.position;
-        console.log(`Index Finger Tip Position: x=${position.x}, y=${position.y}, z=${position.z}`);
-        /*
-        world_group.position.set(
-          world_pos_at_pinch_start.x - pinch_start_position.x + indexFingerTip.position.x,
-          world_pos_at_pinch_start.y - pinch_start_position.y + indexFingerTip.position.y,
-          world_pos_at_pinch_start.z - pinch_start_position.z + indexFingerTip.position.z
-        )
-        */
-      }
-    }
-    if (pinch_double_start_position && handsAvailable()) {
-      // Scale: get distance between pinch_start_position and pinch_double_start_position
-      const pinchGestureInitialDistance = pinch_start_position.distanceTo(pinch_double_start_position);
-      const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
-      const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
-
-      const pinchGestureCurrentDistance = indexFingerTipPosR.distanceTo(indexFingerTipPosL);
-      const pinchGestureScaleDiff =  pinchGestureCurrentDistance / pinchGestureInitialDistance;
-      /*
-      world_group.scale.x = pinchGestureScaleDiff * pinchGestureScale;
-      world_group.scale.y = pinchGestureScaleDiff * pinchGestureScale;
-      world_group.scale.z = pinchGestureScaleDiff * pinchGestureScale;
-      */
-    }
-  }
-  console.log(`World Group Position: x=${world_group.position.x}, y=${world_group.position.y}, z=${world_group.position.z}`);
-  console.log(`World Group Scale: x=${world_group.scale.x}, y=${world_group.scale.y}, z=${world_group.scale.z}`);
-
-  const cameraTransformation = gestureControl.getCurrentTransformation();
+  const cameraTransformation = gesture_control.getCurrentTransformation();
   world_group.matrix.identity().multiply(cameraTransformation);
-  world_group.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale); // Decompose matrix to position, quaternion, and scale
+  world_group.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale);
 
   renderer.render(scene, camera);
 
@@ -624,20 +583,20 @@ function initHandControllers(handleft, handright) {
 
   handright.addEventListener('pinchstart', function() {
     debugLog("Right pinchstart");
-    gestureControl.rightPinchStart();
+    gesture_control.rightPinchStart();
   });
   handright.addEventListener('pinchend', function() {
     debugLog("Right pinchend");
-    gestureControl.rightPinchEnd();
+    gesture_control.rightPinchEnd();
   });
 
   handleft.addEventListener('pinchstart', function() {
     debugLog("Left pinchstart");
-    gestureControl.leftPinchStart();
+    gesture_control.leftPinchStart();
   });
   handleft.addEventListener('pinchend', function() {
     debugLog("Left pinchend");
-    gestureControl.leftPinchEnd();
+    gesture_control.leftPinchEnd();
   });
 }
 
