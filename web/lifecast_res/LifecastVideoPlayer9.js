@@ -55,6 +55,7 @@ let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
 let left_finger_indicator, right_finger_indicator;
+let axis_indicator;
 
 let video;
 let vid_framerate = 30;
@@ -510,7 +511,7 @@ function render() {
     debugLog("Updating left hand to point: " + indexFingerTipPosL.x + ", " + indexFingerTipPosL.y + ", " + indexFingerTipPosL.z);
     gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
-    gesture_control.updateTransformation();
+    gesture_control.updateTransformation(world_group.position);
     gesture_control.prevRightHandPosition.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
     gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
@@ -589,19 +590,23 @@ function initHandControllers(handleft, handright) {
   handright.addEventListener('pinchstart', function() {
     debugLog("Right pinchstart");
     gesture_control.rightPinchStart();
+    right_finger_indicator.scale.set(2.0, 2.0, 2.0);
   });
   handright.addEventListener('pinchend', function() {
     debugLog("Right pinchend");
     gesture_control.rightPinchEnd();
+    right_finger_indicator.scale.set(1.0, 1.0, 1.0);
   });
 
   handleft.addEventListener('pinchstart', function() {
     debugLog("Left pinchstart");
     gesture_control.leftPinchStart();
+    left_finger_indicator.scale.set(2.0, 2.0, 2.0);
   });
   handleft.addEventListener('pinchend', function() {
     debugLog("Left pinchend");
     gesture_control.leftPinchEnd();
+    left_finger_indicator.scale.set(1.0, 1.0, 1.0);
   });
 }
 
@@ -720,6 +725,20 @@ function createFingertipIndicator(color) {
   const material = new THREE.MeshBasicMaterial({ color: color });
   const sphere = new THREE.Mesh(geometry, material);
   return sphere;
+}
+
+function createAxisIndicator() {
+  const geometry = new THREE.BoxGeometry(.05, .02, .02);
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  const cube = new THREE.Mesh(geometry, material);
+  return cube;
+}
+
+function createMeshPositionIndicator() {
+  const geometry = new THREE.BoxGeometry(.01, .04, .01);
+  const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  const cube = new THREE.Mesh(geometry, material);
+  return cube;
 }
 
 export function updateEmbedControls(
@@ -948,8 +967,12 @@ export function init({
   scene.add(left_finger_indicator);
   scene.add(right_finger_indicator);
 
+  axis_indicator = createAxisIndicator();
+  scene.add(axis_indicator);
+
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
+  ldi_ftheta_mesh.add(createMeshPositionIndicator());
 
   // Make the point sprite for VR buttons.
   const vrbutton_geometry = new THREE.PlaneGeometry(0.1, 0.1);
