@@ -507,6 +507,7 @@ function render() {
   if (handsAvailable()) {
     const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
+    debugLog("Updating left hand to point: " + indexFingerTipPosL.x + ", " + indexFingerTipPosL.y + ", " + indexFingerTipPosL.z);
     gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
     left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
@@ -537,9 +538,8 @@ function render() {
     }
   }
 
-  const cameraTransformation = gesture_control.getCurrentTransformation();
-  ldi_ftheta_mesh.matrix.identity().multiply(cameraTransformation);
-  ldi_ftheta_mesh.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale);
+  //ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
+  //ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
 
   renderer.render(scene, camera);
 
