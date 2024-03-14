@@ -55,7 +55,6 @@ class GestureControlModule {
     if (this.isLeftPinching) {
       this.currentTranslation.add(this.leftHandPosition).sub(this.prevLeftHandPosition);
     }
-    this.transformationMatrix.identity();
     // TODO: Transform the world to track the hands as the user "drags" two points in 3D
     this.transformationMatrix.setPosition(this.currentTranslation);
   }
