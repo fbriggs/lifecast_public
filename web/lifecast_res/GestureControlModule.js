@@ -59,13 +59,13 @@ class GestureControlModule {
     this.prevRotY = this.currentRotY;
   }
 
-  getHandAngle() {
-    let dz = this.leftHandPosition.z - this.rightHandPosition.z;
-    let dx = this.leftHandPosition.x - this.rightHandPosition.x;
+  getHandAngle(leftHandPosition, rightHandPosition) {
+    let dz = rightHandPosition.z - leftHandPosition.z;
+    let dx = rightHandPosition.x - leftHandPosition.x;
     if (dx === 0 && dz === 0) {
       return 0;
     }
-    return -Math.atan2(dz, dx);
+    return Math.atan2(dz, dx);
   }
 
   getCurrentTransformation() {
@@ -82,19 +82,21 @@ class GestureControlModule {
       let pinchDistanceCurrent = this.rightHandPosition.distanceTo(this.leftHandPosition);
       this.currentScale = this.prevScale * pinchDistanceCurrent / this.pinchDistanceInitial;
       // Rotation
-      this.currentRotY = this.prevRotY + this.getHandAngle() - this.pinchRotYInitial;
+      let deltaRotY = this.getHandAngle(this.leftHandPosition, this.rightHandPosition) - this.getHandAngle(this.leftPinchStartPosition, this.rightPinchStartPosition);
+      this.currentRotY += deltaRotY;
     }
     // Transform the world to track the hands as the user "drags" two points in 3D
     this.transformationMatrix.identity();
 
-    // Scale so that the distance between the hands is this.pinchDistanceCurrent
-    this.transformationMatrix.scale(new THREE.Vector3(this.currentScale, this.currentScale, this.currentScale));
+    // Transform to the final position
+    this.transformationMatrix.multiply(new THREE.Matrix4().makeTranslation(
+      this.currentTranslation.x, this.currentTranslation.y, this.currentTranslation.z));
 
     // Rotate
     this.transformationMatrix.multiply(new THREE.Matrix4().makeRotationY(this.currentRotY));
 
-    // Transform to the final position
-    this.transformationMatrix.setPosition(this.currentTranslation);
+    // Scale so that the distance between the hands is this.pinchDistanceCurrent
+    this.transformationMatrix.scale(new THREE.Vector3(this.currentScale, this.currentScale, this.currentScale));
   }
 }
 

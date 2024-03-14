@@ -538,8 +538,8 @@ function render() {
   }
 
   const cameraTransformation = gesture_control.getCurrentTransformation();
-  world_group.matrix.identity().multiply(cameraTransformation);
-  world_group.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale);
+  ldi_ftheta_mesh.matrix.identity().multiply(cameraTransformation);
+  ldi_ftheta_mesh.matrix.decompose(world_group.position, world_group.quaternion, world_group.scale);
 
   renderer.render(scene, camera);
 
@@ -1143,20 +1143,6 @@ export function init({
       if (key == "c") { for (var m of ldi_ftheta_mesh.ftheta_fg_meshes) { m.visible = !m.visible; } }
     }
 
-    if (key == 'w') {
-      // Move the camera position by editing world_group
-      let cam = world_group.position;
-      cam.z += 0.1;
-    } else if (key == 's') {
-      let cam = world_group.position;
-      cam.z -= 0.1;
-    } else if (key == 'a') {
-      let cam = world_group.position;
-      cam.x += 0.1;
-    } else if (key == 'd') {
-      let cam = world_group.position;
-      cam.x -= 0.1;
-    }
   });
 
   if (cam_mode == "vscroll") {
