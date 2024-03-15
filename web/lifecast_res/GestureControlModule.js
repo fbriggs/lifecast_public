@@ -47,55 +47,64 @@ class GestureControlModule {
     return this.transformationMatrix;
   }
 
-  updateTransformation(offset) {
-    if (this.isLeftPinching) {
+  updateTransformation(logFn, offset) {
+    if (this.isLeftPinching && !this.isRightPinching) {
       let translationDelta = this.leftHandPosition.clone().sub(this.prevLeftHandPosition);
-      /*
       this.currentTranslation.add(translationDelta);
       this.transformationMatrix.multiply(new THREE.Matrix4().makeTranslation(
         (1.0 / this.currentScale) * (this.leftHandPosition.x - this.prevLeftHandPosition.x),
         (1.0 / this.currentScale) * (this.leftHandPosition.y - this.prevLeftHandPosition.y),
         (1.0 / this.currentScale) * (this.leftHandPosition.z - this.prevLeftHandPosition.z)
       ));
-      */
-    } else if (this.isRightPinching) {
+    } else if (this.isRightPinching && !this.isLeftPinching) {
       let translationDelta = this.rightHandPosition.clone().sub(this.prevRightHandPosition);
-      /*
       this.currentTranslation.add(translationDelta);
       this.transformationMatrix.multiply(new THREE.Matrix4().makeTranslation(
         (1.0 / this.currentScale) * (this.rightHandPosition.x - this.prevRightHandPosition.x),
         (1.0 / this.currentScale) * (this.rightHandPosition.y - this.prevRightHandPosition.y),
         (1.0 / this.currentScale) * (this.rightHandPosition.z - this.prevRightHandPosition.z)
       ));
-      */
     }
-
-    if (this.isLeftPinching && this.isRightPinching) {
+    else if (this.isLeftPinching && this.isRightPinching) {
       const prevDistance = this.prevLeftHandPosition.distanceTo(this.prevRightHandPosition);
       const currentDistance = this.leftHandPosition.distanceTo(this.rightHandPosition);
       let scaleDelta = currentDistance / prevDistance;
       this.currentScale *= scaleDelta;
-      // Translate so that the center of scaling is currentTranslation + (left + right) / 2
-      //let center = this.leftHandPosition.clone().add(this.rightHandPosition).multiplyScalar(0.5).add(this.currentTranslation);
-      //let center = this.leftHandPosition.clone().add(this.rightHandPosition).multiplyScalar(0.5);
-      //center.sub(offset);
 
-      let center = new THREE.Vector3(0, 0, 0);
-      center.add(offset);
-      center.sub(this.leftHandPosition.clone().add(this.rightHandPosition).multiplyScalar(0.5));
+      // Get the midpoint of the two fingers
+      let midpoint = this.leftHandPosition.clone().add(this.rightHandPosition).multiplyScalar(0.5);
+      //logFn("Midpoint " + midpoint.x.toFixed(2) + ", " + midpoint.y.toFixed(2) + ", " + midpoint.z.toFixed(2));
+
+      // Decompose the matrix to get the current translation
+      let translation = new THREE.Vector3();
+      let rotation = new THREE.Quaternion();
+      let scale = new THREE.Vector3();
+      this.transformationMatrix.decompose(translation, rotation, scale);
+
+      // Extract the translation component of the transformation matrix
+      let center = new THREE.Vector3();
+      center.add(midpoint);
+      center.sub(offset);
+      //center.sub(translation);
+      center.sub(this.currentTranslation);
+
+      //center.sub(offset);
+      // Print the center rounded to 3 decimal places
+      logFn("Center " + center.x.toFixed(2) + ", " + center.y.toFixed(2) + ", " + center.z.toFixed(2));
+
       // Translate
       this.transformationMatrix.multiply(new THREE.Matrix4().makeTranslation(
-        -center.x,
-        -center.y,
-        -center.z
+        center.x,
+        center.y,
+        center.z
       ));
       // Scale
       this.transformationMatrix.multiply(new THREE.Matrix4().makeScale(scaleDelta, scaleDelta, scaleDelta));
       // Translate back
       this.transformationMatrix.multiply(new THREE.Matrix4().makeTranslation(
-        center.x,
-        center.y,
-        center.z
+        -center.x,
+        -center.y,
+        -center.z
       ));
     }
   }

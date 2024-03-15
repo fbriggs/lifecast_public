@@ -508,10 +508,9 @@ function render() {
   if (handsAvailable()) {
     const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
-    debugLog("Updating left hand to point: " + indexFingerTipPosL.x + ", " + indexFingerTipPosL.y + ", " + indexFingerTipPosL.z);
     gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
-    gesture_control.updateTransformation(world_group.position);
+    gesture_control.updateTransformation(debugLog, world_group.position);
     gesture_control.prevRightHandPosition.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
     gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
@@ -727,15 +726,22 @@ function createFingertipIndicator(color) {
   return sphere;
 }
 
-function createAxisIndicator() {
+function createSceneIndicator() {
   const geometry = new THREE.BoxGeometry(.05, .02, .02);
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const cube = new THREE.Mesh(geometry, material);
   return cube;
 }
 
+function createWorldIndicator() {
+  const geometry = new THREE.BoxGeometry(.015, .015, .05);
+  const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+  const cube = new THREE.Mesh(geometry, material);
+  return cube;
+}
+
 function createMeshPositionIndicator() {
-  const geometry = new THREE.BoxGeometry(.01, .04, .01);
+  const geometry = new THREE.BoxGeometry(.01, .06, .01);
   const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
   const cube = new THREE.Mesh(geometry, material);
   return cube;
@@ -967,8 +973,9 @@ export function init({
   scene.add(left_finger_indicator);
   scene.add(right_finger_indicator);
 
-  axis_indicator = createAxisIndicator();
-  scene.add(axis_indicator);
+  scene.add(createSceneIndicator());
+
+  world_group.add(createWorldIndicator());
 
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
