@@ -102,6 +102,8 @@ class GestureControlModule {
       let grasp_point = this.leftHandPosition.clone().add(this.rightHandPosition).multiplyScalar(0.5);
       grasp_point.sub(world_group_position);
       grasp_point.sub(mesh_position);
+      this.currentTranslation.add(grasp_point.multiplyScalar(1.0 - scaleDelta));
+
       logFn("Grasp point: " + grasp_point.x.toFixed(2) + ", " + grasp_point.y.toFixed(2) + ", " + grasp_point.z.toFixed(2));
       logFn("Mesh position: " + mesh_position.x.toFixed(2) + ", " + mesh_position.y.toFixed(2) + ", " + mesh_position.z.toFixed(2));
     }
