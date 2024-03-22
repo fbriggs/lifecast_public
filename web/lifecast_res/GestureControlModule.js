@@ -40,10 +40,13 @@ class GestureControlModule {
     this.isRightPinching = false;
   }
 
-  getCurrentTransformation() {
-    let transformationMatrix = new THREE.Matrix4();
-    // TODO: Use this.currentTranslation and this.currentScale to create a matrix
-    // ...
+  getHandAngle(left, right) {
+    let dz = left.z - right.z;
+    let dx = left.x - right.x;
+    if (dx === 0 && dz === 0) {
+      return 0;
+    }
+    return -Math.atan2(dz, dx);
   }
 
   getCurrentTransformation() {
@@ -62,13 +65,9 @@ class GestureControlModule {
       this.currentTranslation.z
     );
 
-    // Combine them by first scaling, then rotating, and finally translating
-    transformationMatrix.multiply(rotationMatrix);
     transformationMatrix.multiply(translationMatrix);
     transformationMatrix.multiply(scaleMatrix);
-
-    // Alternatively, you can pre-multiply, which is equivalent to multiplying in the reverse order:
-    // transformationMatrix.premultiply(translationMatrix).premultiply(rotationMatrix).premultiply(scaleMatrix);
+    transformationMatrix.multiply(rotationMatrix);
 
     return transformationMatrix;
   }
@@ -102,10 +101,17 @@ class GestureControlModule {
       let grasp_point = this.leftHandPosition.clone().add(this.rightHandPosition).multiplyScalar(0.5);
       grasp_point.sub(world_group_position);
       grasp_point.sub(mesh_position);
-      this.currentTranslation.add(grasp_point.multiplyScalar(1.0 - scaleDelta));
+      this.currentTranslation.add(grasp_point.clone().multiplyScalar(1.0 - scaleDelta));
 
-      logFn("Grasp point: " + grasp_point.x.toFixed(2) + ", " + grasp_point.y.toFixed(2) + ", " + grasp_point.z.toFixed(2));
-      logFn("Mesh position: " + mesh_position.x.toFixed(2) + ", " + mesh_position.y.toFixed(2) + ", " + mesh_position.z.toFixed(2));
+      // Rotate only about the Y axis
+      let rotationDelta = this.getHandAngle(this.leftHandPosition, this.rightHandPosition) - this.getHandAngle(this.prevLeftHandPosition, this.prevRightHandPosition);
+      this.currentRotY += rotationDelta;
+
+      let rotation_motion = new THREE.Vector3(-grasp_point.z, 0, grasp_point.x);
+      //logFn("Rotation direction: " + rotation_motion.x + ", " + rotation_motion.y + ", " + rotation_motion.z);
+      logFn("Rotation delta: " + rotationDelta);
+      rotation_motion.multiplyScalar(Math.max(Math.min(rotationDelta, 0.1), -0.1));
+      this.currentTranslation.add(rotation_motion);
     }
 
     //logFn("x " + this.currentTranslation.x.toFixed(2) + " y " + this.currentTranslation.y.toFixed(2) + " z " + this.currentTranslation.z.toFixed(2) + " scale " + this.currentScale.toFixed(2));
