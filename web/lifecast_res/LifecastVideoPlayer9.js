@@ -515,7 +515,16 @@ function render() {
     gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     right_finger_indicator.position.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+  } else if (vr_controller0 && vr_controller1) {
+    gesture_control.updateLeftHand(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
+    gesture_control.updateRightHand(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
+    gesture_control.updateTransformation(debugLog, world_group.position, ldi_ftheta_mesh.position);
+    gesture_control.prevRightHandPosition.set(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
+    gesture_control.prevLeftHandPosition.set(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
+    left_finger_indicator.position.set(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
+    right_finger_indicator.position.set(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
   }
+
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
@@ -610,6 +619,7 @@ function initHandControllers(handleft, handright) {
 }
 
 function updateGamepad(vr_controller) {
+  debugLog("updateGamepad for controller: ", vr_controller);
   if (!vr_controller) return;
   if (!vr_controller.gamepad) return;
 
@@ -622,6 +632,28 @@ function updateGamepad(vr_controller) {
 
   vr_controller.button_A = vr_controller.gamepad.buttons[4].value > 0;
   vr_controller.button_B = vr_controller.gamepad.buttons[5].value > 0;
+
+  // Handle the left controller button press
+  if (vr_controller.button_A && !prev_button_A) {
+    debugLog("CONTROLLER: Left pinchstart");
+    gesture_control.leftPinchStart();
+    left_finger_indicator.scale.set(2.0, 2.0, 2.0);
+  } else if (!vr_controller.button_A && prev_button_A) {
+    debugLog("CONTROLLER: Left pinchend");
+    gesture_control.leftPinchEnd();
+    left_finger_indicator.scale.set(1.0, 1.0, 1.0);
+  }
+
+  if (vr_controller.button_B && !prev_button_B) {
+    debugLog("CONTROLLER: Right pinchstart");
+    gesture_control.rightPinchStart();
+    right_finger_indicator.scale.set(2.0, 2.0, 2.0);
+  } else if (!vr_controller.button_B && prev_button_B) {
+    debugLog("CONTROLLER: Right pinchend");
+    gesture_control.rightPinchEnd();
+    right_finger_indicator.scale.set(1.0, 1.0, 1.0);
+  }
+  debugLog("CONTROLLER: " + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
 
   vr_controller.lockout_timer = Math.max(0, vr_controller.lockout_timer - 1);
   if (vr_controller.lockout_timer == 0) {

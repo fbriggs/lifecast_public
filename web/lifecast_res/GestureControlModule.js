@@ -49,6 +49,15 @@ class GestureControlModule {
     return -Math.atan2(dz, dx);
   }
 
+  normalizeAngle(angle) {
+    if (angle > Math.PI) {
+      angle -= 2 * Math.PI;
+    } else if (angle < -Math.PI) {
+      angle += 2 * Math.PI;
+    }
+    return angle;
+  }
+
   getCurrentTransformation() {
     let transformationMatrix = new THREE.Matrix4();
 
@@ -75,12 +84,10 @@ class GestureControlModule {
   updateTransformation(logFn, world_group_position, mesh_position) {
     if (this.isLeftPinching && !this.isRightPinching) {
       let translationDelta = this.leftHandPosition.clone().sub(this.prevLeftHandPosition);
-      //this.currentTranslation.add(translationDelta.multiplyScalar(1.0 / this.currentScale));
       this.currentTranslation.add(translationDelta);
     }
     else if (this.isRightPinching && !this.isLeftPinching) {
       let translationDelta = this.rightHandPosition.clone().sub(this.prevRightHandPosition);
-      //this.currentTranslation.add(translationDelta.multiplyScalar(1.0 / this.currentScale));
       this.currentTranslation.add(translationDelta);
     }
     else if (this.isLeftPinching && this.isRightPinching) {
@@ -88,7 +95,6 @@ class GestureControlModule {
       let translationDeltaLeft = this.leftHandPosition.clone().sub(this.prevLeftHandPosition);
       let translationDeltaRight = this.rightHandPosition.clone().sub(this.prevRightHandPosition);
       let translationDelta = translationDeltaLeft.add(translationDeltaRight).multiplyScalar(0.5);
-      //this.currentTranslation.add(translationDelta.multiplyScalar(1.0 / this.currentScale));
       this.currentTranslation.add(translationDelta);
 
       let prevDistance = this.prevLeftHandPosition.distanceTo(this.prevRightHandPosition);
@@ -104,17 +110,13 @@ class GestureControlModule {
       this.currentTranslation.add(grasp_point.clone().multiplyScalar(1.0 - scaleDelta));
 
       // Rotate only about the Y axis
-      let rotationDelta = this.getHandAngle(this.leftHandPosition, this.rightHandPosition) - this.getHandAngle(this.prevLeftHandPosition, this.prevRightHandPosition);
+      let rotationDelta = this.normalizeAngle(this.getHandAngle(this.leftHandPosition, this.rightHandPosition) - this.getHandAngle(this.prevLeftHandPosition, this.prevRightHandPosition));
       this.currentRotY += rotationDelta;
 
       let rotation_motion = new THREE.Vector3(-grasp_point.z, 0, grasp_point.x);
-      //logFn("Rotation direction: " + rotation_motion.x + ", " + rotation_motion.y + ", " + rotation_motion.z);
-      logFn("Rotation delta: " + rotationDelta);
       rotation_motion.multiplyScalar(Math.max(Math.min(rotationDelta, 0.1), -0.1));
       this.currentTranslation.add(rotation_motion);
     }
-
-    //logFn("x " + this.currentTranslation.x.toFixed(2) + " y " + this.currentTranslation.y.toFixed(2) + " z " + this.currentTranslation.z.toFixed(2) + " scale " + this.currentScale.toFixed(2));
   }
 }
 
