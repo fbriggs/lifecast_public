@@ -510,7 +510,7 @@ function render() {
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
     gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
-    gesture_control.updateTransformation(debugLog, world_group.position);
+    gesture_control.updateTransformation(debugLog, world_group.position, ldi_ftheta_mesh.position);
     gesture_control.prevRightHandPosition.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
     gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
