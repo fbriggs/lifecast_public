@@ -58,6 +58,7 @@ let left_finger_indicator, right_finger_indicator;
 let axis_indicator;
 
 let video;
+let texture;
 let vid_framerate = 30;
 let nonvr_menu_fade_counter = 0;
 let mouse_is_down = false;
@@ -330,15 +331,17 @@ function playVideoIfReady() {
   if (!video) return;
   debugLog("playVideoIfReady");
 
+
   // HACK: force playing to work on VisionPro (which we know this is because its safari + an immersive session)
   // TODO: only enable when pinch drag is active?
-  if (!photo_mode && is_safari) {
-    const handlePaused = function() {
-      video.removeEventListener("pause", handlePaused);
-      video.play();
-    };
-    video.addEventListener("pause", handlePaused);
-  }
+  //if (!photo_mode && is_safari) {
+  //  const handlePaused = function() {
+  //    video.removeEventListener("pause", handlePaused);
+  //    video.play();
+  //  };
+  //  video.addEventListener("pause", handlePaused);
+  //}
+
 
   video.play();
   has_played_video = true;
@@ -563,6 +566,9 @@ function render() {
 
   ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
   ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
+
+  debugLog("T=" + video.currentTime);
+  texture.needsUpdate = true;
 
   renderer.render(scene, camera);
 
@@ -919,8 +925,6 @@ export function init({
     container.style.cursor = "move";
   }
 
-  let texture;
-
   var ext = filenameExtension(_media_url);
   if (ext == "png" || ext == "jpg") {
     photo_mode = true;
@@ -962,6 +966,7 @@ export function init({
     }
     video.src = best_media_url;
 
+
     video.style.display = "none";
     video.preload = "auto";
     video.addEventListener("waiting", function() { video_is_buffering = true; });
@@ -999,12 +1004,14 @@ export function init({
     // We want to use THREE.FloatType textures here so we can benefit from 10 bit video,
     // but it causes Firefox, Safari and Oculus browsers to be slow, so for these we need
     // to use 8 bit textures :(. TODO: revisit this.
-    texture = new TimedVideoTexture(
-      video,
-      THREE.RGBAFormat,
-      THREE.UnsignedByteType,
-      frame_callback,
-      vid_framerate);
+    //texture = new TimedVideoTexture(
+    //  video,
+    //  THREE.RGBAFormat,
+    //  THREE.UnsignedByteType,
+    //  frame_callback,
+    //  vid_framerate);
+    // HACK: disable TimedVideoTexture for now, we aren't using its features for the most part
+    texture = new THREE.VideoTexture(video);
   }
 
   makeNonVrControls();
@@ -1329,6 +1336,14 @@ export function init({
     // Start the video playing automatically if the user enters VR.
     if (!photo_mode) {
       debugLog("playVideoIfReady in sessionstart");
+
+      // HACKS to make it work on AVP
+      if (is_safari) {
+        //video.loop = true;
+        //video.muted = true;
+        //video.crossOrigin = "anonymous";
+        //video.setAttribute('playsinline', '');
+      }
 
       playVideoIfReady();
     }
