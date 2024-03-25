@@ -328,6 +328,17 @@ function playVideoIfReady() {
     return;
   }
   if (!video) return;
+  debugLog("playVideoIfReady");
+
+  // HACK: force playing to work on VisionPro (which we know this is because its safari + an immersive session)
+  // TODO: only enable when pinch drag is active?
+  if (!photo_mode && is_safari) {
+    const handlePaused = function() {
+      video.removeEventListener("pause", handlePaused);
+      video.play();
+    };
+    video.addEventListener("pause", handlePaused);
+  }
 
   video.play();
   has_played_video = true;
@@ -604,6 +615,7 @@ function initHandControllers(handleft, handright) {
     debugLog("Right pinchend");
     gesture_control.rightPinchEnd();
     right_finger_indicator.scale.set(1.0, 1.0, 1.0);
+    playVideoIfReady();
   });
 
   handleft.addEventListener('pinchstart', function() {
@@ -615,11 +627,12 @@ function initHandControllers(handleft, handright) {
     debugLog("Left pinchend");
     gesture_control.leftPinchEnd();
     left_finger_indicator.scale.set(1.0, 1.0, 1.0);
+    playVideoIfReady();
   });
 }
 
 function updateGamepad(vr_controller) {
-  debugLog("updateGamepad for controller: ", vr_controller);
+  //debugLog("updateGamepad for controller: ", vr_controller);
   if (!vr_controller) return;
   if (!vr_controller.gamepad) return;
 
@@ -811,6 +824,7 @@ export function init({
   _media_url = "",        // this should be high-res, but h264 for compatibility
   _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
+  _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
   _metadata_url = "", // required for ftheta projection
   _force_recenter_frames = [], // (If supported), VR coordinate frame is reset on these frames.
   _embed_in_div = "",
@@ -943,6 +957,9 @@ export function init({
     if (_media_url_mobile != "" && is_ios) {
       best_media_url = _media_url_mobile;
     }
+    if (_media_url_safari != "" && is_safari && !is_ios) {
+      best_media_url = _media_url_safari;
+    }
     video.src = best_media_url;
 
     video.style.display = "none";
@@ -1045,10 +1062,12 @@ export function init({
     debug_text_mesh.position.x = -0.5;
     debug_text_mesh.position.y = 0.25;
     debug_text_mesh.position.z = -1.0;
-    debug_text_mesh.rotation.y = Math.PI / 4;
-    debug_text_mesh.scale.setScalar(1.5);
+    debug_text_mesh.rotation.y = Math.PI / 9;
+    debug_text_mesh.scale.setScalar(1.0);
     world_group.add(debug_text_mesh);
   }
+
+  debugLog("UA2:" + is_safari);
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -1309,6 +1328,8 @@ export function init({
 
     // Start the video playing automatically if the user enters VR.
     if (!photo_mode) {
+      debugLog("playVideoIfReady in sessionstart");
+
       playVideoIfReady();
     }
 
