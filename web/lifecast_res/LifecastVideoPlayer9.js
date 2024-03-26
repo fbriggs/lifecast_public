@@ -133,9 +133,9 @@ let anim_v_speed = 5100;
 let AUTO_CAM_MOVE_TIME = 5000;
 
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
-var is_safari =  navigator.userAgent.indexOf("Safari")  != -1;
 var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
 var is_chrome =  (navigator.userAgent.indexOf("Chrome")  != -1) || is_oculus;
+var is_safari =  (navigator.userAgent.indexOf("Safari")  != -1) && !is_chrome;
 var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
 // TODO: android?
 
@@ -993,14 +993,12 @@ export function init({
     // We want to use THREE.FloatType textures here so we can benefit from 10 bit video,
     // but it causes Firefox, Safari and Oculus browsers to be slow, so for these we need
     // to use 8 bit textures :(. TODO: revisit this.
-    //texture = new TimedVideoTexture(
-    //  video,
-    //  THREE.RGBAFormat,
-    //  THREE.UnsignedByteType,
-    //  frame_callback,
-    //  vid_framerate);
-    // HACK: disable TimedVideoTexture for now, we aren't using its features for the most part
-    texture = new THREE.VideoTexture(video);
+    texture = new TimedVideoTexture(
+      video,
+      THREE.RGBAFormat,
+      THREE.UnsignedByteType,
+      frame_callback,
+      vid_framerate);
   }
 
   makeNonVrControls();
