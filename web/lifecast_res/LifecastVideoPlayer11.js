@@ -22,12 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import {FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh} from "./LdiFthetaMesh9.js";
+import {FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh} from "./LdiFthetaMesh11.js";
 import * as THREE from './three149.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
-import {HelpGetVR} from './HelpGetVR9.js';
+import {HelpGetVR} from './HelpGetVR11.js';
+import {GestureControlModule} from './GestureControlModule.js';
 
 const CubeFace = {
   FRONT_LEFT:   0,
@@ -40,7 +41,10 @@ const CubeFace = {
   TOP_RIGHT:    7
 };
 
-let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
+
+const gesture_control = new GestureControlModule();
+
+let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
@@ -50,8 +54,11 @@ let hand0, hand1; // for XR hand-tracking
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
+let left_finger_indicator, right_finger_indicator;
+let axis_indicator;
 
 let video;
+let texture;
 let vid_framerate = 30;
 let nonvr_menu_fade_counter = 0;
 let mouse_is_down = false;
@@ -126,9 +133,9 @@ let anim_v_speed = 5100;
 let AUTO_CAM_MOVE_TIME = 5000;
 
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
-var is_safari =  navigator.userAgent.indexOf("Safari")  != -1;
 var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
 var is_chrome =  (navigator.userAgent.indexOf("Chrome")  != -1) || is_oculus;
+var is_safari =  (navigator.userAgent.indexOf("Safari")  != -1) && !is_chrome;
 var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
 // TODO: android?
 
@@ -499,12 +506,32 @@ function render() {
   updateControlsAndButtons();
   if (lock_position) { resetVRToCenter(); }
 
+  if (handsAvailable()) {
+    const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
+    const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
+    gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
+    gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    gesture_control.updateTransformation(debugLog, world_group.position, ldi_ftheta_mesh.position);
+    gesture_control.prevRightHandPosition.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
+    left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
+    right_finger_indicator.position.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+  } else if (vr_controller0 && vr_controller1) {
+    gesture_control.updateLeftHand(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
+    gesture_control.updateRightHand(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
+    gesture_control.updateTransformation(debugLog, world_group.position, ldi_ftheta_mesh.position);
+    gesture_control.prevRightHandPosition.set(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
+    gesture_control.prevLeftHandPosition.set(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
+    left_finger_indicator.position.set(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
+    right_finger_indicator.position.set(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
+  }
+
+
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
   if (cam_mode == "default" && (!is_ios || is_ios && embed_mode)) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
-      //console.log('Setting fov to ' + fov);
       camera.fov = fov;
       let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
@@ -524,6 +551,14 @@ function render() {
     }
   }
 
+  ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
+  ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
+
+  // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
+  if (is_safari && video != undefined) {
+    texture.needsUpdate = true;
+  }
+
   renderer.render(scene, camera);
 
   // Reset the view center if we started a VR session 1 frame earlier (we have to wait 1
@@ -533,12 +568,19 @@ function render() {
   // console.log("num_patches_not_culled=", ldi_ftheta_mesh.num_patches_not_culled);
 }
 
+function handsAvailable() {
+  return hand0 && hand1 && hand0.joints && hand1.joints && hand0.joints['index-finger-tip'] && hand1.joints['index-finger-tip'];
+}
+
 function animate() {
   renderer.setAnimationLoop( render );
 }
 
 function initVrController(vr_controller) {
   if (!vr_controller) { return; }
+  if (vr_controller.lockout_timer === undefined) {
+    return;
+  }
 
   // This is used to prevent the same button press from being handled multiple times.
   vr_controller.lockout_timer = 0;
@@ -555,15 +597,37 @@ function initVrController(vr_controller) {
 }
 
 // See https://fossies.org/linux/three.js/examples/webxr_vr_handinput_cubes.html
-function initHandController(hand) {
-  if (!hand) { return; }
+function initHandControllers(handleft, handright) {
+  if (!handleft) { return; }
+  if (!handright) { return; }
 
-  hand.addEventListener('pinchend', function() {
-    handleGenericButtonPress();
+  handright.addEventListener('pinchstart', function() {
+    debugLog("Right pinchstart");
+    gesture_control.rightPinchStart();
+    right_finger_indicator.scale.set(2.0, 2.0, 2.0);
+  });
+  handright.addEventListener('pinchend', function() {
+    debugLog("Right pinchend");
+    gesture_control.rightPinchEnd();
+    right_finger_indicator.scale.set(1.0, 1.0, 1.0);
+    playVideoIfReady();
+  });
+
+  handleft.addEventListener('pinchstart', function() {
+    debugLog("Left pinchstart");
+    gesture_control.leftPinchStart();
+    left_finger_indicator.scale.set(2.0, 2.0, 2.0);
+  });
+  handleft.addEventListener('pinchend', function() {
+    debugLog("Left pinchend");
+    gesture_control.leftPinchEnd();
+    left_finger_indicator.scale.set(1.0, 1.0, 1.0);
+    playVideoIfReady();
   });
 }
 
 function updateGamepad(vr_controller) {
+  //debugLog("updateGamepad for controller: ", vr_controller);
   if (!vr_controller) return;
   if (!vr_controller.gamepad) return;
 
@@ -576,6 +640,28 @@ function updateGamepad(vr_controller) {
 
   vr_controller.button_A = vr_controller.gamepad.buttons[4].value > 0;
   vr_controller.button_B = vr_controller.gamepad.buttons[5].value > 0;
+
+  // Handle the left controller button press
+  if (vr_controller.button_A && !prev_button_A) {
+    debugLog("CONTROLLER: Left pinchstart");
+    gesture_control.leftPinchStart();
+    left_finger_indicator.scale.set(2.0, 2.0, 2.0);
+  } else if (!vr_controller.button_A && prev_button_A) {
+    debugLog("CONTROLLER: Left pinchend");
+    gesture_control.leftPinchEnd();
+    left_finger_indicator.scale.set(1.0, 1.0, 1.0);
+  }
+
+  if (vr_controller.button_B && !prev_button_B) {
+    debugLog("CONTROLLER: Right pinchstart");
+    gesture_control.rightPinchStart();
+    right_finger_indicator.scale.set(2.0, 2.0, 2.0);
+  } else if (!vr_controller.button_B && prev_button_B) {
+    debugLog("CONTROLLER: Right pinchend");
+    gesture_control.rightPinchEnd();
+    right_finger_indicator.scale.set(1.0, 1.0, 1.0);
+  }
+  debugLog("CONTROLLER: " + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
 
   vr_controller.lockout_timer = Math.max(0, vr_controller.lockout_timer - 1);
   if (vr_controller.lockout_timer == 0) {
@@ -673,6 +759,34 @@ function getRotationMatrix( alpha, beta, gamma ) {
   ];
 };
 
+function createFingertipIndicator(color) {
+  const geometry = new THREE.SphereGeometry(0.005, 8, 8);
+  const material = new THREE.MeshBasicMaterial({ color: color });
+  const sphere = new THREE.Mesh(geometry, material);
+  return sphere;
+}
+
+function createSceneIndicator() {
+  const geometry = new THREE.BoxGeometry(.05, .02, .02);
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  const cube = new THREE.Mesh(geometry, material);
+  return cube;
+}
+
+function createWorldIndicator() {
+  const geometry = new THREE.BoxGeometry(.015, .015, .05);
+  const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+  const cube = new THREE.Mesh(geometry, material);
+  return cube;
+}
+
+function createMeshPositionIndicator() {
+  const geometry = new THREE.BoxGeometry(.01, .06, .01);
+  const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+  const cube = new THREE.Mesh(geometry, material);
+  return cube;
+}
+
 export function updateEmbedControls(
     _fov, _x, _y, _z, _u, _v,
     _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
@@ -705,6 +819,7 @@ export function init({
   _media_url = "",        // this should be high-res, but h264 for compatibility
   _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
+  _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
   _metadata_url = "", // required for ftheta projection
   _force_recenter_frames = [], // (If supported), VR coordinate frame is reset on these frames.
   _embed_in_div = "",
@@ -719,6 +834,7 @@ export function init({
   _lock_position = false,
   _create_button_url = "",
   _decode_12bit = true,
+  _enable_pinch_world_drag = false,
   _looking_glass_config = null
 }={}) {
   if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
@@ -798,8 +914,6 @@ export function init({
     container.style.cursor = "move";
   }
 
-  let texture;
-
   var ext = filenameExtension(_media_url);
   if (ext == "png" || ext == "jpg") {
     photo_mode = true;
@@ -836,7 +950,11 @@ export function init({
     if (_media_url_mobile != "" && is_ios) {
       best_media_url = _media_url_mobile;
     }
+    if (_media_url_safari != "" && is_safari && !is_ios) {
+      best_media_url = _media_url_safari;
+    }
     video.src = best_media_url;
+
 
     video.style.display = "none";
     video.preload = "auto";
@@ -893,8 +1011,18 @@ export function init({
   world_group = new THREE.Group();
   scene.add(world_group);
 
+  left_finger_indicator = createFingertipIndicator(0x00008f);
+  right_finger_indicator = createFingertipIndicator(0x8f0000);
+  scene.add(left_finger_indicator);
+  scene.add(right_finger_indicator);
+
+  scene.add(createSceneIndicator());
+
+  world_group.add(createWorldIndicator());
+
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
+  ldi_ftheta_mesh.add(createMeshPositionIndicator());
 
   // Make the point sprite for VR buttons.
   const vrbutton_geometry = new THREE.PlaneGeometry(0.1, 0.1);
@@ -928,8 +1056,8 @@ export function init({
     debug_text_mesh.position.x = -0.5;
     debug_text_mesh.position.y = 0.25;
     debug_text_mesh.position.z = -1.0;
-    debug_text_mesh.rotation.y = Math.PI / 4;
-    debug_text_mesh.scale.setScalar(1.5);
+    debug_text_mesh.rotation.y = Math.PI / 9;
+    debug_text_mesh.scale.setScalar(1.0);
     world_group.add(debug_text_mesh);
   }
 
@@ -1017,8 +1145,7 @@ export function init({
 
   hand0 = renderer.xr.getHand(0);
   hand1 = renderer.xr.getHand(1);
-  initHandController(hand0);
-  initHandController(hand1);
+  initHandControllers(hand0, hand1);
 
   // Disable right click on play/pause button
   const images = document.getElementsByTagName('img');
@@ -1193,6 +1320,8 @@ export function init({
 
     // Start the video playing automatically if the user enters VR.
     if (!photo_mode) {
+      debugLog("playVideoIfReady in sessionstart");
+
       playVideoIfReady();
     }
 

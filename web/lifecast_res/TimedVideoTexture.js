@@ -29,7 +29,7 @@ class TimedVideoTexture extends THREE.Texture {
   // Note: I moved the arguments around to put format and type up front.
   constructor( video, format, type, frame_callback, framerate, mapping, wrapS, wrapT, magFilter, minFilter, anisotropy ) {
     super( video, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
-
+    this.video = video;
     this.format = format !== undefined ? format : THREE.RGBAFormat;
     this.minFilter = minFilter !== undefined ? minFilter : THREE.LinearFilter;
     this.magFilter = magFilter !== undefined ? magFilter : THREE.LinearFilter;
@@ -39,7 +39,7 @@ class TimedVideoTexture extends THREE.Texture {
     const scope = this;
 
     function updateVideo(now, metadata) {
-      const frame_index = Math.floor(0.5 + metadata.mediaTime * framerate); // TODO: this is hardcoding 30 fps
+      const frame_index = Math.floor(0.5 + metadata.mediaTime * framerate);
       frame_callback(frame_index);
 
       scope.needsUpdate = true;
