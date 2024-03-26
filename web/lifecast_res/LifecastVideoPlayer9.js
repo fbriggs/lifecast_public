@@ -554,7 +554,10 @@ function render() {
   ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
   ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
 
-  texture.needsUpdate = true;
+  // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
+  if (is_safari && video != undefined) {
+    texture.needsUpdate = true;
+  }
 
   renderer.render(scene, camera);
 
