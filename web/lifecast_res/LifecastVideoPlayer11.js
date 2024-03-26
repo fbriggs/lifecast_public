@@ -1091,6 +1091,7 @@ export function init({
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
+  container.style.position = 'relative';
   if (is_ios) {
     // Wait a second before asking for device orientation permissions (we might already
     // have permissions and can tell if this is the case because we will have some data)
