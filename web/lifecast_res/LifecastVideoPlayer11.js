@@ -44,7 +44,7 @@ const CubeFace = {
 
 const gesture_control = new GestureControlModule();
 
-let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
+let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
@@ -283,6 +283,7 @@ function debugLog(message) {
 }
 
 function setDebugText(message) {
+  if (!enable_debug_text) return;
   debug_text_div.innerHTML = message;
 }
 
@@ -1067,6 +1068,19 @@ export function init({
     depth: true
   });
   renderer.setPixelRatio(window.devicePixelRatio);
+
+  renderer.xr.enabled = true;
+  // Tradeoff quality vs runtime for VR. We are fragment shader limited so this matters.
+  if (_format == "ldi2") {
+    renderer.xr.setFramebufferScaleFactor(1.0);
+    renderer.xr.setFoveation(0.5);
+  } else if (_format == "ldi3") {
+    // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
+    renderer.xr.setFramebufferScaleFactor(0.95);
+    renderer.xr.setFoveation(0.9);
+  }
+  renderer.xr.setReferenceSpaceType('local');
+
   //renderer.outputColorSpace = THREE.sRGBEncoding; // TODO: I dont know if this is correct or even does anything. TODO: check Vision Pro
   container.appendChild(renderer.domElement);
   window.addEventListener('resize', onWindowResize);
@@ -1075,33 +1089,22 @@ export function init({
     onWindowResize();
   } else {
     renderer.setSize(window.innerWidth, window.innerHeight);
+  }
 
-    if (is_ios) {
-      // Wait a second before asking for device orientation permissions (we might already
-      // have permissions and can tell if this is the case because we will have some data)
-      setTimeout(function() {
-        if (!got_orientation_data) {
-          get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
-          document.body.appendChild(get_vr_button);
-        }
-      }, 1000);
+  container.style.position = 'relative';
+  if (is_ios) {
+    // Wait a second before asking for device orientation permissions (we might already
+    // have permissions and can tell if this is the case because we will have some data)
+    setTimeout(function() {
+      if (!got_orientation_data) {
+        get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
+        container.appendChild(get_vr_button);
+      }
+    }, 1000);
 
-    } else {
-      get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
-      document.body.appendChild(get_vr_button);
-    }
-
-    renderer.xr.enabled = true;
-    // Tradeoff quality vs runtime for VR. We are fragment shader limited so this matters.
-    if (_format == "ldi2") {
-      renderer.xr.setFramebufferScaleFactor(1.0);
-      renderer.xr.setFoveation(0.5);
-    } else if (_format == "ldi3") {
-      // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
-      renderer.xr.setFramebufferScaleFactor(0.95);
-      renderer.xr.setFoveation(0.9);
-    }
-    renderer.xr.setReferenceSpaceType('local');
+  } else {
+    get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
+    container.appendChild(get_vr_button);
   }
 
   // Non_VR mouse camera controls.

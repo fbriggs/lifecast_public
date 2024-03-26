@@ -80,8 +80,8 @@ class HelpGetVR {
     }
 
     banner.id = 'HelpGetVR';
-    banner.style.position = 'absolute';
-    banner.style.bottom = '20px';
+    banner.style.position = 'absolute'; // Keeps the banner positioned absolutely within the container
+    banner.style.bottom = '20px'; // Positions the banner at the bottom of the container
     banner.style.padding = '12px 6px';
     banner.style.border = '1px solid #fff';
     banner.style.borderRadius = '4px';
@@ -92,7 +92,8 @@ class HelpGetVR {
     banner.style.opacity = '0.5';
     banner.style.outline = 'none';
     banner.style.zIndex = '999';
-    banner.style.left = 'calc(50% - 175px)';
+    banner.style.left = '50%'; // Center the banner horizontally
+    banner.style.transform = 'translateX(-50%)'; // Adjust for the banner's width to truly center it
     banner.style.width = '350px';
 
 
