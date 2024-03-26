@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 import {FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh} from "./LdiFthetaMesh9.js";
-import * as THREE from './three149.module.min.js';
+import * as THREE from './three152.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
@@ -939,7 +939,7 @@ export function init({
     depth: true
   });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.outputEncoding = THREE.sRGBEncoding; // TODO: I dont know if this is correct or even does anything. TODO: check Vision Pro
+  //renderer.outputColorSpace = THREE.sRGBEncoding; // TODO: I dont know if this is correct or even does anything. TODO: check Vision Pro
   container.appendChild(renderer.domElement);
   window.addEventListener('resize', onWindowResize);
 
