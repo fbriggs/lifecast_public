@@ -329,19 +329,6 @@ function playVideoIfReady() {
     return;
   }
   if (!video) return;
-  debugLog("playVideoIfReady");
-
-
-  // HACK: force playing to work on VisionPro (which we know this is because its safari + an immersive session)
-  // TODO: only enable when pinch drag is active?
-  //if (!photo_mode && is_safari) {
-  //  const handlePaused = function() {
-  //    video.removeEventListener("pause", handlePaused);
-  //    video.play();
-  //  };
-  //  video.addEventListener("pause", handlePaused);
-  //}
-
 
   video.play();
   has_played_video = true;
@@ -567,7 +554,6 @@ function render() {
   ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
   ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
 
-  debugLog("T=" + video.currentTime);
   texture.needsUpdate = true;
 
   renderer.render(scene, camera);
@@ -1074,8 +1060,6 @@ export function init({
     world_group.add(debug_text_mesh);
   }
 
-  debugLog("UA2:" + is_safari);
-
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance",
@@ -1336,14 +1320,6 @@ export function init({
     // Start the video playing automatically if the user enters VR.
     if (!photo_mode) {
       debugLog("playVideoIfReady in sessionstart");
-
-      // HACKS to make it work on AVP
-      if (is_safari) {
-        //video.loop = true;
-        //video.muted = true;
-        //video.crossOrigin = "anonymous";
-        //video.setAttribute('playsinline', '');
-      }
 
       playVideoIfReady();
     }
