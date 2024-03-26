@@ -1,4 +1,4 @@
-import * as THREE from './three149.module.min.js';
+import * as THREE from './three152.module.min.js';
 
 class GestureControlModule {
   constructor() {

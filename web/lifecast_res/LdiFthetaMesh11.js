@@ -8,7 +8,7 @@ import {
     LDI3_fthetaFgFragmentShader,
     LDI3_fthetaFgVertexShader
 } from "./LifecastVideoPlayerShaders11.js";
-import * as THREE from './three149.module.min.js';
+import * as THREE from './three152.module.min.js';
 
 export const FTHETA_UNIFORM_ROTATION_BUFFER_SIZE = 60; // This MUST match the uniform array size in fgVertexShader
 
