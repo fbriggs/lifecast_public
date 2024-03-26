@@ -81,7 +81,7 @@ class HelpGetVR {
 
     banner.id = 'HelpGetVR';
     banner.style.position = 'absolute'; // Keeps the banner positioned absolutely within the container
-    banner.style.bottom = '0'; // Positions the banner at the bottom of the container
+    banner.style.bottom = '20px'; // Positions the banner at the bottom of the container
     banner.style.padding = '12px 6px';
     banner.style.border = '1px solid #fff';
     banner.style.borderRadius = '4px';
