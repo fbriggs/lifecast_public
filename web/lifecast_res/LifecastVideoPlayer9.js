@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import {FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh} from "./LdiFthetaMesh.js";
+import {FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh} from "./LdiFthetaMesh9.js";
 import * as THREE from './three149.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
