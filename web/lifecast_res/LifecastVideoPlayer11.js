@@ -1107,8 +1107,10 @@ export function init({
   // Non_VR mouse camera controls.
   if (cam_mode == "default" && !is_ios) {
     container.addEventListener('mousemove', function(e) {
-      prev_mouse_u = (e.clientX / window.innerWidth - 0.5) * 2.0;
-      prev_mouse_v = (e.clientY / window.innerHeight - 0.5) * 2.0;
+      var rect = container.getBoundingClientRect();
+      prev_mouse_u = ((e.clientX - rect.left) / rect.width) - 0.5;
+      prev_mouse_v = ((e.clientY - rect.top) / rect.height) - 0.5;
+
       mouse_last_moved_time = Date.now();
     });
   }
