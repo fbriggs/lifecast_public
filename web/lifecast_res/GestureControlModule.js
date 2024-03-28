@@ -117,6 +117,8 @@ class GestureControlModule {
       rotation_motion.multiplyScalar(Math.max(Math.min(rotationDelta, 0.1), -0.1));
       this.currentTranslation.add(rotation_motion);
     }
+    this.prevLeftHandPosition.copy(this.leftHandPosition);
+    this.prevRightHandPosition.copy(this.rightHandPosition);
   }
 }
 

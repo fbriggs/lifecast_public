@@ -512,16 +512,12 @@ function render() {
     gesture_control.updateLeftHand(indexFingerTipPosL);
     gesture_control.updateRightHand(indexFingerTipPosR);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    gesture_control.prevRightHandPosition.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
-    gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
     left_finger_indicator.position.copy(indexFingerTipPosL);
     right_finger_indicator.position.copy(indexFingerTipPosR);
   } else if (vr_controller0 && vr_controller1) {
     gesture_control.updateLeftHand(vr_controller0.position);
     gesture_control.updateRightHand(vr_controller1.position);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    gesture_control.prevRightHandPosition.set(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
-    gesture_control.prevLeftHandPosition.set(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
     left_finger_indicator.position.copy(vr_controller0.position);
     right_finger_indicator.position.copy(vr_controller1.position);
   }
