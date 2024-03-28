@@ -55,7 +55,6 @@ let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
 let left_finger_indicator, right_finger_indicator;
-let axis_indicator;
 
 let video;
 let texture;
@@ -296,6 +295,8 @@ function handleGenericButtonPress() {
 }
 
 function resetVRToCenter() {
+  // Reset the gesture_control
+  gesture_control.reset();
   if (!renderer.xr.isPresenting) return;
   delay1frame_reset = false;
 
@@ -510,21 +511,17 @@ function render() {
   if (handsAvailable()) {
     const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
-    gesture_control.updateLeftHand(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
-    gesture_control.updateRightHand(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
-    gesture_control.updateTransformation(debugLog, world_group.position, ldi_ftheta_mesh.position);
-    gesture_control.prevRightHandPosition.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
-    gesture_control.prevLeftHandPosition.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
-    left_finger_indicator.position.set(indexFingerTipPosL.x, indexFingerTipPosL.y, indexFingerTipPosL.z);
-    right_finger_indicator.position.set(indexFingerTipPosR.x, indexFingerTipPosR.y, indexFingerTipPosR.z);
+    gesture_control.updateLeftHand(indexFingerTipPosL);
+    gesture_control.updateRightHand(indexFingerTipPosR);
+    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+    left_finger_indicator.position.copy(indexFingerTipPosL);
+    right_finger_indicator.position.copy(indexFingerTipPosR);
   } else if (vr_controller0 && vr_controller1) {
-    gesture_control.updateLeftHand(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
-    gesture_control.updateRightHand(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
-    gesture_control.updateTransformation(debugLog, world_group.position, ldi_ftheta_mesh.position);
-    gesture_control.prevRightHandPosition.set(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
-    gesture_control.prevLeftHandPosition.set(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
-    left_finger_indicator.position.set(vr_controller0.position.x, vr_controller0.position.y, vr_controller0.position.z);
-    right_finger_indicator.position.set(vr_controller1.position.x, vr_controller1.position.y, vr_controller1.position.z);
+    gesture_control.updateLeftHand(vr_controller0.position);
+    gesture_control.updateRightHand(vr_controller1.position);
+    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+    left_finger_indicator.position.copy(vr_controller0.position);
+    right_finger_indicator.position.copy(vr_controller1.position);
   }
 
 
@@ -767,27 +764,6 @@ function createFingertipIndicator(color) {
   return sphere;
 }
 
-function createSceneIndicator() {
-  const geometry = new THREE.BoxGeometry(.05, .02, .02);
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  const cube = new THREE.Mesh(geometry, material);
-  return cube;
-}
-
-function createWorldIndicator() {
-  const geometry = new THREE.BoxGeometry(.015, .015, .05);
-  const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-  const cube = new THREE.Mesh(geometry, material);
-  return cube;
-}
-
-function createMeshPositionIndicator() {
-  const geometry = new THREE.BoxGeometry(.01, .06, .01);
-  const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  const cube = new THREE.Mesh(geometry, material);
-  return cube;
-}
-
 export function updateEmbedControls(
     _fov, _x, _y, _z, _u, _v,
     _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
@@ -1017,13 +993,8 @@ export function init({
   scene.add(left_finger_indicator);
   scene.add(right_finger_indicator);
 
-  scene.add(createSceneIndicator());
-
-  world_group.add(createWorldIndicator());
-
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
-  ldi_ftheta_mesh.add(createMeshPositionIndicator());
 
   // Make the point sprite for VR buttons.
   const vrbutton_geometry = new THREE.PlaneGeometry(0.1, 0.1);

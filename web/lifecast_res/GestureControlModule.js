@@ -10,18 +10,28 @@ class GestureControlModule {
     this.isRightPinching = false;
 
     this.currentScale = 1.0;
-
     this.currentRotY = 0;
-
     this.currentTranslation = new THREE.Vector3();
   }
 
-  updateLeftHand(x, y, z) {
-    this.leftHandPosition.set(x, y, z);
+  reset() {
+    this.currentScale = 1.0;
+    this.currentRotY = 0;
+    this.currentTranslation.set(0, 0, 0);
+    this.leftHandPosition.set(0, 0, 0);
+    this.rightHandPosition.set(0, 0, 0);
+    this.prevLeftHandPosition.set(0, 0, 0);
+    this.prevRightHandPosition.set(0, 0, 0);
+    this.isLeftPinching = false;
+    this.isRightPinching = false;
   }
 
-  updateRightHand(x, y, z) {
-    this.rightHandPosition.set(x, y, z);
+  updateLeftHand(pos) {
+    this.leftHandPosition.set(pos.x, pos.y, pos.z);
+  }
+
+  updateRightHand(pos) {
+    this.rightHandPosition.set(pos.x, pos.y, pos.z);
   }
 
   leftPinchStart() {
@@ -81,7 +91,7 @@ class GestureControlModule {
     return transformationMatrix;
   }
 
-  updateTransformation(logFn, world_group_position, mesh_position) {
+  updateTransformation(world_group_position, mesh_position) {
     if (this.isLeftPinching && !this.isRightPinching) {
       let translationDelta = this.leftHandPosition.clone().sub(this.prevLeftHandPosition);
       this.currentTranslation.add(translationDelta);
@@ -117,6 +127,8 @@ class GestureControlModule {
       rotation_motion.multiplyScalar(Math.max(Math.min(rotationDelta, 0.1), -0.1));
       this.currentTranslation.add(rotation_motion);
     }
+    this.prevLeftHandPosition.copy(this.leftHandPosition);
+    this.prevRightHandPosition.copy(this.rightHandPosition);
   }
 }
 
