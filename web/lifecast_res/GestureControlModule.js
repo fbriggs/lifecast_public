@@ -11,6 +11,7 @@ class GestureControlModule {
 
     this.currentScale = 1.0;
 
+    this.currentRotX = 0;
     this.currentRotY = 0;
 
     this.currentTranslation = new THREE.Vector3();
@@ -40,13 +41,22 @@ class GestureControlModule {
     this.isRightPinching = false;
   }
 
-  getHandAngle(left, right) {
+  getHandAngleY(left, right) {
     let dz = left.z - right.z;
     let dx = left.x - right.x;
     if (dx === 0 && dz === 0) {
       return 0;
     }
     return -Math.atan2(dz, dx);
+  }
+
+  getHandAngleX(left, right) {
+    let dy = left.y - right.y;
+    let dz = left.z - right.z;
+    if (dz === 0 && dy === 0) {
+      return 0;
+    }
+    return -Math.atan2(dy, dz);
   }
 
   normalizeAngle(angle) {
@@ -65,7 +75,8 @@ class GestureControlModule {
     let scaleMatrix = new THREE.Matrix4().makeScale(this.currentScale, this.currentScale, this.currentScale);
 
     // Create a rotation matrix
-    let rotationMatrix = new THREE.Matrix4().makeRotationY(this.currentRotY);
+    let rotationMatrixY = new THREE.Matrix4().makeRotationY(this.currentRotY);
+    let rotationMatrixX = new THREE.Matrix4().makeRotationX(this.currentRotX);
 
     // Create a translation matrix
     let translationMatrix = new THREE.Matrix4().makeTranslation(
@@ -76,7 +87,8 @@ class GestureControlModule {
 
     transformationMatrix.multiply(translationMatrix);
     transformationMatrix.multiply(scaleMatrix);
-    transformationMatrix.multiply(rotationMatrix);
+    transformationMatrix.multiply(rotationMatrixX);
+    transformationMatrix.multiply(rotationMatrixY);
 
     return transformationMatrix;
   }
@@ -109,13 +121,22 @@ class GestureControlModule {
       grasp_point.sub(mesh_position);
       this.currentTranslation.add(grasp_point.clone().multiplyScalar(1.0 - scaleDelta));
 
-      // Rotate only about the Y axis
-      let rotationDelta = this.normalizeAngle(this.getHandAngle(this.leftHandPosition, this.rightHandPosition) - this.getHandAngle(this.prevLeftHandPosition, this.prevRightHandPosition));
-      this.currentRotY += rotationDelta;
+      // Rotate about the Y axis
+      let rotationDeltaY = this.normalizeAngle(this.getHandAngleY(this.leftHandPosition, this.rightHandPosition) - this.getHandAngleY(this.prevLeftHandPosition, this.prevRightHandPosition));
+      this.currentRotY += rotationDeltaY;
 
-      let rotation_motion = new THREE.Vector3(-grasp_point.z, 0, grasp_point.x);
-      rotation_motion.multiplyScalar(Math.max(Math.min(rotationDelta, 0.1), -0.1));
-      this.currentTranslation.add(rotation_motion);
+      let rotation_motion_y = new THREE.Vector3(-grasp_point.z, 0, grasp_point.x);
+      rotation_motion_y.multiplyScalar(Math.max(Math.min(rotationDeltaY, 0.1), -0.1));
+      this.currentTranslation.add(rotation_motion_y);
+
+      // Rotate about the X axis
+      let rotationDeltaX = this.normalizeAngle(this.getHandAngleX(this.leftHandPosition, this.rightHandPosition) - this.getHandAngleX(this.prevLeftHandPosition, this.prevRightHandPosition));
+      this.currentRotX += rotationDeltaX;
+
+      let rotation_motion_x = new THREE.Vector3(0, grasp_point.y, -grasp_point.z);
+      rotation_motion_x.multiplyScalar(Math.max(Math.min(rotationDeltaX, 0.1), -0.1));
+      this.currentTranslation.add(rotation_motion_x);
+
     }
   }
 }
