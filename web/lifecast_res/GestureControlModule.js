@@ -16,12 +16,12 @@ class GestureControlModule {
     this.currentTranslation = new THREE.Vector3();
   }
 
-  updateLeftHand(x, y, z) {
-    this.leftHandPosition.set(x, y, z);
+  updateLeftHand(pos) {
+    this.leftHandPosition.set(pos.x, pos.y, pos.z);
   }
 
-  updateRightHand(x, y, z) {
-    this.rightHandPosition.set(x, y, z);
+  updateRightHand(pos) {
+    this.rightHandPosition.set(pos.x, pos.y, pos.z);
   }
 
   leftPinchStart() {
