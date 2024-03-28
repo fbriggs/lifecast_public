@@ -81,7 +81,7 @@ class GestureControlModule {
     return transformationMatrix;
   }
 
-  updateTransformation(logFn, world_group_position, mesh_position) {
+  updateTransformation(world_group_position, mesh_position) {
     if (this.isLeftPinching && !this.isRightPinching) {
       let translationDelta = this.leftHandPosition.clone().sub(this.prevLeftHandPosition);
       this.currentTranslation.add(translationDelta);
