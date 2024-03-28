@@ -295,6 +295,8 @@ function handleGenericButtonPress() {
 }
 
 function resetVRToCenter() {
+  // Reset the gesture_control
+  gesture_control.reset();
   if (!renderer.xr.isPresenting) return;
   delay1frame_reset = false;
 

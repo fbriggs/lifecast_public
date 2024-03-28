@@ -10,10 +10,20 @@ class GestureControlModule {
     this.isRightPinching = false;
 
     this.currentScale = 1.0;
-
     this.currentRotY = 0;
-
     this.currentTranslation = new THREE.Vector3();
+  }
+
+  reset() {
+    this.currentScale = 1.0;
+    this.currentRotY = 0;
+    this.currentTranslation.set(0, 0, 0);
+    this.leftHandPosition.set(0, 0, 0);
+    this.rightHandPosition.set(0, 0, 0);
+    this.prevLeftHandPosition.set(0, 0, 0);
+    this.prevRightHandPosition.set(0, 0, 0);
+    this.isLeftPinching = false;
+    this.isRightPinching = false;
   }
 
   updateLeftHand(pos) {
