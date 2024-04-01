@@ -527,7 +527,7 @@ function render() {
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
-  if (cam_mode == "default" && (!is_ios || is_ios && embed_mode)) {
+  if (cam_mode == "default" && !got_orientation_data) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
       camera.fov = fov;
@@ -1222,7 +1222,6 @@ export function init({
     });
 
     addEventListener('deviceorientation', function(e) {
-
       // if we got device orientation data, it means we don't need to request it
       if (get_vr_button) {
         get_vr_button.style.display = "none";
