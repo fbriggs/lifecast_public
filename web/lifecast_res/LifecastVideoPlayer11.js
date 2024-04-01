@@ -801,7 +801,7 @@ export function init({
   _force_recenter_frames = [], // (If supported), VR coordinate frame is reset on these frames.
   _embed_in_div = "",
   _cam_mode="default",
-  _hfov = 80,
+  _vfov = 80,
   _vscroll_bias = 0.0,
   _framerate = 30,
   _ftheta_scale = null,
@@ -812,7 +812,9 @@ export function init({
   _create_button_url = "",
   _decode_12bit = true,
   _enable_pinch_world_drag = false,
-  _looking_glass_config = null
+  _looking_glass_config = null,
+  _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
+  _loop = false
 }={}) {
   if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
     _format = "ldi3";
@@ -839,12 +841,12 @@ export function init({
 
   if (is_ios) {
     if (window.innerHeight > window.innerWidth) { // portrait
-      _hfov = 120;
+      _vfov = 120;
     } else {
-      _hfov = 90;
+      _vfov = 90;
     }
   }
-  anim_fov_offset = _hfov;
+  anim_fov_offset = _vfov;
 
   if (slideshow.length > 0) {
     photo_mode = true;
@@ -918,6 +920,7 @@ export function init({
     video.setAttribute("crossorigin", "anonymous");
     video.setAttribute("type", "video/mp4");
     video.setAttribute("playsinline", true);
+    video.loop = _loop;
 
     // Select the best URL based on browser
     let best_media_url = _media_url;
@@ -940,6 +943,12 @@ export function init({
     video.addEventListener("error",     function() {
       document.documentElement.innerHTML = "Error loading video URL: "  + best_media_url;
     });
+
+    if(_autoplay_muted) {
+      video.muted = true;
+      video.play();
+    }
+
     document.body.appendChild(video);
 
     var frame_callback = function() {};
@@ -980,7 +989,7 @@ export function init({
 
   makeNonVrControls();
 
-  camera = new THREE.PerspectiveCamera(_hfov, window.innerWidth / window.innerHeight, 0.1, 110);
+  camera = new THREE.PerspectiveCamera(_vfov, window.innerWidth / window.innerHeight, 0.1, 110);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
@@ -1017,6 +1026,8 @@ export function init({
     debug_text_div.style.fontFamily = 'Arial';
     debug_text_div.style.fontSize = '14px';
     debug_text_div.style.padding = '10px';
+    debug_text_div.style.color = 'black';
+
     // We have to add the div to the document.body or it wont render.
     // But to keep it out of view (in 2D), move it far offscreen.
     debug_text_div.style.position = 'absolute';
@@ -1248,11 +1259,11 @@ export function init({
       let q = diff_orientation_a + mobile_drag_u;
 
       if (window.innerHeight > window.innerWidth) { // portrait
-        _hfov = 120;
+        _vfov = 120;
       } else {
-        _hfov = 90;
+        _vfov = 90;
       }
-      camera.fov = _hfov;
+      camera.fov = _vfov;
       camera.updateProjectionMatrix();
 
       camera.position.set(-q * 1.0, p * 1.0, 0.0);
@@ -1296,9 +1307,12 @@ export function init({
 
     // Start the video playing automatically if the user enters VR.
     if (!photo_mode) {
-      debugLog("playVideoIfReady in sessionstart");
-
       playVideoIfReady();
+
+      // Unmute for immersive experience!
+      if (_autoplay_muted) {
+        video.muted = false;
+      }
     }
 
     // When we enter VR, toggle on the VR-only 3d buttons.
