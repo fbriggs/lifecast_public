@@ -44,7 +44,7 @@ const CubeFace = {
 
 const gesture_control = new GestureControlModule();
 
-let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
+let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
@@ -764,7 +764,6 @@ function createFingertipIndicator(color) {
   return sphere;
 }
 
-/*
 export function updateEmbedControls(
     _fov, _x, _y, _z, _u, _v,
     _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
@@ -791,7 +790,6 @@ export function updateEmbedControls(
   onWindowResize();
   playVideoIfReady();
 }
-*/
 
 export function init({
   _format = "ldi2", // ldi2 or ldi3
