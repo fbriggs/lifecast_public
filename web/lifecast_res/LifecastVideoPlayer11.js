@@ -44,7 +44,7 @@ const CubeFace = {
 
 const gesture_control = new GestureControlModule();
 
-let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
+let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
