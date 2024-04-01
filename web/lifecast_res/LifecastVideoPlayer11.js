@@ -29,6 +29,8 @@ import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
 import {HelpGetVR} from './HelpGetVR11.js';
 import {GestureControlModule} from './GestureControlModule.js';
+import { XRControllerModelFactory } from './XRControllerModelFactory.js';
+import { XRHandModelFactory } from './XRHandModelFactory.js';
 
 const CubeFace = {
   FRONT_LEFT:   0,
@@ -49,8 +51,11 @@ let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
 
-let container, camera, scene, renderer, vr_controller0, vr_controller1;
+let container, camera, scene, renderer;
+let vr_controller0, vr_controller1; // used for getting controller state, including buttons
+let controller_grip0, controller_grip1; // used for rendering controller models
 let hand0, hand1; // for XR hand-tracking
+
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
@@ -1124,15 +1129,33 @@ export function init({
     }, false);
   }
 
-  // VR trigger button to play/pause (or pinch gesture)
+  // Setup hand/controller models and initialize stuff related to user input from controllers or hands
+  const controllerModelFactory = new XRControllerModelFactory();
+  const handModelFactory = new XRHandModelFactory();
+
   vr_controller0 = renderer.xr.getController(0);
   vr_controller1 = renderer.xr.getController(1);
-  initVrController(vr_controller0);
-  initVrController(vr_controller1);
-
+  controller_grip0 = renderer.xr.getControllerGrip(0);
+  controller_grip1 = renderer.xr.getControllerGrip(1);
   hand0 = renderer.xr.getHand(0);
   hand1 = renderer.xr.getHand(1);
+
+  initVrController(vr_controller0);
+  initVrController(vr_controller1);
   initHandControllers(hand0, hand1);
+
+  controller_grip0.add(controllerModelFactory.createControllerModel(controller_grip0));
+  controller_grip1.add(controllerModelFactory.createControllerModel(controller_grip1));
+  hand1.add(handModelFactory.createHandModel(hand1, "mesh"));
+  hand0.add(handModelFactory.createHandModel(hand0, "mesh"));
+
+  scene.add(vr_controller0); // TODO: is this needed?
+  scene.add(vr_controller1);
+  scene.add(controller_grip0);
+  scene.add(controller_grip1);
+  scene.add(hand0);
+  scene.add(hand1);
+
 
   // Disable right click on play/pause button
   const images = document.getElementsByTagName('img');
