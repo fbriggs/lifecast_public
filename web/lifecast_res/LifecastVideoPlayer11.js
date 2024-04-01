@@ -764,6 +764,7 @@ function createFingertipIndicator(color) {
   return sphere;
 }
 
+/*
 export function updateEmbedControls(
     _fov, _x, _y, _z, _u, _v,
     _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
@@ -790,6 +791,7 @@ export function updateEmbedControls(
   onWindowResize();
   playVideoIfReady();
 }
+*/
 
 export function init({
   _format = "ldi2", // ldi2 or ldi3
@@ -1026,6 +1028,8 @@ export function init({
     debug_text_div.style.fontFamily = 'Arial';
     debug_text_div.style.fontSize = '14px';
     debug_text_div.style.padding = '10px';
+    debug_text_div.style.color = 'black';
+
     // We have to add the div to the document.body or it wont render.
     // But to keep it out of view (in 2D), move it far offscreen.
     debug_text_div.style.position = 'absolute';
@@ -1305,14 +1309,12 @@ export function init({
 
     // Start the video playing automatically if the user enters VR.
     if (!photo_mode) {
-      debugLog("playVideoIfReady in sessionstart");
+      playVideoIfReady();
 
       // Unmute for immersive experience!
       if (_autoplay_muted) {
         video.muted = false;
       }
-
-      playVideoIfReady();
     }
 
     // When we enter VR, toggle on the VR-only 3d buttons.

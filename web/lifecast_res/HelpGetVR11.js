@@ -25,7 +25,6 @@ THE SOFTWARE.
 
 class HelpGetVR {
   static createBanner(renderer, enter_xr_button_title, exit_xr_button_title) {
-
     var banner = document.createElement( 'div' );
 
     function showEnterVR() {
