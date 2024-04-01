@@ -44,7 +44,7 @@ const CubeFace = {
 
 const gesture_control = new GestureControlModule();
 
-let enable_debug_text = true; // Turn this on if you want to use debugLog() or setDebugText().
+let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
@@ -527,9 +527,8 @@ function render() {
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
-  if (cam_mode == "default" && (!is_ios || is_ios && embed_mode)) {
+  if (cam_mode == "default" && !got_orientation_data) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-    /*
       let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
       camera.fov = fov;
       let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
@@ -540,7 +539,6 @@ function render() {
       let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
       camera.lookAt(u, v, -4.0);
       camera.updateProjectionMatrix();
-      */
     } else {
       if (!right_mouse_is_down) {
         cam_drag_u *= 0.97;
