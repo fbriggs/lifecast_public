@@ -481,7 +481,6 @@ function updateControlsAndButtons() {
 
 
 function render() {
-  ldi_ftheta_mesh.num_patches_not_culled = 0;
   // The fragment shader uses the distance from the camera to the origin to determine how
   // aggressively to fade out fragments that might be part of a streaky triangle. We need
   // to compute that distance differently depending on whether we are in VR or not.
@@ -562,8 +561,6 @@ function render() {
   // Reset the view center if we started a VR session 1 frame earlier (we have to wait 1
   // frame to get correct data).
   if (delay1frame_reset) { resetVRToCenter(); }
-
-  // console.log("num_patches_not_culled=", ldi_ftheta_mesh.num_patches_not_culled);
 }
 
 function handsAvailable() {
@@ -676,21 +673,6 @@ function convertRotationMatrixLifecastToThreeJs(R) {
     +R[1], +R[4], -R[7],
     -R[2], -R[5], +R[8],
   ];
-}
-
-// TODO/BUG: with new 2 layer representation, we might also have to rotate the BG layer patches
-
-function rotateFthetaMeshBoundingSpheres(R) {
-  // Update bounding spheres for patches.
-  var Rm = new THREE.Matrix3().fromArray(R);
-  for (var p of ldi_ftheta_mesh.ftheta_fg_geoms) {
-    p.boundingSphere.center.copy(p.originalBoundingSphere.center);
-    p.boundingSphere.center.applyMatrix3(Rm);
-  }
-  for (var p of ldi_ftheta_mesh.ftheta_bg_geoms) {
-    p.boundingSphere.center.copy(p.originalBoundingSphere.center);
-    p.boundingSphere.center.applyMatrix3(Rm);
-  }
 }
 
 function updateFthetaRotationUniforms(video_time) {
@@ -833,7 +815,7 @@ export function updateEmbedControls(
 }
 
 export function init({
-  _format = "ldi2", // ldi2 or ldi3
+  _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
   _media_url = "",        // this should be high-res, but h264 for compatibility
   _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
@@ -907,7 +889,6 @@ export function init({
       if (photo_mode) {
         var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[0]);
         ldi_ftheta_mesh.uniforms.uFthetaRotation.value = R;
-        rotateFthetaMeshBoundingSpheres(R);
       } else {
         updateFthetaRotationUniforms(0.0);
       }
@@ -1005,7 +986,6 @@ export function init({
           if (frame_index >= metadata.frame_to_rotation.length) frame_index = metadata.frame_to_rotation.length - 1;
           var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[frame_index]);
           ldi_ftheta_mesh.uniforms.uFthetaRotation.value = R;
-          rotateFthetaMeshBoundingSpheres(R);
 
           // Force view recenter on specified frames
           if (_force_recenter_frames.includes(frame_index)) {
@@ -1087,14 +1067,12 @@ export function init({
   renderer.setPixelRatio(window.devicePixelRatio);
 
   renderer.xr.enabled = true;
-  // Tradeoff quality vs runtime for VR. We are fragment shader limited so this matters.
-  if (_format == "ldi2") {
-    renderer.xr.setFramebufferScaleFactor(1.0);
-    renderer.xr.setFoveation(0.5);
-  } else if (_format == "ldi3") {
+  if (_format == "ldi3") {
     // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
     renderer.xr.setFramebufferScaleFactor(0.95);
     renderer.xr.setFoveation(0.9);
+  } else {
+    console.log("ERROR: unknown _format:", _format);
   }
   renderer.xr.setReferenceSpaceType('local');
 
@@ -1216,10 +1194,6 @@ export function init({
       ldi_ftheta_mesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
       ldi_ftheta_mesh.uniforms.uTexture.value.generateMipmaps = false;
 
-      if (_format == "ldi2") {
-        ldi_ftheta_mesh.ldi2_fg_material.needsUpdate = true;
-        ldi_ftheta_mesh.ldi2_bg_material.needsUpdate = true;
-      }
       if (_format == "ldi3") {
         ldi_ftheta_mesh.ldi3_layer0_material.needsUpdate = true;
         ldi_ftheta_mesh.ldi3_layer1_material.needsUpdate = true;
@@ -1227,9 +1201,6 @@ export function init({
       }
     }
 
-    if (_format == "ldi2"){
-      if (key == "x") { for (var m of ldi_ftheta_mesh.ftheta_fg_meshes) { m.visible = !m.visible; } }
-    }
     if (_format == "ldi3") {
       if (key == "z") { for (var m of ldi_ftheta_mesh.ftheta_bg_meshes) { m.visible = !m.visible; } }
       if (key == "x") { for (var m of ldi_ftheta_mesh.ftheta_mid_meshes) { m.visible = !m.visible; } }
