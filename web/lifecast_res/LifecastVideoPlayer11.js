@@ -59,7 +59,6 @@ let hand0, hand1, hand_model0, hand_model1; // for XR hand-tracking
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
-//let left_finger_indicator, right_finger_indicator;
 
 let video;
 let texture;
@@ -519,14 +518,10 @@ function render() {
     gesture_control.updateLeftHand(indexFingerTipPosL);
     gesture_control.updateRightHand(indexFingerTipPosR);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    //left_finger_indicator.position.copy(indexFingerTipPosL);
-    //right_finger_indicator.position.copy(indexFingerTipPosR);
   } else if (vr_controller0 && vr_controller1) {
     gesture_control.updateLeftHand(vr_controller0.position);
     gesture_control.updateRightHand(vr_controller1.position);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    //left_finger_indicator.position.copy(vr_controller0.position);
-    //right_finger_indicator.position.copy(vr_controller1.position);
   }
 
 
@@ -607,24 +602,20 @@ function initHandControllers(handleft, handright) {
   handright.addEventListener('pinchstart', function() {
     debugLog("Right pinchstart");
     gesture_control.rightPinchStart();
-    //right_finger_indicator.scale.set(2.0, 2.0, 2.0);
   });
   handright.addEventListener('pinchend', function() {
     debugLog("Right pinchend");
     gesture_control.rightPinchEnd();
-    //right_finger_indicator.scale.set(1.0, 1.0, 1.0);
     playVideoIfReady();
   });
 
   handleft.addEventListener('pinchstart', function() {
     debugLog("Left pinchstart");
     gesture_control.leftPinchStart();
-    //left_finger_indicator.scale.set(2.0, 2.0, 2.0);
   });
   handleft.addEventListener('pinchend', function() {
     debugLog("Left pinchend");
     gesture_control.leftPinchEnd();
-    //left_finger_indicator.scale.set(1.0, 1.0, 1.0);
     playVideoIfReady();
   });
 }
@@ -648,21 +639,17 @@ function updateGamepad(vr_controller) {
   if (vr_controller.button_A && !prev_button_A) {
     debugLog("CONTROLLER: Left pinchstart");
     gesture_control.leftPinchStart();
-    //left_finger_indicator.scale.set(2.0, 2.0, 2.0);
   } else if (!vr_controller.button_A && prev_button_A) {
     debugLog("CONTROLLER: Left pinchend");
     gesture_control.leftPinchEnd();
-    //left_finger_indicator.scale.set(1.0, 1.0, 1.0);
   }
 
   if (vr_controller.button_B && !prev_button_B) {
     debugLog("CONTROLLER: Right pinchstart");
     gesture_control.rightPinchStart();
-    //right_finger_indicator.scale.set(2.0, 2.0, 2.0);
   } else if (!vr_controller.button_B && prev_button_B) {
     debugLog("CONTROLLER: Right pinchend");
     gesture_control.rightPinchEnd();
-    //right_finger_indicator.scale.set(1.0, 1.0, 1.0);
   }
   debugLog("CONTROLLER: " + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
 
@@ -762,19 +749,13 @@ function getRotationMatrix( alpha, beta, gamma ) {
   ];
 };
 
-function createFingertipIndicator(color) {
-  const geometry = new THREE.SphereGeometry(0.005, 8, 8);
-  const material = new THREE.MeshBasicMaterial({ color: color });
-  const sphere = new THREE.Mesh(geometry, material);
-  return sphere;
-}
-
-function applyCustomMaterialRecursive(object, material) {
-    object.traverse((child) => {
-        if (child.isMesh) {
-            child.material = material;
-        }
-    });
+function applyHandMaterialRecursive(object, material) {
+  object.traverse((child) => {
+    if (child.isMesh) {
+      child.material = material;
+      child.renderOrder = 10; // HACK: draw hands last for transparency without writing to depth
+    }
+  });
 }
 
 function setupHandAndControllerModels() {
@@ -793,16 +774,19 @@ function setupHandAndControllerModels() {
   initHandControllers(hand0, hand1);
 
   const hand_material = new THREE.MeshPhongMaterial({
-    color: 0xb5ebff,
+    color: 0x8cc6ff,
     transparent: true,
-    opacity: 0.25,
+    opacity: 0.2,
+    depthTest: true,
+    depthWrite: false,
+    side: THREE.DoubleSide
   });
   // Wait until hand models load, then overwrite their material
   hand_model0 = handModelFactory.createHandModel(hand0, "mesh", function() {
-    applyCustomMaterialRecursive(hand_model0, hand_material);
+    applyHandMaterialRecursive(hand_model0, hand_material);
   });
   hand_model1 = handModelFactory.createHandModel(hand1, "mesh", function() {
-    applyCustomMaterialRecursive(hand_model1, hand_material);
+    applyHandMaterialRecursive(hand_model1, hand_material);
   });
 
 
@@ -1054,11 +1038,6 @@ export function init({
 
   world_group = new THREE.Group();
   scene.add(world_group);
-
-  //left_finger_indicator = createFingertipIndicator(0x00008f);
-  //right_finger_indicator = createFingertipIndicator(0x8f0000);
-  //scene.add(left_finger_indicator);
-  //scene.add(right_finger_indicator);
 
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
