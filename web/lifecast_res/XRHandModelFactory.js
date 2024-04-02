@@ -1,104 +1,105 @@
 import {
-	Object3D
+  Object3D
 } from './three152.module.min.js';
 
 import {
-	XRHandPrimitiveModel
+  XRHandPrimitiveModel
 } from './XRHandPrimitiveModel.js';
 
 import {
-	XRHandMeshModel
+  XRHandMeshModel
 } from './XRHandMeshModel.js';
 
 class XRHandModel extends Object3D {
 
-	constructor( controller ) {
+  constructor( controller ) {
 
-		super();
+    super();
 
-		this.controller = controller;
-		this.motionController = null;
-		this.envMap = null;
+    this.controller = controller;
+    this.motionController = null;
+    this.envMap = null;
 
-		this.mesh = null;
+    this.mesh = null;
 
-	}
+  }
 
-	updateMatrixWorld( force ) {
+  updateMatrixWorld( force ) {
 
-		super.updateMatrixWorld( force );
+    super.updateMatrixWorld( force );
 
-		if ( this.motionController ) {
+    if ( this.motionController ) {
 
-			this.motionController.updateMesh();
+      this.motionController.updateMesh();
 
-		}
+    }
 
-	}
+  }
 
 }
 
 class XRHandModelFactory {
 
-	constructor() {
+  constructor() {
 
-		this.path = null;
+    this.path = null;
 
-	}
+  }
 
-	setPath( path ) {
+  setPath( path ) {
 
-		this.path = path;
+    this.path = path;
 
-		return this;
+    return this;
 
-	}
+  }
 
-	createHandModel( controller, profile ) {
+  createHandModel( controller, profile, onLoad) {  /* NOTE: this line is modified from default THREE.js to pass onLoad */
 
-		const handModel = new XRHandModel( controller );
+    const handModel = new XRHandModel( controller );
 
-		controller.addEventListener( 'connected', ( event ) => {
+    controller.addEventListener( 'connected', ( event ) => {
 
-			const xrInputSource = event.data;
+      const xrInputSource = event.data;
 
-			if ( xrInputSource.hand && ! handModel.motionController ) {
+      if ( xrInputSource.hand && ! handModel.motionController ) {
 
-				handModel.xrInputSource = xrInputSource;
+        handModel.xrInputSource = xrInputSource;
 
-				// @todo Detect profile if not provided
-				if ( profile === undefined || profile === 'spheres' ) {
+        // @todo Detect profile if not provided
+        if ( profile === undefined || profile === 'spheres' ) {
 
-					handModel.motionController = new XRHandPrimitiveModel( handModel, controller, this.path, xrInputSource.handedness, { primitive: 'sphere' } );
+          handModel.motionController = new XRHandPrimitiveModel( handModel, controller, this.path, xrInputSource.handedness, { primitive: 'sphere' } );
 
-				} else if ( profile === 'boxes' ) {
+        } else if ( profile === 'boxes' ) {
 
-					handModel.motionController = new XRHandPrimitiveModel( handModel, controller, this.path, xrInputSource.handedness, { primitive: 'box' } );
+          handModel.motionController = new XRHandPrimitiveModel( handModel, controller, this.path, xrInputSource.handedness, { primitive: 'box' } );
 
-				} else if ( profile === 'mesh' ) {
+        } else if ( profile === 'mesh' ) {
 
-					handModel.motionController = new XRHandMeshModel( handModel, controller, this.path, xrInputSource.handedness );
+        /* NOTE: this line is modified from default THREE.js to pass onLoad */
+          handModel.motionController = new XRHandMeshModel( handModel, controller, this.path, xrInputSource.handedness, null, onLoad);
 
-				}
+        }
 
-			}
+      }
 
-			controller.visible = true;
+      controller.visible = true;
 
-		} );
+    } );
 
-		controller.addEventListener( 'disconnected', () => {
+    controller.addEventListener( 'disconnected', () => {
 
-			controller.visible = false;
-			// handModel.motionController = null;
-			// handModel.remove( scene );
-			// scene = null;
+      controller.visible = false;
+      // handModel.motionController = null;
+      // handModel.remove( scene );
+      // scene = null;
 
-		} );
+    } );
 
-		return handModel;
+    return handModel;
 
-	}
+  }
 
 }
 

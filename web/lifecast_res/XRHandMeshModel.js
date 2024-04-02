@@ -4,110 +4,112 @@ const DEFAULT_HAND_PROFILE_PATH = 'https://cdn.jsdelivr.net/npm/@webxr-input-pro
 
 class XRHandMeshModel {
 
-	constructor( handModel, controller, path, handedness, loader = null, onLoad = null ) {
+  constructor( handModel, controller, path, handedness, loader = null, onLoad = null) {
 
-		this.controller = controller;
-		this.handModel = handModel;
+    this.controller = controller;
+    this.handModel = handModel;
 
-		this.bones = [];
+    this.bones = [];
 
-		if ( loader === null ) {
+    if ( loader === null ) {
 
-			loader = new GLTFLoader();
-			loader.setPath( path || DEFAULT_HAND_PROFILE_PATH );
+      loader = new GLTFLoader();
+      loader.setPath( path || DEFAULT_HAND_PROFILE_PATH );
 
-		}
+    }
 
-		loader.load( `${handedness}.glb`, gltf => {
+    loader.load( `${handedness}.glb`, gltf => {
 
-			const object = gltf.scene.children[ 0 ];
-			this.handModel.add( object );
+      const object = gltf.scene.children[ 0 ];
+      this.handModel.add( object );
 
-			const mesh = object.getObjectByProperty( 'type', 'SkinnedMesh' );
-			mesh.frustumCulled = false;
-			mesh.castShadow = true;
-			mesh.receiveShadow = true;
+      const mesh = object.getObjectByProperty( 'type', 'SkinnedMesh' );
+      mesh.frustumCulled = false;
+      //mesh.castShadow = true;
+      //mesh.receiveShadow = true;
+      mesh.castShadow = false; // Modified for Lifecast player to be faster.
+      mesh.receiveShadow = false;
 
-			const joints = [
-				'wrist',
-				'thumb-metacarpal',
-				'thumb-phalanx-proximal',
-				'thumb-phalanx-distal',
-				'thumb-tip',
-				'index-finger-metacarpal',
-				'index-finger-phalanx-proximal',
-				'index-finger-phalanx-intermediate',
-				'index-finger-phalanx-distal',
-				'index-finger-tip',
-				'middle-finger-metacarpal',
-				'middle-finger-phalanx-proximal',
-				'middle-finger-phalanx-intermediate',
-				'middle-finger-phalanx-distal',
-				'middle-finger-tip',
-				'ring-finger-metacarpal',
-				'ring-finger-phalanx-proximal',
-				'ring-finger-phalanx-intermediate',
-				'ring-finger-phalanx-distal',
-				'ring-finger-tip',
-				'pinky-finger-metacarpal',
-				'pinky-finger-phalanx-proximal',
-				'pinky-finger-phalanx-intermediate',
-				'pinky-finger-phalanx-distal',
-				'pinky-finger-tip',
-			];
+      const joints = [
+        'wrist',
+        'thumb-metacarpal',
+        'thumb-phalanx-proximal',
+        'thumb-phalanx-distal',
+        'thumb-tip',
+        'index-finger-metacarpal',
+        'index-finger-phalanx-proximal',
+        'index-finger-phalanx-intermediate',
+        'index-finger-phalanx-distal',
+        'index-finger-tip',
+        'middle-finger-metacarpal',
+        'middle-finger-phalanx-proximal',
+        'middle-finger-phalanx-intermediate',
+        'middle-finger-phalanx-distal',
+        'middle-finger-tip',
+        'ring-finger-metacarpal',
+        'ring-finger-phalanx-proximal',
+        'ring-finger-phalanx-intermediate',
+        'ring-finger-phalanx-distal',
+        'ring-finger-tip',
+        'pinky-finger-metacarpal',
+        'pinky-finger-phalanx-proximal',
+        'pinky-finger-phalanx-intermediate',
+        'pinky-finger-phalanx-distal',
+        'pinky-finger-tip',
+      ];
 
-			joints.forEach( jointName => {
+      joints.forEach( jointName => {
 
-				const bone = object.getObjectByName( jointName );
+        const bone = object.getObjectByName( jointName );
 
-				if ( bone !== undefined ) {
+        if ( bone !== undefined ) {
 
-					bone.jointName = jointName;
+          bone.jointName = jointName;
 
-				} else {
+        } else {
 
-					console.warn( `Couldn't find ${jointName} in ${handedness} hand mesh` );
+          console.warn( `Couldn't find ${jointName} in ${handedness} hand mesh` );
 
-				}
+        }
 
-				this.bones.push( bone );
+        this.bones.push( bone );
 
-			} );
+      } );
 
-			if ( onLoad ) onLoad( object );
+      if ( onLoad ) onLoad( object );
 
-		} );
+    } );
 
-	}
+  }
 
-	updateMesh() {
+  updateMesh() {
 
-		// XR Joints
-		const XRJoints = this.controller.joints;
+    // XR Joints
+    const XRJoints = this.controller.joints;
 
-		for ( let i = 0; i < this.bones.length; i ++ ) {
+    for ( let i = 0; i < this.bones.length; i ++ ) {
 
-			const bone = this.bones[ i ];
+      const bone = this.bones[ i ];
 
-			if ( bone ) {
+      if ( bone ) {
 
-				const XRJoint = XRJoints[ bone.jointName ];
+        const XRJoint = XRJoints[ bone.jointName ];
 
-				if ( XRJoint.visible ) {
+        if ( XRJoint.visible ) {
 
-					const position = XRJoint.position;
+          const position = XRJoint.position;
 
-					bone.position.copy( position );
-					bone.quaternion.copy( XRJoint.quaternion );
-					// bone.scale.setScalar( XRJoint.jointRadius || defaultRadius );
+          bone.position.copy( position );
+          bone.quaternion.copy( XRJoint.quaternion );
+          // bone.scale.setScalar( XRJoint.jointRadius || defaultRadius );
 
-				}
+        }
 
-			}
+      }
 
-		}
+    }
 
-	}
+  }
 
 }
 
