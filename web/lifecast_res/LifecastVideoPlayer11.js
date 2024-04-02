@@ -29,6 +29,8 @@ import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
 import {HelpGetVR} from './HelpGetVR11.js';
 import {GestureControlModule} from './GestureControlModule.js';
+import {XRControllerModelFactory} from './XRControllerModelFactory.js';
+import {XRHandModelFactory} from './XRHandModelFactory.js';
 
 const CubeFace = {
   FRONT_LEFT:   0,
@@ -49,12 +51,14 @@ let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
 
-let container, camera, scene, renderer, vr_controller0, vr_controller1;
-let hand0, hand1; // for XR hand-tracking
+let container, camera, scene, renderer;
+let vr_controller0, vr_controller1; // used for getting controller state, including buttons
+let controller_grip0, controller_grip1; // used for rendering controller models
+let hand0, hand1, hand_model0, hand_model1; // for XR hand-tracking
+
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let prev_vr_camera_position;
-let left_finger_indicator, right_finger_indicator;
 
 let video;
 let texture;
@@ -514,14 +518,10 @@ function render() {
     gesture_control.updateLeftHand(indexFingerTipPosL);
     gesture_control.updateRightHand(indexFingerTipPosR);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    left_finger_indicator.position.copy(indexFingerTipPosL);
-    right_finger_indicator.position.copy(indexFingerTipPosR);
   } else if (vr_controller0 && vr_controller1) {
     gesture_control.updateLeftHand(vr_controller0.position);
     gesture_control.updateRightHand(vr_controller1.position);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    left_finger_indicator.position.copy(vr_controller0.position);
-    right_finger_indicator.position.copy(vr_controller1.position);
   }
 
 
@@ -602,24 +602,20 @@ function initHandControllers(handleft, handright) {
   handright.addEventListener('pinchstart', function() {
     debugLog("Right pinchstart");
     gesture_control.rightPinchStart();
-    right_finger_indicator.scale.set(2.0, 2.0, 2.0);
   });
   handright.addEventListener('pinchend', function() {
     debugLog("Right pinchend");
     gesture_control.rightPinchEnd();
-    right_finger_indicator.scale.set(1.0, 1.0, 1.0);
     playVideoIfReady();
   });
 
   handleft.addEventListener('pinchstart', function() {
     debugLog("Left pinchstart");
     gesture_control.leftPinchStart();
-    left_finger_indicator.scale.set(2.0, 2.0, 2.0);
   });
   handleft.addEventListener('pinchend', function() {
     debugLog("Left pinchend");
     gesture_control.leftPinchEnd();
-    left_finger_indicator.scale.set(1.0, 1.0, 1.0);
     playVideoIfReady();
   });
 }
@@ -643,21 +639,17 @@ function updateGamepad(vr_controller) {
   if (vr_controller.button_A && !prev_button_A) {
     debugLog("CONTROLLER: Left pinchstart");
     gesture_control.leftPinchStart();
-    left_finger_indicator.scale.set(2.0, 2.0, 2.0);
   } else if (!vr_controller.button_A && prev_button_A) {
     debugLog("CONTROLLER: Left pinchend");
     gesture_control.leftPinchEnd();
-    left_finger_indicator.scale.set(1.0, 1.0, 1.0);
   }
 
   if (vr_controller.button_B && !prev_button_B) {
     debugLog("CONTROLLER: Right pinchstart");
     gesture_control.rightPinchStart();
-    right_finger_indicator.scale.set(2.0, 2.0, 2.0);
   } else if (!vr_controller.button_B && prev_button_B) {
     debugLog("CONTROLLER: Right pinchend");
     gesture_control.rightPinchEnd();
-    right_finger_indicator.scale.set(1.0, 1.0, 1.0);
   }
   debugLog("CONTROLLER: " + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
 
@@ -757,11 +749,60 @@ function getRotationMatrix( alpha, beta, gamma ) {
   ];
 };
 
-function createFingertipIndicator(color) {
-  const geometry = new THREE.SphereGeometry(0.005, 8, 8);
-  const material = new THREE.MeshBasicMaterial({ color: color });
-  const sphere = new THREE.Mesh(geometry, material);
-  return sphere;
+function applyHandMaterialRecursive(object, material) {
+  object.traverse((child) => {
+    if (child.isMesh) {
+      child.material = material;
+      child.renderOrder = 10; // HACK: draw hands last for transparency without writing to depth
+    }
+  });
+}
+
+function setupHandAndControllerModels() {
+  const controllerModelFactory = new XRControllerModelFactory();
+  const handModelFactory = new XRHandModelFactory();
+
+  vr_controller0 = renderer.xr.getController(0);
+  vr_controller1 = renderer.xr.getController(1);
+  controller_grip0 = renderer.xr.getControllerGrip(0);
+  controller_grip1 = renderer.xr.getControllerGrip(1);
+  hand0 = renderer.xr.getHand(0);
+  hand1 = renderer.xr.getHand(1);
+
+  initVrController(vr_controller0);
+  initVrController(vr_controller1);
+  initHandControllers(hand0, hand1);
+
+  const hand_material = new THREE.MeshPhongMaterial({
+    color: 0x8cc6ff,
+    transparent: true,
+    opacity: 0.33,
+    depthTest: true,
+    depthWrite: false,
+    side: THREE.DoubleSide
+  });
+  // Wait until hand models load, then overwrite their material
+  hand_model0 = handModelFactory.createHandModel(hand0, "mesh", function() {
+    applyHandMaterialRecursive(hand_model0, hand_material);
+  });
+  hand_model1 = handModelFactory.createHandModel(hand1, "mesh", function() {
+    applyHandMaterialRecursive(hand_model1, hand_material);
+  });
+
+  controller_grip0.add(controllerModelFactory.createControllerModel(controller_grip0));
+  controller_grip1.add(controllerModelFactory.createControllerModel(controller_grip1));
+  hand1.add(hand_model0);
+  hand0.add(hand_model1);
+  scene.add(vr_controller0); // TODO: is this needed?
+  scene.add(vr_controller1);
+  scene.add(controller_grip0);
+  scene.add(controller_grip1);
+  scene.add(hand0);
+  scene.add(hand1);
+
+  // We need to add some light for the hand material to be anything other than black
+  scene.add(new THREE.HemisphereLight( 0xbcbcbc, 0xa5a5a5, 3));
+  scene.add(new THREE.DirectionalLight( 0xffffff, 3));
 }
 
 export function updateEmbedControls(
@@ -997,11 +1038,6 @@ export function init({
   world_group = new THREE.Group();
   scene.add(world_group);
 
-  left_finger_indicator = createFingertipIndicator(0x00008f);
-  right_finger_indicator = createFingertipIndicator(0x8f0000);
-  scene.add(left_finger_indicator);
-  scene.add(right_finger_indicator);
-
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
 
@@ -1046,8 +1082,7 @@ export function init({
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
-    powerPreference: "high-performance",
-    depth: true
+    powerPreference: "high-performance"
   });
   renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -1124,15 +1159,8 @@ export function init({
     }, false);
   }
 
-  // VR trigger button to play/pause (or pinch gesture)
-  vr_controller0 = renderer.xr.getController(0);
-  vr_controller1 = renderer.xr.getController(1);
-  initVrController(vr_controller0);
-  initVrController(vr_controller1);
-
-  hand0 = renderer.xr.getHand(0);
-  hand1 = renderer.xr.getHand(1);
-  initHandControllers(hand0, hand1);
+  // Setup hand/controller models and initialize stuff related to user input from controllers or hands
+  setupHandAndControllerModels();
 
   // Disable right click on play/pause button
   const images = document.getElementsByTagName('img');
