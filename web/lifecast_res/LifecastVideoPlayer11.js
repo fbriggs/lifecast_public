@@ -29,8 +29,8 @@ import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
 import {HelpGetVR} from './HelpGetVR11.js';
 import {GestureControlModule} from './GestureControlModule.js';
-import { XRControllerModelFactory } from './XRControllerModelFactory.js';
-import { XRHandModelFactory } from './XRHandModelFactory.js';
+import {XRControllerModelFactory} from './XRControllerModelFactory.js';
+import {XRHandModelFactory} from './XRHandModelFactory.js';
 
 const CubeFace = {
   FRONT_LEFT:   0,
@@ -789,7 +789,6 @@ function setupHandAndControllerModels() {
     applyHandMaterialRecursive(hand_model1, hand_material);
   });
 
-
   controller_grip0.add(controllerModelFactory.createControllerModel(controller_grip0));
   controller_grip1.add(controllerModelFactory.createControllerModel(controller_grip1));
   hand1.add(hand_model0);
@@ -1084,8 +1083,8 @@ export function init({
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance",
-    depth: true,
-    alpha: true
+    //depth: true,
+    //alpha: true
   });
   renderer.setPixelRatio(window.devicePixelRatio);
 
