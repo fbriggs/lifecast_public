@@ -1202,9 +1202,9 @@ export function init({
     }
 
     if (_format == "ldi3") {
-      if (key == "z") { for (var m of ldi_ftheta_mesh.ftheta_bg_meshes) { m.visible = !m.visible; } }
-      if (key == "x") { for (var m of ldi_ftheta_mesh.ftheta_mid_meshes) { m.visible = !m.visible; } }
-      if (key == "c") { for (var m of ldi_ftheta_mesh.ftheta_fg_meshes) { m.visible = !m.visible; } }
+      if (key == "z") { for (var m of ldi_ftheta_mesh.layer_to_meshes[0]) { m.visible = !m.visible; } }
+      if (key == "x") { for (var m of ldi_ftheta_mesh.layer_to_meshes[1]) { m.visible = !m.visible; } }
+      if (key == "c") { for (var m of ldi_ftheta_mesh.layer_to_meshes[2]) { m.visible = !m.visible; } }
     }
 
   });
