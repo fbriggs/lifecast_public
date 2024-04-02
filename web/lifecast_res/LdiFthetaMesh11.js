@@ -17,8 +17,6 @@ export const FTHETA_UNIFORM_ROTATION_BUFFER_SIZE = 60; // This MUST match the un
  That class is a THREE Object3D displaying a LDI.
  */
 export class LdiFthetaMesh extends THREE.Object3D {
-    ftheta_fg_geoms = []; // references to all of the patches in the f-theta mesh (foreground)
-    ftheta_bg_geoms = []; // references to all of the patches in the f-theta mesh (background)
     ftheta_fg_meshes = []; // above is for the geometry (so we can rotate). this one is for the Mesh so we can toggle visibility for debug purposes
     ftheta_mid_meshes = []; // toggle visibility for debug purposes
     ftheta_bg_meshes = []; // toggle visibility for debug purposes
@@ -30,8 +28,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
         super()
 
         if (_ftheta_scale == null) {
-            if (_format == "ldi2") this.ftheta_scale = 1.2;
-            else if (_format == "ldi3") this.ftheta_scale = 1.15;
+            if (_format == "ldi3") this.ftheta_scale = 1.15;
             else { console.log("Error, unknown format: ", _format); }
         } else {
             this.ftheta_scale = _ftheta_scale
@@ -60,31 +57,6 @@ export class LdiFthetaMesh extends THREE.Object3D {
         if (photo_mode) shader_prefix += "#define PHOTO\n";
         if (_metadata_url == "") shader_prefix += "#define NO_METADATA\n";
         if (_decode_12bit) shader_prefix += "#define DECODE_12BIT\n";
-
-        //// LDI2 materials ////
-
-        const ldi2_fg_material = this.ldi2_fg_material = new THREE.ShaderMaterial({
-            vertexShader:   shader_prefix + LDI2_fthetaFgVertexShader,
-            fragmentShader: shader_prefix + LDI2_fthetaFgFragmentShader,
-            uniforms: this.uniforms,
-            depthTest: true,
-            depthWrite: true,
-            transparent: false,
-            wireframe: false
-        });
-        ldi2_fg_material.side = THREE.DoubleSide;
-
-        const ldi2_bg_material = this.ldi2_bg_material = new THREE.ShaderMaterial({
-            vertexShader:   shader_prefix + LDI2_fthetaBgVertexShader,
-            fragmentShader: shader_prefix + LDI2_fthetaBgFragmentShader,
-            uniforms: this.uniforms,
-            depthTest: true,
-            depthWrite: true,
-            transparent: false,
-            wireframe: false
-        });
-        ldi2_bg_material.side = THREE.DoubleSide;
-        ldi2_bg_material.depthFunc = THREE.LessDepth;
 
         //// LDI3 materials ////
 
@@ -124,11 +96,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
         ldi3_layer2_material.side = THREE.DoubleSide;
         ldi3_layer2_material.depthFunc = THREE.LessEqualDepth;
 
-        if (_format == "ldi2") {
-            const inflation = 1.0;
-            this.makeFthetaMesh(_format, ldi2_fg_material, 32, 14, 0, inflation);
-            this.makeFthetaMesh(_format, ldi2_bg_material, 32, 14, 1, inflation);
-        } else if (_format == "ldi3") {
+        if (_format == "ldi3") {
             const inflation = 3.0;
             this.makeFthetaMesh(_format, ldi3_layer0_material, 32, 16, 0, inflation);
             this.makeFthetaMesh(_format, ldi3_layer1_material, 32, 16, 1, inflation);
@@ -201,19 +169,9 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
                     const mesh = new THREE.Mesh(geometry, material);
 
-                    if (format == "ldi2") {
+                    if (format == "ldi3") {
                         if (order == 0) {
-                            this.ftheta_fg_geoms.push(geometry);
-                            this.ftheta_fg_meshes.push(mesh);
-                        } else if (order == 1) {
-                            this.ftheta_bg_geoms.push(geometry);
-                        }
-                    } else if (format == "ldi3") {
-                        if (order == 0) {
-                            this.ftheta_bg_geoms.push(geometry);
                             this.ftheta_bg_meshes.push(mesh);
-                        } else { // this puts L1 and L2 together
-                            this.ftheta_fg_geoms.push(geometry);
                         }
                         if (order == 1) {
                             this.ftheta_mid_meshes.push(mesh);
@@ -221,6 +179,8 @@ export class LdiFthetaMesh extends THREE.Object3D {
                         if (order == 2) {
                             this.ftheta_fg_meshes.push(mesh);
                         }
+                    } else {
+                      console.log("Unrecognized format: ", _format);
                     }
 
                     // We can only do frustum culling in Chrome with ftheta projection, because we
@@ -236,7 +196,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
                     //const mesh = new THREE.Mesh(geometry, wireframe_material);
 
                     mesh.renderOrder = order;
-                    this.add(mesh); //world_group
+                    this.add(mesh);
                 }
             }
         }
