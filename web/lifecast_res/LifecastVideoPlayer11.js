@@ -1082,9 +1082,7 @@ export function init({
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
-    powerPreference: "high-performance",
-    //depth: true,
-    //alpha: true
+    powerPreference: "high-performance"
   });
   renderer.setPixelRatio(window.devicePixelRatio);
 
