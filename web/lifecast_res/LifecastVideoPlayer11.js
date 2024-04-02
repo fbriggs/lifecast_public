@@ -479,6 +479,16 @@ function updateControlsAndButtons() {
   }
 }
 
+function setVisibilityRecursive(object, visible) {
+  object.visible = visible;
+  if (object.children) {
+    object.children.forEach(child => setVisibilityRecursive(child, visible));
+  }
+}
+
+function setVisibilityForLayerMeshes(l, v) {
+  for (var m of ldi_ftheta_mesh.layer_to_meshes[l]) { m.visible = v; }
+}
 
 function render() {
   // The fragment shader uses the distance from the camera to the origin to determine how
@@ -556,7 +566,37 @@ function render() {
     texture.needsUpdate = true;
   }
 
+
+  renderer.clear();
+
+  //setVisibilityRecursive(scene, false);
+  // Just layer 0
+  scene.visible = true;
+  world_group.visible = true;
+  ldi_ftheta_mesh.visible = true;
+
+  setVisibilityForLayerMeshes(0, true);
+  setVisibilityForLayerMeshes(1, false);
+  setVisibilityForLayerMeshes(2, false);
   renderer.render(scene, camera);
+
+  renderer.clearDepth();
+  setVisibilityForLayerMeshes(0, false);
+  setVisibilityForLayerMeshes(1, true);
+  setVisibilityForLayerMeshes(2, false);
+  renderer.render(scene, camera);
+
+  renderer.clearDepth();
+  setVisibilityForLayerMeshes(0, false);
+  setVisibilityForLayerMeshes(1, false);
+  setVisibilityForLayerMeshes(2, true);
+  renderer.render(scene, camera);
+
+  //setVisibilityRecursive(scene, true);
+  //setVisibilityForLayerMeshes(0, false);
+  //setVisibilityForLayerMeshes(1, false);
+  //setVisibilityForLayerMeshes(2, false);
+  //renderer.render(scene, camera);
 
   // Reset the view center if we started a VR session 1 frame earlier (we have to wait 1
   // frame to get correct data).
@@ -1029,7 +1069,7 @@ export function init({
   vrbutton3d = new THREE.Mesh(vrbutton_geometry, vrbutton_material);
   vrbutton3d.visible = false;
   vrbutton3d.position.set(0, 0, -1);
-  world_group.add(vrbutton3d);
+  scene.add(vrbutton3d);
 
   // See https://github.com/mrdoob/three.js/blob/dev/examples/webxr_vr_sandbox.html
   // for more examples of using HTMLMesh.
@@ -1057,13 +1097,15 @@ export function init({
     debug_text_mesh.position.z = -1.0;
     debug_text_mesh.rotation.y = Math.PI / 9;
     debug_text_mesh.scale.setScalar(1.0);
-    world_group.add(debug_text_mesh);
+    scene.add(debug_text_mesh);
   }
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
-    powerPreference: "high-performance"
+    powerPreference: "high-performance",
+    preserveDrawingBuffer: true
   });
+  renderer.autoClearColor = false;
   renderer.setPixelRatio(window.devicePixelRatio);
 
   renderer.xr.enabled = true;
