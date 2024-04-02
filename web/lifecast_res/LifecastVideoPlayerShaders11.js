@@ -167,7 +167,7 @@ void main() {
 
   float s = clamp(0.3 / depth_sample, 0.01, 50.0);
 
-  vec4 position_shifted = vec4(ftheta_rotation * normalize(position.xyz) * s, 1.0);
+  vec4 position_shifted = vec4(ftheta_rotation * position.xyz * s, 1.0);
   gl_Position = projectionMatrix * modelViewMatrix * position_shifted;
 }
 `;

@@ -180,6 +180,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
                     //const color = (patch_i + 3542) * (patch_j + 3444) * 329482983;
                     //const wireframe_material = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide, depthTest: false, transparent: false, wireframe:true});
                     //const mesh = new THREE.Mesh(geometry, wireframe_material);
+                    mesh.frustumCulled = false;
 
                     mesh.renderOrder = order;
                     this.add(mesh);
