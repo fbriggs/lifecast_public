@@ -7,15 +7,14 @@ import {
 import * as THREE from './three152.module.min.js';
 
 export const FTHETA_UNIFORM_ROTATION_BUFFER_SIZE = 60; // This MUST match the uniform array size in fgVertexShader
-
+export const NUM_LAYERS = 3;
 
 /*
  That class is a THREE Object3D displaying a LDI.
  */
 export class LdiFthetaMesh extends THREE.Object3D {
-    ftheta_fg_meshes = []; // above is for the geometry (so we can rotate). this one is for the Mesh so we can toggle visibility for debug purposes
-    ftheta_mid_meshes = []; // toggle visibility for debug purposes
-    ftheta_bg_meshes = []; // toggle visibility for debug purposes
+    layer_to_meshes = Array.from({ length: NUM_LAYERS }, () => []);
+
     ftheta_scale = null
 
     constructor(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale = null) {
@@ -157,29 +156,11 @@ export class LdiFthetaMesh extends THREE.Object3D {
                     geometry.setIndex(indices);
                     geometry.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
                     geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-                    geometry.computeBoundingSphere();
-                    geometry.originalBoundingSphere = geometry.boundingSphere.clone();
-                    geometry.boundingSphere.radius *= 1.1;
 
                     const mesh = new THREE.Mesh(geometry, material);
 
-                    if (format == "ldi3") {
-                        if (order == 0) {
-                            this.ftheta_bg_meshes.push(mesh);
-                        }
-                        if (order == 1) {
-                            this.ftheta_mid_meshes.push(mesh);
-                        }
-                        if (order == 2) {
-                            this.ftheta_fg_meshes.push(mesh);
-                        }
-                    } else {
-                      console.log("Unrecognized format: ", _format);
-                    }
+                    this.layer_to_meshes[order].push(mesh);
 
-                    //const color = (patch_i + 3542) * (patch_j + 3444) * 329482983;
-                    //const wireframe_material = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide, depthTest: false, transparent: false, wireframe:true});
-                    //const mesh = new THREE.Mesh(geometry, wireframe_material);
                     mesh.frustumCulled = false;
 
                     mesh.renderOrder = order;
