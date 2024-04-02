@@ -1,8 +1,4 @@
 import {
-    LDI2_fthetaBgFragmentShader,
-    LDI2_fthetaBgVertexShader,
-    LDI2_fthetaFgFragmentShader,
-    LDI2_fthetaFgVertexShader,
     LDI3_fthetaBgFragmentShader,
     LDI3_fthetaBgVertexShader,
     LDI3_fthetaFgFragmentShader,
@@ -20,7 +16,6 @@ export class LdiFthetaMesh extends THREE.Object3D {
     ftheta_fg_meshes = []; // above is for the geometry (so we can rotate). this one is for the Mesh so we can toggle visibility for debug purposes
     ftheta_mid_meshes = []; // toggle visibility for debug purposes
     ftheta_bg_meshes = []; // toggle visibility for debug purposes
-    num_patches_not_culled = 0; // Used for performance stats (want to know how many patches are being draw in various scenes).
     ftheta_scale = null
 
     constructor(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale = null) {
@@ -134,8 +129,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
                         const y = Math.sin(theta) * Math.sin(phi);
                         const z = -Math.cos(phi);
 
-                        // TODO: the 10's here are a hack for frustum culling. 10 might not be optimal
-                        verts.push(x * 10, y * 10, z * 10);
+                        verts.push(x, y, z);
                         uvs.push(u, v);
                     }
                 }
@@ -182,14 +176,6 @@ export class LdiFthetaMesh extends THREE.Object3D {
                     } else {
                       console.log("Unrecognized format: ", _format);
                     }
-
-                    // We can only do frustum culling in Chrome with ftheta projection, because we
-                    // need to be able to update the bounding sphere centers with the current
-                    // frame's rotation matrix outside the shader. Oculus is a flavor of Chrome.
-                    // We don't really need to do this on desktop / mobile as an optimization, and it
-                    // can sometimes cause artifacts, so now its only on Oculus.
-                    mesh.frustumCulled = is_oculus;
-                    mesh.onBeforeRender = () => { this.num_patches_not_culled += 1; };
 
                     //const color = (patch_i + 3542) * (patch_j + 3444) * 329482983;
                     //const wireframe_material = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide, depthTest: false, transparent: false, wireframe:true});
