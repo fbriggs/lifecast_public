@@ -776,7 +776,7 @@ function setupHandAndControllerModels() {
   const hand_material = new THREE.MeshPhongMaterial({
     color: 0x8cc6ff,
     transparent: true,
-    opacity: 0.2,
+    opacity: 0.33,
     depthTest: true,
     depthWrite: false,
     side: THREE.DoubleSide
