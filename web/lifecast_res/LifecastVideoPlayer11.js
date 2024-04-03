@@ -558,21 +558,18 @@ function render() {
 
   world_group.visible = true;
   interface_group.visible = false;
-
   if (toggle_layer0) {
     setVisibilityForLayerMeshes(0, true);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, false);
     renderer.render(scene, camera); // clears depth automatically
   }
-
   if (toggle_layer1) {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, true);
     setVisibilityForLayerMeshes(2, false);
     renderer.render(scene, camera);  // clears depth automatically
   }
-
   if (toggle_layer2) {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, false);
@@ -581,7 +578,6 @@ function render() {
   }
 
   // In a final pass, render the interface.
-
   world_group.visible = false;
   interface_group.visible = true;
   renderer.render(scene, camera);  // clears depth automatically (unwanted but unavoidable without warnings from THREE.js and hack workarounds).
