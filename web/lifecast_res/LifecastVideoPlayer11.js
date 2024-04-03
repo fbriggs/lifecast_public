@@ -554,7 +554,7 @@ function render() {
 
   // Render each layer in order, clearing the depth buffer between. This is important
   // to get alpha blending right.
-  renderer.clear();
+  renderer.clearColor();
 
   world_group.visible = true;
   interface_group.visible = false;
@@ -563,30 +563,28 @@ function render() {
     setVisibilityForLayerMeshes(0, true);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, false);
-    renderer.render(scene, camera);
+    renderer.render(scene, camera); // clears depth automatically
   }
 
   if (toggle_layer1) {
-    renderer.clearDepth();
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, true);
     setVisibilityForLayerMeshes(2, false);
-    renderer.render(scene, camera);
+    renderer.render(scene, camera);  // clears depth automatically
   }
 
   if (toggle_layer2) {
-    renderer.clearDepth();
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, true);
-    renderer.render(scene, camera);
+    renderer.render(scene, camera);  // clears depth automatically
   }
 
   // In a final pass, render the interface.
 
   world_group.visible = false;
   interface_group.visible = true;
-  renderer.render(scene, camera);
+  renderer.render(scene, camera);  // clears depth automatically (unwanted but unavoidable without warnings from THREE.js and hack workarounds).
 
   // Reset the view center if we started a VR session 1 frame earlier (we have to wait 1
   // frame to get correct data).
@@ -1097,7 +1095,10 @@ export function init({
     powerPreference: "high-performance",
     preserveDrawingBuffer: true
   });
+  renderer.autoClear = false;
   renderer.autoClearColor = false;
+  renderer.autoClearDepth = true; // It would be cool to set this to false and explicitly clear on each call to render(), but THREE.js will call clear no matter what automatically (even when autoClear = false), so well just set this to true and let it work.
+  renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
 
   renderer.xr.enabled = true;
