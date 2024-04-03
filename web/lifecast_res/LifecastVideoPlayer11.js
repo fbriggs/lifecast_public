@@ -886,13 +886,6 @@ export function init({
     exit_xr_button_title =  "EXIT LOOKING GLASS";
   }
 
-  if (is_ios) {
-    if (window.innerHeight > window.innerWidth) { // portrait
-      _vfov = 120;
-    } else {
-      _vfov = 90;
-    }
-  }
   anim_fov_offset = _vfov;
 
   if (slideshow.length > 0) {
@@ -1287,11 +1280,6 @@ export function init({
       let p = -diff_orientation_b + mobile_drag_v;
       let q = diff_orientation_a + mobile_drag_u;
 
-      if (window.innerHeight > window.innerWidth) { // portrait
-        _vfov = 120;
-      } else {
-        _vfov = 90;
-      }
       camera.fov = _vfov;
       camera.updateProjectionMatrix();
 
