@@ -32,18 +32,6 @@ import {GestureControlModule} from './GestureControlModule.js';
 import {XRControllerModelFactory} from './XRControllerModelFactory.js';
 import {XRHandModelFactory} from './XRHandModelFactory.js';
 
-const CubeFace = {
-  FRONT_LEFT:   0,
-  BACK_LEFT:    1,
-  BACK_RIGHT:   2,
-  FRONT_RIGHT:  3,
-  BOTTOM_LEFT:  4,
-  BOTTOM_RIGHT: 5,
-  TOP_LEFT:     6,
-  TOP_RIGHT:    7
-};
-
-
 const gesture_control = new GestureControlModule();
 
 let enable_debug_text = false; // Turn this on if you want to use debugLog() or setDebugText().
@@ -58,6 +46,7 @@ let hand0, hand1, hand_model0, hand_model1; // for XR hand-tracking
 
 let ldi_ftheta_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
+let interface_group; // A separate Group for 3D interface components
 let prev_vr_camera_position;
 
 let video;
@@ -65,6 +54,10 @@ let texture;
 let vid_framerate = 30;
 let nonvr_menu_fade_counter = 0;
 let mouse_is_down = false;
+
+let toggle_layer0 = true;
+let toggle_layer1 = true;
+let toggle_layer2 = true;
 
 let prev_mouse_u = 0.5;
 let prev_mouse_v = 0.5;
@@ -479,6 +472,9 @@ function updateControlsAndButtons() {
   }
 }
 
+function setVisibilityForLayerMeshes(l, v) {
+  for (var m of ldi_ftheta_mesh.layer_to_meshes[l]) { m.visible = v; }
+}
 
 function render() {
   // The fragment shader uses the distance from the camera to the origin to determine how
@@ -556,7 +552,35 @@ function render() {
     texture.needsUpdate = true;
   }
 
-  renderer.render(scene, camera);
+  // Render each layer in order, clearing the depth buffer between. This is important
+  // to get alpha blending right.
+  renderer.clearColor();
+
+  world_group.visible = true;
+  interface_group.visible = false;
+  if (toggle_layer0) {
+    setVisibilityForLayerMeshes(0, true);
+    setVisibilityForLayerMeshes(1, false);
+    setVisibilityForLayerMeshes(2, false);
+    renderer.render(scene, camera); // clears depth automatically
+  }
+  if (toggle_layer1) {
+    setVisibilityForLayerMeshes(0, false);
+    setVisibilityForLayerMeshes(1, true);
+    setVisibilityForLayerMeshes(2, false);
+    renderer.render(scene, camera);  // clears depth automatically
+  }
+  if (toggle_layer2) {
+    setVisibilityForLayerMeshes(0, false);
+    setVisibilityForLayerMeshes(1, false);
+    setVisibilityForLayerMeshes(2, true);
+    renderer.render(scene, camera);  // clears depth automatically
+  }
+
+  // In a final pass, render the interface.
+  world_group.visible = false;
+  interface_group.visible = true;
+  renderer.render(scene, camera);  // clears depth automatically (unwanted but unavoidable without warnings from THREE.js and hack workarounds).
 
   // Reset the view center if we started a VR session 1 frame earlier (we have to wait 1
   // frame to get correct data).
@@ -775,12 +799,12 @@ function setupHandAndControllerModels() {
   controller_grip1.add(controllerModelFactory.createControllerModel(controller_grip1));
   hand1.add(hand_model0);
   hand0.add(hand_model1);
-  scene.add(vr_controller0); // TODO: is this needed?
-  scene.add(vr_controller1);
-  scene.add(controller_grip0);
-  scene.add(controller_grip1);
-  scene.add(hand0);
-  scene.add(hand1);
+  interface_group.add(vr_controller0); // TODO: is this needed?
+  interface_group.add(vr_controller1);
+  interface_group.add(controller_grip0);
+  interface_group.add(controller_grip1);
+  interface_group.add(hand0);
+  interface_group.add(hand1);
 
   // We need to add some light for the hand material to be anything other than black
   scene.add(new THREE.HemisphereLight( 0xbcbcbc, 0xa5a5a5, 3));
@@ -1016,7 +1040,9 @@ export function init({
   scene.background = new THREE.Color(0x000000);
 
   world_group = new THREE.Group();
+  interface_group = new THREE.Group();
   scene.add(world_group);
+  scene.add(interface_group);
 
   ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
@@ -1029,7 +1055,7 @@ export function init({
   vrbutton3d = new THREE.Mesh(vrbutton_geometry, vrbutton_material);
   vrbutton3d.visible = false;
   vrbutton3d.position.set(0, 0, -1);
-  world_group.add(vrbutton3d);
+  interface_group.add(vrbutton3d);
 
   // See https://github.com/mrdoob/three.js/blob/dev/examples/webxr_vr_sandbox.html
   // for more examples of using HTMLMesh.
@@ -1057,13 +1083,18 @@ export function init({
     debug_text_mesh.position.z = -1.0;
     debug_text_mesh.rotation.y = Math.PI / 9;
     debug_text_mesh.scale.setScalar(1.0);
-    world_group.add(debug_text_mesh);
+    interface_group.add(debug_text_mesh);
   }
 
   renderer = new THREE.WebGLRenderer({
     antialias: true,
-    powerPreference: "high-performance"
+    powerPreference: "high-performance",
+    preserveDrawingBuffer: true
   });
+  renderer.autoClear = false;
+  renderer.autoClearColor = false;
+  renderer.autoClearDepth = true; // It would be cool to set this to false and explicitly clear on each call to render(), but THREE.js will call clear no matter what automatically (even when autoClear = false), so well just set this to true and let it work.
+  renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
 
   renderer.xr.enabled = true;
@@ -1202,9 +1233,9 @@ export function init({
     }
 
     if (_format == "ldi3") {
-      if (key == "z") { for (var m of ldi_ftheta_mesh.layer_to_meshes[0]) { m.visible = !m.visible; } }
-      if (key == "x") { for (var m of ldi_ftheta_mesh.layer_to_meshes[1]) { m.visible = !m.visible; } }
-      if (key == "c") { for (var m of ldi_ftheta_mesh.layer_to_meshes[2]) { m.visible = !m.visible; } }
+      if (key == "z") { toggle_layer0 = !toggle_layer0; }
+      if (key == "x") { toggle_layer1 = !toggle_layer1; }
+      if (key == "c") { toggle_layer2 = !toggle_layer2; }
     }
 
   });
