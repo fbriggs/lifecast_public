@@ -165,7 +165,11 @@ void main() {
   float depth_sample = decodeInverseDepth(vUv, vec2(0.33333333, 0.33333333));
 #endif
 
-  float s = clamp(0.3 / depth_sample, 0.01, 50.0);
+  float max_depth = 5.0;
+  if (vUv.t < 0.25) {
+    max_depth = 5.0 - (0.25 - vUv.t) * 10.0;
+  }
+  float s = clamp(0.3 / depth_sample, 0.01, max_depth);
 
   vec4 position_shifted = vec4(ftheta_rotation * position.xyz * s, 1.0);
   gl_Position = projectionMatrix * modelViewMatrix * position_shifted;
@@ -229,7 +233,11 @@ void main() {
   vUv = uv;
 
   float depth_sample = decodeInverseDepth(vUv, vec2(0.33333333, 0.0));
-  float s = clamp(0.3 / depth_sample, 0.01, 50.0);
+  float max_depth = 5.0;
+  if (vUv.t < 0.25) {
+    max_depth = 5.0 - (0.25 - vUv.t) * 10.0;
+  }
+  float s = clamp(0.3 / depth_sample, 0.01, max_depth);
 
   vec4 position_shifted = vec4(ftheta_rotation * normalize(position.xyz) * s, 1.0);
 
