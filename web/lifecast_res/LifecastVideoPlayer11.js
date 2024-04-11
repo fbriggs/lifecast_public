@@ -647,6 +647,27 @@ function updateGamepad(vr_controller, hand) {
   var prev_button_A = vr_controller.button_A;
   var prev_button_B = vr_controller.button_B;
 
+  // Quest 3 Controller Buttons
+  // Left Hand
+  // Main Trigger
+  // vr_controller.gamepad.buttons[0].value > 0;
+  // Secondary Trigger
+  // vr_controller.gamepad.buttons[1].value > 0;
+  // X Button
+  // vr_controller.gamepad.buttons[4].value > 0;
+  // Y Button
+  // vr_controller.gamepad.buttons[5].value > 0;
+
+  // Right Hand
+  // Main Trigger
+  // vr_controller.gamepad.buttons[1].value > 0;
+  // Secondary Trigger
+  // vr_controller.gamepad.buttons[1].value > 0;
+  // A Button
+  // vr_controller.gamepad.buttons[4].value > 0;
+  // B Button
+  // vr_controller.gamepad.buttons[5].value > 0;
+
   vr_controller.button_A = vr_controller.gamepad.buttons[0].value > 0;
   vr_controller.button_B = vr_controller.gamepad.buttons[1].value > 0;
 
@@ -1248,6 +1269,7 @@ export function init({
   // world_group back to 0.
   var reset_event_handler = function(event) {
     world_group.position.set(0, 0, 0);
+    gesture_control.reset();
   };
 
   let xr_ref_space;
