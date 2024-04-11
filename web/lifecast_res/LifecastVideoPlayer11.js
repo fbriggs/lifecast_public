@@ -491,23 +491,23 @@ function render() {
 
   vr_camera_position.sub(world_group.position); // Subtract this to account for shifts in the world_group for view resets.
 
-  updateGamepad(vr_controller0, "left");
-  updateGamepad(vr_controller1, "right");
 
   updateControlsAndButtons();
   if (lock_position) { resetVRToCenter(); }
 
-  if (vr_controller0 && vr_controller1) {
-    gesture_control.updateLeftHand(vr_controller0.position);
-    gesture_control.updateRightHand(vr_controller1.position);
-    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-  } else if (handsAvailable()) {
+  if (handsAvailable()) {
     const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
     gesture_control.updateLeftHand(indexFingerTipPosL);
     gesture_control.updateRightHand(indexFingerTipPosR);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-  }
+  } else if (vr_controller0 && vr_controller1) {
+    updateGamepad(vr_controller0, "left");
+    updateGamepad(vr_controller1, "right");
+    gesture_control.updateLeftHand(vr_controller0.position);
+    gesture_control.updateRightHand(vr_controller1.position);
+    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+  } 
 
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
@@ -599,7 +599,6 @@ function initVrController(vr_controller) {
 
   vr_controller.addEventListener('connected', function(e) {
     vr_controller.gamepad = e.data.gamepad;
-    debugLog("gamepad connected", e.data.handedness, vr_controller.gamepad);
   });
 
   vr_controller.button_A = false;
