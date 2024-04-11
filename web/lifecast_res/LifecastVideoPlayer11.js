@@ -647,8 +647,8 @@ function updateGamepad(vr_controller, hand) {
   var prev_button_A = vr_controller.button_A;
   var prev_button_B = vr_controller.button_B;
 
-  vr_controller.button_A = vr_controller.gamepad.buttons[4].value > 0;
-  vr_controller.button_B = vr_controller.gamepad.buttons[5].value > 0;
+  vr_controller.button_A = vr_controller.gamepad.buttons[0].value > 0;
+  vr_controller.button_B = vr_controller.gamepad.buttons[1].value > 0;
 
   // Handle the left controller button press
   if (vr_controller.button_A && !prev_button_A) {
