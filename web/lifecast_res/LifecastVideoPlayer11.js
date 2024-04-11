@@ -857,7 +857,6 @@ export function init({
   _lock_position = false,
   _create_button_url = "",
   _decode_12bit = true,
-  _enable_pinch_world_drag = false,
   _looking_glass_config = null,
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
   _loop = false
