@@ -55,7 +55,7 @@ class HelpGetVR {
       banner.onclick = function () {
         if ( currentSession === null ) {
           const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor', 'hand-tracking', 'layers' ] };
-          navigator.xr.requestSession( 'immersive-vr', sessionInit ).then( onSessionStarted );
+          navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
         } else {
           currentSession.end();
         }
