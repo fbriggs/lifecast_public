@@ -6,7 +6,6 @@ import {
 } from "./LifecastVideoPlayerShaders11.js";
 import * as THREE from './three152.module.min.js';
 
-export const FTHETA_UNIFORM_ROTATION_BUFFER_SIZE = 60; // This MUST match the uniform array size in fgVertexShader
 export const NUM_LAYERS = 3;
 
 /*
@@ -17,7 +16,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
     ftheta_scale = null
 
-    constructor(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale = null) {
+    constructor(_format, _decode_12bit, texture, _ftheta_scale = null) {
 
         super()
 
@@ -32,24 +31,12 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
 
         // Make the initial shader uniforms.
-        var placeholder_ftheta_rotation_arr = new Array(FTHETA_UNIFORM_ROTATION_BUFFER_SIZE);
-        for (var i = 0; i < FTHETA_UNIFORM_ROTATION_BUFFER_SIZE; ++i) {
-            placeholder_ftheta_rotation_arr[i] = new THREE.Matrix3();
-        }
         this.uniforms = {
             uTexture: { value: texture },
-            uDistCamFromOrigin: { value: 0.0 },
-            uFthetaRotation: { value: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0] },
-            uFirstFrameInFthetaTable: { value: 0 },
-            uFrameIndexToFthetaRotation: { value: placeholder_ftheta_rotation_arr },
-            uCurrFrameChrome: { value: 0 },
         };
 
         // Make the foreground mesh material.
         var shader_prefix = "";
-        if (is_chrome)  shader_prefix += "#define CHROME\n";
-        if (photo_mode) shader_prefix += "#define PHOTO\n";
-        if (_metadata_url == "") shader_prefix += "#define NO_METADATA\n";
         if (_decode_12bit) shader_prefix += "#define DECODE_12BIT\n";
 
         //// LDI3 materials ////
