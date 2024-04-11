@@ -47,7 +47,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             uniforms: this.uniforms,
             depthTest: true,
             depthWrite: true,
-            transparent: false,
+            transparent: true,
             wireframe: false
         });
         ldi3_layer0_material.side = THREE.DoubleSide;

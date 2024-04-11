@@ -97,6 +97,7 @@ precision highp float;
 
 uniform sampler2D uTexture;
 varying vec2 vUv;
+varying float alpha;
 `
 + decode12bit +
 `
@@ -111,6 +112,7 @@ void main() {
   float s = clamp(0.3 / depth_sample, 0.01, 50.0);
 
   vec4 position_shifted = vec4(position.xyz * s, 1.0);
+  alpha = clamp(6.0 - length(position_shifted.xyz), 0.0, 1.0);
   gl_Position = projectionMatrix * modelViewMatrix * position_shifted;
 }
 `;
@@ -122,6 +124,7 @@ precision highp float;
 uniform sampler2D uTexture;
 
 varying vec2 vUv;
+varying float alpha;
 
 void main() {
 #if defined(LAYER2)
@@ -137,7 +140,7 @@ void main() {
   vec3 rgb = texture2D(uTexture, texture_uv).rgb;
   float a = texture2D(uTexture, alpha_uv).r;
 
-  gl_FragColor = vec4(rgb, a);
+  gl_FragColor = vec4(rgb, a * alpha);
 }
 `;
 
@@ -148,6 +151,7 @@ uniform sampler2D uTexture;
 + decode12bit +
 `
 varying vec2 vUv;
+varying float alpha;
 
 void main() {
   vUv = uv;
@@ -158,6 +162,7 @@ void main() {
   vec4 position_shifted = vec4(position.xyz * s, 1.0);
 
   gl_Position = projectionMatrix * modelViewMatrix * position_shifted;
+  alpha = clamp(6.0 - length(position_shifted.xyz), 0.0, 1.0);
 }
 `;
 
@@ -167,9 +172,11 @@ precision highp float;
 #include <common>
 uniform sampler2D uTexture;
 varying vec2 vUv;
+varying float alpha;
 
 void main() {
   vec2 texture_uv = vec2(vUv.s * 0.33333, vUv.t * 0.33333);
   gl_FragColor = texture2D(uTexture, texture_uv);
+  gl_FragColor.a *= alpha;
 }
 `;
