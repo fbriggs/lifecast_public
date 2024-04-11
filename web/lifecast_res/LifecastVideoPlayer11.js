@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import {FTHETA_UNIFORM_ROTATION_BUFFER_SIZE, LdiFthetaMesh} from "./LdiFthetaMesh11.js";
+import {LdiFthetaMesh} from "./LdiFthetaMesh11.js";
 import * as THREE from './three152.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
 import {TimedVideoTexture} from "./TimedVideoTexture.js";
@@ -78,8 +78,6 @@ let photo_mode = false;
 let embed_mode = false;
 let cam_mode = "default";
 let vscroll_bias = 0; // Offsets the scroll effect in vscroll camera mode.
-let metadata;
-let metadata_url;
 let next_video_url;
 let next_video_thumbnail;
 let slideshow;
@@ -322,16 +320,10 @@ function resetVRToCenter() {
 }
 
 function playVideoIfReady() {
-  if (!metadata && metadata_url != "") {
-    // TODO: we should do a better job of showing this status to the user (similar to buffering)
-    console.log("Can't play because metadata not yet loaded.");
-    return;
-  }
   if (!video) return;
 
   video.play();
   has_played_video = true;
-  updateFthetaRotationUniforms(video.currentTime);
 }
 
 function toggleVideoPlayPause() {
@@ -497,9 +489,6 @@ function render() {
   prev_vr_camera_position = vr_camera_position.clone();
 
   vr_camera_position.sub(world_group.position); // Subtract this to account for shifts in the world_group for view resets.
-  var cam_position_for_shader =
-    renderer.xr.isPresenting ? vr_camera_position : novr_camera_position;
-  ldi_ftheta_mesh.uniforms.uDistCamFromOrigin.value = cam_position_for_shader.length();
 
   updateGamepad(vr_controller0);
   updateGamepad(vr_controller1);
@@ -689,38 +678,6 @@ function updateGamepad(vr_controller) {
   }
 }
 
-// Lifecast's rendering pipeline uses a different coordinate system than THREE.js, so we
-// need to convert.
-function convertRotationMatrixLifecastToThreeJs(R) {
-  return [
-    +R[0], +R[3], -R[6],
-    +R[1], +R[4], -R[7],
-    -R[2], -R[5], +R[8],
-  ];
-}
-
-function updateFthetaRotationUniforms(video_time) {
-  if (!metadata) return;
-  if (is_chrome) return; // For chrome well do a different way that is more efficient.
-
-  // "This should work as long as video_time is never ahead of the true time"
-  // ^-- original comment... so wishful, so naive. Of course Firefox fucks this up.
-  // Lets try adding a fudge time offset in case this doesn't happen.
-  let firefox_fudge_time = 0.3; // This should be enough for 4hz updates
-  var start_time = video_time - firefox_fudge_time;
-  var start_frame = Math.max(0, Math.floor(start_time * metadata.fps));
-
-  ldi_ftheta_mesh.uniforms.uFirstFrameInFthetaTable.value = start_frame;
-  var i = 0;
-  for (var frame_index = start_frame; frame_index < start_frame + FTHETA_UNIFORM_ROTATION_BUFFER_SIZE; ++frame_index) {
-    var clamp_frame_index = Math.min(frame_index, metadata.frame_to_rotation.length - 1); // Repeat the last frame's data if we go past the end.
-    var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[clamp_frame_index]);
-    ldi_ftheta_mesh.uniforms.uFrameIndexToFthetaRotation.value[i].fromArray(R);
-    ++i;
-  }
-}
-
-
 //https://www.w3.org/TR/2016/CR-orientation-event-20160818/#worked-example-2
 function getRotationMatrix( alpha, beta, gamma ) {
   var degtorad = Math.PI / 180; // Degree-to-Radian conversion
@@ -844,7 +801,6 @@ export function init({
   _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
   _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
-  _metadata_url = "", // required for ftheta projection
   _force_recenter_frames = [], // (If supported), VR coordinate frame is reset on these frames.
   _embed_in_div = "",
   _cam_mode="default",
@@ -871,7 +827,6 @@ export function init({
   cam_mode        = _cam_mode;
   vscroll_bias    = _vscroll_bias;
   vid_framerate   = _framerate;
-  metadata_url    = _metadata_url;
   next_video_url  = _next_video_url;
   next_video_thumbnail  = _next_video_thumbnail;
   slideshow       = _slideshow;
@@ -891,25 +846,6 @@ export function init({
   if (slideshow.length > 0) {
     photo_mode = true;
     _media_url = slideshow[slideshow_index];
-  }
-
-  if (_metadata_url != "") {
-    // Load the metadata json file which contains camera poses for each frame.
-    loadJSON(_metadata_url, function(json) {
-      metadata = json;
-      console.log("Loaded ", _metadata_url);
-      console.log("Title: ", metadata.title);
-      console.log("FPS:", metadata.fps);
-      console.log("# Frames: ", metadata.frame_to_rotation.length);
-
-      // Set uniforms from metadata
-      if (photo_mode) {
-        var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[0]);
-        ldi_ftheta_mesh.uniforms.uFthetaRotation.value = R;
-      } else {
-        updateFthetaRotationUniforms(0.0);
-      }
-    });
   }
 
   if (_embed_in_div == "") {
@@ -998,18 +934,6 @@ export function init({
         if (hasAudio(video)) frame_index -= 1;
         if (vid_framerate == 60) frame_index -= 1; // TODO: this is just a hack, its not fixing a bug in chrome. It is working around a quirk in upscaling 30->60FPS. Not tested with 60fps vids that have audio!
         if (frame_index < 0) frame_index = 0;
-
-        if (metadata) {
-          if (frame_index >= metadata.frame_to_rotation.length) frame_index = metadata.frame_to_rotation.length - 1;
-          var R = convertRotationMatrixLifecastToThreeJs(metadata.frame_to_rotation[frame_index]);
-          ldi_ftheta_mesh.uniforms.uFthetaRotation.value = R;
-
-          // Force view recenter on specified frames
-          if (_force_recenter_frames.includes(frame_index)) {
-            console.log("forced recenter on frame", frame_index);
-            resetVRToCenter();
-          }
-        }
       };
     }
 
@@ -1037,7 +961,7 @@ export function init({
   scene.add(world_group);
   scene.add(interface_group);
 
-  ldi_ftheta_mesh = new LdiFthetaMesh(_format, is_chrome, photo_mode, _metadata_url, _decode_12bit, texture, _ftheta_scale)
+  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
 
   // Make the point sprite for VR buttons.
@@ -1256,12 +1180,10 @@ export function init({
       //  R[3].toFixed(2) + " " + R[4].toFixed(2) + " " + R[5].toFixed(2) + "\n" +
       //  R[6].toFixed(2) + " " + R[7].toFixed(2) + " " + R[8].toFixed(2)
       //);
-
       // Note, below we use the values R[2] and R[8] to determine the motion of the camera
       // in response to the mobile device orientation. Why elements 2 and 8? Answer:
       // trial and error. Intuition: dot products between basis vector and rows or columns
       // of the rotation matrix.
-
       if (!got_orientation_data) {
         got_orientation_data = true;
 
@@ -1356,16 +1278,6 @@ export function init({
     // When we exit VR mode on Oculus Browser it messes up the camera, so lets reset it.
     world_group.position.set(0, 0, 0);
   });
-
-  // For f-theta projection, whenever a timeupdate event occurs, we will update the
-  // uniforms storing a lookup table of frame index to rotation. The timeupdate events
-  // might only happen at 4Hz, but it's OK because we bring in a 2 second block of
-  // uniforms, then let the shader pick the right one.
-  if (!is_chrome && video) {
-    video.addEventListener('timeupdate', function(event) {
-      updateFthetaRotationUniforms(video.currentTime);
-    });
-  }
 
   animate();
 } // end init()
