@@ -282,8 +282,8 @@ function setDebugText(message) {
 }
 
 function handleGenericButtonPress() {
-  debugLog("handleGenericButtonPress");
   if (photo_mode) {
+    // TODO: Decide on a way to reset view that doesn't interfere with gesture controls
     //resetVRToCenter();
   } else {
     toggleVideoPlayPause();
@@ -501,15 +501,12 @@ function render() {
     gesture_control.updateLeftHand(vr_controller0.position);
     gesture_control.updateRightHand(vr_controller1.position);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    //debugLog("VR Controller 0: " + vr_controller0.position.x + ", " + vr_controller0.position.y + ", " + vr_controller0.position.z);
-    //debugLog("VR Controller 1: " + vr_controller1.position.x + ", " + vr_controller1.position.y + ", " + vr_controller1.position.z);
   } else if (handsAvailable()) {
     const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
     gesture_control.updateLeftHand(indexFingerTipPosL);
     gesture_control.updateRightHand(indexFingerTipPosR);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-    debugLog("VR Hands Available: " + indexFingerTipPosL.x + ", " + indexFingerTipPosL.y + ", " + indexFingerTipPosL.z);
   }
 
 
@@ -594,15 +591,11 @@ function initVrController(vr_controller) {
     debugLog("initVrController: no controller found");
     return; 
   }
-  debugLog("in initVrController...");
 
   // This is used to prevent the same button press from being handled multiple times.
   vr_controller.lockout_timer = 0;
 
-  vr_controller.addEventListener('select', function(e) {
-    debugLog("vr_controller select");
-    handleGenericButtonPress(e);
-  });
+  vr_controller.addEventListener('select', handleGenericButtonPress);
 
   vr_controller.addEventListener('connected', function(e) {
     vr_controller.gamepad = e.data.gamepad;
@@ -641,11 +634,9 @@ function initHandControllers(handleft, handright) {
 
 function updateGamepad(vr_controller, hand) {
   if (!vr_controller) {
-    //debugLog("WARNING: vr_controller is undefined in updateGamepad");
     return;
   }
   if (!vr_controller.gamepad) {
-    //debugLog("WARNING: vr_controller.gamepad is undefined in updateGamepad");
     return;
   }
 
@@ -661,40 +652,36 @@ function updateGamepad(vr_controller, hand) {
 
   // Handle the left controller button press
   if (vr_controller.button_A && !prev_button_A) {
-    debugLog("CONTROLLER: pinchstart A for hand " + hand);
+    debugLog("Controller button A start hand " + hand);
     if (hand == "left") {
       gesture_control.leftPinchStart();
     } else {
       gesture_control.rightPinchStart();
     }
   } else if (!vr_controller.button_A && prev_button_A) {
-    debugLog("CONTROLLER: pinchend A for hand " + hand);
+    debugLog("Controller button A end hand " + hand);
     if (hand == "left") {
       gesture_control.leftPinchEnd();
-    }
-    else {
+    } else {
       gesture_control.rightPinchEnd();
     }
   }
 
   if (vr_controller.button_B && !prev_button_B) {
-    debugLog("CONTROLLER: pinchstart B for hand " + hand);
+    debugLog("Controller button B start hand " + hand);
     if (hand == "left") {
       gesture_control.leftPinchStart();
-    }
-    else {
+    } else {
       gesture_control.rightPinchStart();
     }
   } else if (!vr_controller.button_B && prev_button_B) {
-    debugLog("CONTROLLER: pinchend B for hand " + hand);
+    debugLog("Controller button B end hand " + hand);
     if (hand == "left") {
       gesture_control.leftPinchEnd();
-    }
-    else {
+    } else {
       gesture_control.rightPinchEnd();
     }
   }
-  //debugLog("CONTROLLER: " + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
 
   vr_controller.lockout_timer = Math.max(0, vr_controller.lockout_timer - 1);
   if (vr_controller.lockout_timer == 0) {
