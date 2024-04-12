@@ -1319,6 +1319,7 @@ export function init({
 
     // When we exit VR mode on Oculus Browser it messes up the camera, so lets reset it.
     world_group.position.set(0, 0, 0);
+    gesture_control.reset();
   });
 
   animate();
