@@ -79,9 +79,9 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
         if (_format == "ldi3") {
             const inflation = 3.0;
-            this.makeFthetaMesh(_format, ldi3_layer0_material, 32, 16, 0, inflation);
-            this.makeFthetaMesh(_format, ldi3_layer1_material, 32, 16, 1, inflation);
-            this.makeFthetaMesh(_format, ldi3_layer2_material, 32, 16, 2, inflation);
+            this.makeFthetaMesh(_format, ldi3_layer0_material, 128, 4, 0, inflation);
+            this.makeFthetaMesh(_format, ldi3_layer1_material, 128, 4, 1, inflation);
+            this.makeFthetaMesh(_format, ldi3_layer2_material, 128, 4, 2, inflation);
         } else {
             console.log("Unrecognized format: ", _format);
         }
