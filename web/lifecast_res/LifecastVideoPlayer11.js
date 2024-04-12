@@ -507,7 +507,7 @@ function render() {
     gesture_control.updateLeftHand(vr_controller0.position);
     gesture_control.updateRightHand(vr_controller1.position);
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-  } 
+  }
 
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
@@ -587,9 +587,9 @@ function animate() {
 
 function initVrController(vr_controller) {
   debugLog("initVrController for controller: " + vr_controller);
-  if (!vr_controller) { 
+  if (!vr_controller) {
     debugLog("initVrController: no controller found");
-    return; 
+    return;
   }
 
   // This is used to prevent the same button press from being handled multiple times.
@@ -1081,13 +1081,13 @@ export function init({
     // have permissions and can tell if this is the case because we will have some data)
     setTimeout(function() {
       if (!got_orientation_data) {
-        get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
+        get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, debugLog);
         container.appendChild(get_vr_button);
       }
     }, 1000);
 
   } else {
-    get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title);
+    get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, debugLog);
     container.appendChild(get_vr_button);
   }
 
