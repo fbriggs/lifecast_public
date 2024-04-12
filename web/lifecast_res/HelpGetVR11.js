@@ -24,7 +24,7 @@ THE SOFTWARE.
 */
 
 class HelpGetVR {
-  static createBanner(renderer, enter_xr_button_title, exit_xr_button_title) {
+  static createBanner(renderer, enter_xr_button_title, exit_xr_button_title, debugLog) {
     var banner = document.createElement( 'div' );
 
     function showEnterVR() {
@@ -52,10 +52,12 @@ class HelpGetVR {
         banner.style.opacity = '0.5';
       };
 
-      banner.onclick = function () {
+      banner.onclick = async function () {
         if ( currentSession === null ) {
           const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor', 'hand-tracking', 'layers' ] };
-          navigator.xr.requestSession( 'immersive-ar', sessionInit ).then( onSessionStarted );
+          const supports_AR = await navigator.xr.isSessionSupported( 'immersive-ar' );
+          navigator.xr.requestSession(
+           supports_AR ? 'immersive-ar' : 'immersive-vr', sessionInit ).then( onSessionStarted );
         } else {
           currentSession.end();
         }
