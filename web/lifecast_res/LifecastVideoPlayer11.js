@@ -336,7 +336,6 @@ function toggleVideoPlayPause() {
     video_is_buffering = false;
     video.pause();
   } else {
-    resetVRToCenter();
     playVideoIfReady();
   }
 }
