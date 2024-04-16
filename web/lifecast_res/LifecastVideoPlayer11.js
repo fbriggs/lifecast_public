@@ -996,7 +996,7 @@ export function init({
   camera = new THREE.PerspectiveCamera(_vfov, window.innerWidth / window.innerHeight, 0.1, 110);
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0FF000);
+  scene.background = new THREE.Color(0x000000);
 
   world_group = new THREE.Group();
   interface_group = new THREE.Group();
@@ -1055,7 +1055,6 @@ export function init({
   renderer.autoClearDepth = true; // It would be cool to set this to false and explicitly clear on each call to render(), but THREE.js will call clear no matter what automatically (even when autoClear = false), so well just set this to true and let it work.
   renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
-
   renderer.xr.enabled = true;
   if (_format == "ldi3") {
     // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
