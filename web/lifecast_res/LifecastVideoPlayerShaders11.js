@@ -170,6 +170,12 @@ varying vec2 vUv;
 
 void main() {
   vec2 texture_uv = vec2(vUv.s * 0.33333, vUv.t * 0.33333);
+#if defined(TRANSPARENT_BG)
+  vec2 alpha_uv   = vec2(vUv.s * 0.33333 + 0.66666, vUv.t * 0.33333);
+  float a = texture2D(uTexture, alpha_uv).r;
+  gl_FragColor = vec4(texture2D(uTexture, texture_uv).rgb, a);
+#else
   gl_FragColor = texture2D(uTexture, texture_uv);
+#endif
 }
 `;

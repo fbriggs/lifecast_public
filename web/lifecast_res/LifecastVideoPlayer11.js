@@ -543,7 +543,7 @@ function render() {
 
   // Render each layer in order, clearing the depth buffer between. This is important
   // to get alpha blending right.
-  renderer.clearColor();
+  renderer.clear();
 
   world_group.visible = true;
   interface_group.visible = false;
@@ -857,7 +857,8 @@ export function init({
   _decode_12bit = true,
   _looking_glass_config = null,
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
-  _loop = false
+  _loop = false,
+  _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
 }={}) {
   if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
     _format = "ldi3";
@@ -1001,7 +1002,7 @@ export function init({
   scene.add(world_group);
   scene.add(interface_group);
 
-  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale)
+  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale, _transparent_bg)
   world_group.add(ldi_ftheta_mesh)
 
   // Make the point sprite for VR buttons.
@@ -1046,15 +1047,19 @@ export function init({
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance",
-    preserveDrawingBuffer: true
+    preserveDrawingBuffer: true,
+    alpha: _transparent_bg
   });
   renderer.autoClear = false;
   renderer.autoClearColor = false;
   renderer.autoClearDepth = true; // It would be cool to set this to false and explicitly clear on each call to render(), but THREE.js will call clear no matter what automatically (even when autoClear = false), so well just set this to true and let it work.
   renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
-
   renderer.xr.enabled = true;
+  if (_transparent_bg) {
+    renderer.setClearColor(0xffffff, 0.0);
+    scene.background = null;
+  }
   if (_format == "ldi3") {
     // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
     renderer.xr.setFramebufferScaleFactor(0.95);
