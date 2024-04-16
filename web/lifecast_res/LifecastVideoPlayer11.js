@@ -544,7 +544,7 @@ function render() {
 
   // Render each layer in order, clearing the depth buffer between. This is important
   // to get alpha blending right.
-  renderer.clearColor();
+  renderer.clear();
 
   world_group.visible = true;
   interface_group.visible = false;
@@ -1048,7 +1048,8 @@ export function init({
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance",
-    preserveDrawingBuffer: true
+    preserveDrawingBuffer: true,
+    alpha: _transparent_bg
   });
   renderer.autoClear = false;
   renderer.autoClearColor = false;
@@ -1056,6 +1057,10 @@ export function init({
   renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.xr.enabled = true;
+  if (_transparent_bg) {
+    renderer.setClearColor(0xffffff, 0.0);
+    scene.background = null;
+  }
   if (_format == "ldi3") {
     // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
     renderer.xr.setFramebufferScaleFactor(0.95);
