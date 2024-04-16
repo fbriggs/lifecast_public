@@ -545,7 +545,6 @@ function render() {
   // Render each layer in order, clearing the depth buffer between. This is important
   // to get alpha blending right.
   renderer.clearColor();
-
   world_group.visible = true;
   interface_group.visible = false;
   if (toggle_layer0) {
@@ -564,7 +563,7 @@ function render() {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, true);
-    renderer.render(scene, camera);  // clears depth automatically
+  renderer.render(scene, camera);  // clears depth automatically
   }
 
   // In a final pass, render the interface.
@@ -1059,7 +1058,8 @@ export function init({
   renderer.xr.enabled = true;
   if (_transparent_bg) {
     console.log("TRANSPARENT!");
-    renderer.setClearColor(0xffffff, 0);
+    renderer.setClearColor(0xffffff, 0.0);
+    scene.background = null;
   }
   if (_format == "ldi3") {
     // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
