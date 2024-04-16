@@ -563,7 +563,7 @@ function render() {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, true);
-  renderer.render(scene, camera);  // clears depth automatically
+    renderer.render(scene, camera);  // clears depth automatically
   }
 
   // In a final pass, render the interface.
