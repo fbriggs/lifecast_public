@@ -1058,7 +1058,6 @@ export function init({
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.xr.enabled = true;
   if (_transparent_bg) {
-    console.log("TRANSPARENT!");
     renderer.setClearColor(0xffffff, 0.0);
     scene.background = null;
   }
