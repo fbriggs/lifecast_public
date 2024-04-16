@@ -16,7 +16,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
     ftheta_scale = null
 
-    constructor(_format, _decode_12bit, texture, _ftheta_scale = null) {
+    constructor(_format, _decode_12bit, texture, _ftheta_scale = null, _transparent_bg = false) {
 
         super()
 
@@ -38,6 +38,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
         // Make the foreground mesh material.
         var shader_prefix = "";
         if (_decode_12bit) shader_prefix += "#define DECODE_12BIT\n";
+        if (_transparent_bg) shader_prefix += "#define TRANSPARENT_BG\n";
 
         //// LDI3 materials ////
 
@@ -47,7 +48,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             uniforms: this.uniforms,
             depthTest: true,
             depthWrite: true,
-            transparent: false,
+            transparent: _transparent_bg,
             wireframe: false
         });
         ldi3_layer0_material.side = THREE.DoubleSide;

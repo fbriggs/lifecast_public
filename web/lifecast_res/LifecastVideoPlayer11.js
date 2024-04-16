@@ -858,7 +858,8 @@ export function init({
   _decode_12bit = true,
   _looking_glass_config = null,
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
-  _loop = false
+  _loop = false,
+  _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
 }={}) {
   if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
     _format = "ldi3";
@@ -995,14 +996,14 @@ export function init({
   camera = new THREE.PerspectiveCamera(_vfov, window.innerWidth / window.innerHeight, 0.1, 110);
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000000);
+  scene.background = new THREE.Color(0x0FF000);
 
   world_group = new THREE.Group();
   interface_group = new THREE.Group();
   scene.add(world_group);
   scene.add(interface_group);
 
-  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale)
+  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale, _transparent_bg)
   world_group.add(ldi_ftheta_mesh)
 
   // Make the point sprite for VR buttons.
