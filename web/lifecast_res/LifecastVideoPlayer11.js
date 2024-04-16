@@ -543,27 +543,29 @@ function render() {
 
   // Render each layer in order, clearing the depth buffer between. This is important
   // to get alpha blending right.
-  renderer.clear();
-
+  renderer.clearColor();
+  renderer.clearDepth();
   world_group.visible = true;
   interface_group.visible = false;
   if (toggle_layer0) {
     setVisibilityForLayerMeshes(0, true);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, false);
-    renderer.render(scene, camera); // clears depth automatically
+    renderer.render(scene, camera);
   }
   if (toggle_layer1) {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, true);
     setVisibilityForLayerMeshes(2, false);
-    renderer.render(scene, camera);  // clears depth automatically
+    renderer.clearDepth();
+    renderer.render(scene, camera);
   }
   if (toggle_layer2) {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, true);
-    renderer.render(scene, camera);  // clears depth automatically
+    renderer.clearDepth();
+    renderer.render(scene, camera);
   }
 
   // In a final pass, render the interface.
@@ -1052,7 +1054,7 @@ export function init({
   });
   renderer.autoClear = false;
   renderer.autoClearColor = false;
-  renderer.autoClearDepth = true; // It would be cool to set this to false and explicitly clear on each call to render(), but THREE.js will call clear no matter what automatically (even when autoClear = false), so well just set this to true and let it work.
+  renderer.autoClearDepth = false;
   renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.xr.enabled = true;
