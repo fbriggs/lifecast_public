@@ -544,7 +544,8 @@ function render() {
 
   // Render each layer in order, clearing the depth buffer between. This is important
   // to get alpha blending right.
-  renderer.clearColor();
+  renderer.clear();
+
   world_group.visible = true;
   interface_group.visible = false;
   if (toggle_layer0) {
@@ -1048,7 +1049,7 @@ export function init({
     antialias: true,
     powerPreference: "high-performance",
     preserveDrawingBuffer: true,
-    alpha: true
+    alpha: _transparent_bg
   });
   renderer.autoClear = false;
   renderer.autoClearColor = false;
