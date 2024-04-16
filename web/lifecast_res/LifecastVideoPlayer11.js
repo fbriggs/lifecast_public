@@ -1048,7 +1048,8 @@ export function init({
   renderer = new THREE.WebGLRenderer({
     antialias: true,
     powerPreference: "high-performance",
-    preserveDrawingBuffer: true
+    preserveDrawingBuffer: true,
+    alpha: true
   });
   renderer.autoClear = false;
   renderer.autoClearColor = false;
@@ -1056,6 +1057,10 @@ export function init({
   renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.xr.enabled = true;
+  if (_transparent_bg) {
+    console.log("TRANSPARENT!");
+    renderer.setClearColor(0xffffff, 0);
+  }
   if (_format == "ldi3") {
     // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
     renderer.xr.setFramebufferScaleFactor(0.95);
