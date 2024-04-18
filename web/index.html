@@ -9,6 +9,10 @@
 <link rel="icon" type="image/png" href="./lifecast_res/lifecast_logo_black_small.png">
 
 <script type="module">
+  import * as LifecastVideoPlayerPreloader from './lifecast_res/LifecastVideoPlayerPreloader.js';
+  LifecastVideoPlayerPreloader.init();
+</script>
+<script type="module">
   import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer11.js';
   LifecastVideoPlayer.init({
     _media_url: "media/ldi3.png",
@@ -26,6 +30,6 @@
 </script>
 
 </head>
-<body>
+<body style="background-color: green;">
 </body>
 </html>

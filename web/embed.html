@@ -8,6 +8,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
 <script type="module">
+  import * as LifecastVideoPlayerPreloader from './lifecast_res/LifecastVideoPlayerPreloader.js';
+  LifecastVideoPlayerPreloader.init({
+    _embed_in_div: "player_div",
+  });
+</script>
+<script type="module">
   import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer11.js';
   LifecastVideoPlayer.init({
     _media_url: "media/ldi3.png",
