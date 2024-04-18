@@ -51,7 +51,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             transparent: _transparent_bg,
             wireframe: false
         });
-        ldi3_layer0_material.side = THREE.DoubleSide;
+        ldi3_layer0_material.side = THREE.BackSide;
         ldi3_layer0_material.depthFunc = THREE.LessDepth;
 
         const ldi3_layer1_material = this.ldi3_layer1_material = new THREE.ShaderMaterial({
@@ -63,7 +63,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             transparent: true,
             wireframe: false
         });
-        ldi3_layer1_material.side = THREE.DoubleSide;
+        ldi3_layer1_material.side = THREE.BackSide;
         ldi3_layer1_material.depthFunc = THREE.LessEqualDepth;
 
         const ldi3_layer2_material = this.ldi3_layer2_material = new THREE.ShaderMaterial({
@@ -75,7 +75,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             transparent: true,
             wireframe: false
         });
-        ldi3_layer2_material.side = THREE.DoubleSide;
+        ldi3_layer2_material.side = THREE.BackSide;
         ldi3_layer2_material.depthFunc = THREE.LessEqualDepth;
 
         if (_format == "ldi3") {
