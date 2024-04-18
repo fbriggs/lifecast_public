@@ -85,8 +85,7 @@ let slideshow_index = 0;
 
 let lock_position = false;
 let orbit_controls;
-let create_button_url;
-let next_video_button, create_button;
+let next_video_button;
 let mouse_last_moved_time = 0;
 
 let has_played_video = false;
@@ -187,20 +186,6 @@ function makeNonVrControls() {
     next_video_button.style.bottom            = "16px";
     right_buttons_width += 116;
     document.body.appendChild(next_video_button);
-  }
-
-  if (create_button_url && !embed_mode) {
-    create_button = document.createElement("a");
-    create_button.id                      = "create_button";
-    create_button.href                    = create_button_url;
-    create_button.target                  = "_blank";
-    create_button.innerHTML               = `<img src="lifecast_res/plus_button.png" style="width: 48px; height: 48px;">`;
-    create_button.style.cursor            = "pointer";
-    create_button.draggable               = false;
-    create_button.style.position          = "absolute";
-    create_button.style.right             = (right_buttons_width + 16).toString() + "px";
-    create_button.style.bottom            = "22px";
-    document.body.appendChild(create_button);
   }
 
   if (photo_mode || embed_mode) return;
@@ -395,7 +380,6 @@ function updateControlsAndButtons() {
   if (!has_played_video && is_ios) {
     byId("play_button").style.display   = "inline";
     if(next_video_button) next_video_button.style.display = "inline";
-    if(create_button) create_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -408,7 +392,6 @@ function updateControlsAndButtons() {
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
     if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "inline";
@@ -422,7 +405,6 @@ function updateControlsAndButtons() {
   if (video.ended) {
     byId("play_button").style.display   = "none";
     if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("buffering_button").style.display = "none";
     byId("rewind_button").style.display = "inline";
@@ -433,7 +415,6 @@ function updateControlsAndButtons() {
   if (!video || nonvr_menu_fade_counter <= 0) {
     byId("play_button").style.display   = "none";
     if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -444,7 +425,6 @@ function updateControlsAndButtons() {
   if (video_is_playing) {
     byId("play_button").style.display   = "none";
     if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "inline";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -455,7 +435,6 @@ function updateControlsAndButtons() {
   if (!video_is_playing && video.readyState >= 2) {
     byId("play_button").style.display   = "inline";
     if(next_video_button) next_video_button.style.display = "inline";
-    if(create_button) create_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -854,7 +833,6 @@ export function init({
   _next_video_url = "",
   _next_video_thumbnail = "",
   _lock_position = false,
-  _create_button_url = "",
   _decode_12bit = true,
   _looking_glass_config = null,
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
@@ -873,7 +851,6 @@ export function init({
   next_video_thumbnail  = _next_video_thumbnail;
   slideshow       = _slideshow;
   lock_position   = _lock_position;
-  create_button_url = _create_button_url;
 
   looking_glass_config = _looking_glass_config;
   let enter_xr_button_title = "ENTER VR";
