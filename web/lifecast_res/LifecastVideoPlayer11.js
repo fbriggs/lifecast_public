@@ -816,7 +816,7 @@ export function init({
         //const percentage = (xhr.loaded / xhr.total) * 100;
       },
       function(error) { // error callback
-        document.documentElement.innerHTML = "Error loading texture: "  + _media_url;
+        container.innerHTML = "Error loading texture: "  + _media_url;
       }
     );
     // Some of this isn't necessary, but makes the texture consistent between Photo/Video.
@@ -853,7 +853,7 @@ export function init({
     video.addEventListener("playing", function() { is_buffering = false; });
     video.addEventListener("canplay", function() { is_buffering = false; });
     video.addEventListener("error",     function() {
-      document.documentElement.innerHTML = "Error loading video URL: "  + best_media_url;
+      container.innerHTML = "Error loading video URL: "  + best_media_url;
     });
 
     if(_autoplay_muted) {
