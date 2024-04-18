@@ -75,8 +75,6 @@ let delay1frame_reset = false; // The sessionstart event happens one frame too e
 let photo_mode = false;
 let embed_mode = false;
 let cam_mode = "default";
-let slideshow;
-let slideshow_index = 0;
 
 let lock_position = false;
 let orbit_controls;
@@ -745,6 +743,7 @@ function setupHandAndControllerModels() {
   scene.add(new THREE.DirectionalLight( 0xffffff, 3));
 }
 
+
 export function init({
   _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
   _media_url = "",        // this should be high-res, but h264 for compatibility
@@ -755,7 +754,6 @@ export function init({
   _cam_mode="default",
   _vfov = 80,
   _ftheta_scale = null,
-  _slideshow = [], // If there is a list of media files here, we can cycle through them
   _lock_position = false,
   _decode_12bit = true,
   _looking_glass_config = null,
@@ -769,7 +767,6 @@ export function init({
   }
 
   cam_mode        = _cam_mode;
-  slideshow       = _slideshow;
   lock_position   = _lock_position;
 
   looking_glass_config = _looking_glass_config;
@@ -778,11 +775,6 @@ export function init({
   if(looking_glass_config) {
     enter_xr_button_title = "START LOOKING GLASS";
     exit_xr_button_title =  "EXIT LOOKING GLASS";
-  }
-
-  if (slideshow.length > 0) {
-    photo_mode = true;
-    _media_url = slideshow[slideshow_index];
   }
 
   if (_embed_in_div == "") {
@@ -1057,23 +1049,6 @@ export function init({
     if (key == " ") {
       toggleVideoPlayPause();
     }
-    if (key == "s" && slideshow.length > 0) {
-      slideshow_index = (slideshow_index + 1) % slideshow.length;
-      ldi_ftheta_mesh.uniforms.uTexture.value = new THREE.TextureLoader().load(slideshow[slideshow_index]);
-
-      ldi_ftheta_mesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
-      ldi_ftheta_mesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
-      ldi_ftheta_mesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
-      ldi_ftheta_mesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
-      ldi_ftheta_mesh.uniforms.uTexture.value.generateMipmaps = false;
-
-      if (_format == "ldi3") {
-        ldi_ftheta_mesh.ldi3_layer0_material.needsUpdate = true;
-        ldi_ftheta_mesh.ldi3_layer1_material.needsUpdate = true;
-        ldi_ftheta_mesh.ldi3_layer2_material.needsUpdate = true;
-      }
-    }
-
     if (_format == "ldi3") {
       if (key == "z") { toggle_layer0 = !toggle_layer0; }
       if (key == "x") { toggle_layer1 = !toggle_layer1; }
