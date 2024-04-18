@@ -75,14 +75,11 @@ let delay1frame_reset = false; // The sessionstart event happens one frame too e
 let photo_mode = false;
 let embed_mode = false;
 let cam_mode = "default";
-let next_video_url;
-let next_video_thumbnail;
 let slideshow;
 let slideshow_index = 0;
 
 let lock_position = false;
 let orbit_controls;
-let next_video_button;
 let mouse_last_moved_time = 0;
 
 let has_played_video = false;
@@ -170,20 +167,6 @@ function trackMouseStatus(element) {
 
 function makeNonVrControls() {
   var right_buttons_width = 0;
-  if (next_video_url && !embed_mode) {
-    next_video_button = document.createElement("a");
-    next_video_button.id                      = "next_video_button";
-    next_video_button.href                    = next_video_url;
-    next_video_button.innerHTML               = `<img src="${next_video_thumbnail}" style="width:96px;height:60px;border-radius:16px;object-fit:cover">`;
-    next_video_button.style.cursor            = "pointer";
-    next_video_button.draggable               = false;
-    next_video_button.style.position          = "absolute";
-    next_video_button.style.width             = '100px';
-    next_video_button.style.right             = "16px";
-    next_video_button.style.bottom            = "16px";
-    right_buttons_width += 116;
-    document.body.appendChild(next_video_button);
-  }
 
   if (photo_mode || embed_mode) return;
 
@@ -363,7 +346,6 @@ function updateControlsAndButtons() {
 
   if (!has_played_video && is_ios) {
     byId("play_button").style.display   = "inline";
-    if(next_video_button) next_video_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -375,7 +357,6 @@ function updateControlsAndButtons() {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "inline";
@@ -388,7 +369,6 @@ function updateControlsAndButtons() {
 
   if (video.ended) {
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("buffering_button").style.display = "none";
     byId("rewind_button").style.display = "inline";
@@ -398,7 +378,6 @@ function updateControlsAndButtons() {
 
   if (!video || nonvr_menu_fade_counter <= 0) {
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -408,7 +387,6 @@ function updateControlsAndButtons() {
 
   if (video_is_playing) {
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
     byId("pause_button").style.display  = "inline";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -418,7 +396,6 @@ function updateControlsAndButtons() {
 
   if (!video_is_playing && video.readyState >= 2) {
     byId("play_button").style.display   = "inline";
-    if(next_video_button) next_video_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -784,8 +761,6 @@ export function init({
   _vfov = 80,
   _ftheta_scale = null,
   _slideshow = [], // If there is a list of media files here, we can cycle through them
-  _next_video_url = "",
-  _next_video_thumbnail = "",
   _lock_position = false,
   _decode_12bit = true,
   _looking_glass_config = null,
@@ -799,8 +774,6 @@ export function init({
   }
 
   cam_mode        = _cam_mode;
-  next_video_url  = _next_video_url;
-  next_video_thumbnail  = _next_video_thumbnail;
   slideshow       = _slideshow;
   lock_position   = _lock_position;
 
