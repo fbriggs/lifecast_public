@@ -43,6 +43,7 @@ class HelpGetVR {
       }
 
       banner.innerHTML = enter_xr_button_title;
+      banner.style.display = 'block';
       banner.style.cursor = 'pointer';
       banner.onmouseenter = function () {
         banner.style.opacity = '1.0';
@@ -96,7 +97,7 @@ class HelpGetVR {
     banner.style.left = '50%'; // Center the banner horizontally
     banner.style.transform = 'translateX(-50%)'; // Adjust for the banner's width to truly center it
     banner.style.width = '350px';
-
+    banner.style.display = "none";
 
     var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
 
@@ -105,11 +106,16 @@ class HelpGetVR {
       banner.innerHTML = "<button onclick='DeviceOrientationEvent.requestPermission(); parentNode.style.display=\"none\";' style='font-size: 24px;'>Enable Tilt Control</button>";
       banner.style.border = '';
       banner.style.bottom = '120px';
+      banner.style.display = "block";
       return banner;
 
     } else if ('xr' in navigator) {
       navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
-        supported ? showEnterVR() : showWebXRNotFound();
+        if (supported) {
+          showEnterVR();
+        } else {
+          showWebXRNotFound();
+        }
       } );
 
       return banner;

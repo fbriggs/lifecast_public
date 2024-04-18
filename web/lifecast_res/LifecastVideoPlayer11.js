@@ -789,6 +789,11 @@ export function init({
     container = byId(_embed_in_div);
   }
 
+  // Remove any existing children of the container (eg. loading spinner)
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
+
   if (new URLSearchParams(window.location.search).get('embed')) {
     embed_mode = true;
   }
