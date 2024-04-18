@@ -844,7 +844,6 @@ export function init({
   _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
   _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
-  _force_recenter_frames = [], // (If supported), VR coordinate frame is reset on these frames.
   _embed_in_div = "",
   _cam_mode="default",
   _vfov = 80,
