@@ -473,7 +473,6 @@ function render() {
 
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
-  // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
   if (cam_mode == "default" && !got_orientation_data) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
@@ -772,33 +771,6 @@ function setupHandAndControllerModels() {
   // We need to add some light for the hand material to be anything other than black
   scene.add(new THREE.HemisphereLight( 0xbcbcbc, 0xa5a5a5, 3));
   scene.add(new THREE.DirectionalLight( 0xffffff, 3));
-}
-
-export function updateEmbedControls(
-    _fov, _x, _y, _z, _u, _v,
-    _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
-    _anim_fov_speed, _anim_x_speed, _anim_y_speed, _anim_z_speed, _anim_u_speed, _anim_v_speed,
-) {
-  anim_fov_offset = _fov;
-  anim_x_offset = _x;
-  anim_y_offset = _y;
-  anim_z_offset = _z;
-  anim_u_offset = _u;
-  anim_v_offset = _v;
-  anim_fov = _anim_fov;
-  anim_x = _anim_x;
-  anim_y = _anim_y;
-  anim_z = _anim_z;
-  anim_u = _anim_u;
-  anim_v = _anim_v;
-  anim_fov_speed = _anim_fov_speed;
-  anim_x_speed = _anim_x_speed;
-  anim_y_speed = _anim_y_speed;
-  anim_z_speed = _anim_z_speed;
-  anim_u_speed = _anim_u_speed;
-  anim_v_speed = _anim_v_speed;
-  onWindowResize();
-  playVideoIfReady();
 }
 
 export function init({
