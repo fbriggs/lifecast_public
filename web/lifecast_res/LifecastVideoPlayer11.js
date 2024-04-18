@@ -322,8 +322,9 @@ function onWindowResize() {
 function updateControlsAndButtons() {
   if (!nonvr_controls) return;
 
-  const video_is_playing = video && !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState >= 2);
   if (video) {
+    const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState >= 2);
+
     // Fade out but only if the mouse is not over a button
     if (!nonvr_controls.mouse_is_over) {
       --nonvr_menu_fade_counter;
