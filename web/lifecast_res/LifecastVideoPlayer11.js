@@ -64,7 +64,7 @@ let cam_drag_v = 0.0;
 let right_mouse_is_down = false;
 
 let nonvr_controls;
-let video_is_buffering = false;
+let is_buffering = true;
 let vr_session_active = false; // true if we are in VR
 let vrbutton3d, vrbutton_material, vrbutton_texture_rewind, vrbutton_texture_buffering; // THREE.js object to render VR-only buttons
 // Used to keep track of whether a click or a drag occured. When a mousedown event occurs,
@@ -163,7 +163,6 @@ function trackMouseStatus(element) {
 function makeNonVrControls() {
   var right_buttons_width = 0;
 
-  if (photo_mode || embed_mode) return;
 
   nonvr_controls = document.createElement("div");
   nonvr_controls.id = "nonvr_controls";
@@ -222,7 +221,8 @@ function makeNonVrControls() {
   nonvr_controls.appendChild(rewind_button);
   nonvr_controls.appendChild(buffering_button);
 
-  document.body.appendChild(nonvr_controls);
+  //document.body.appendChild(nonvr_controls);
+  container.appendChild(nonvr_controls);
 }
 
 function debugLog(message) {
@@ -292,8 +292,8 @@ function toggleVideoPlayPause() {
 
   nonvr_menu_fade_counter = 60;
   const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
-  if (video_is_playing || video_is_buffering) {
-    video_is_buffering = false;
+  if (video_is_playing || is_buffering) {
+    is_buffering = false;
     video.pause();
   } else {
     playVideoIfReady();
@@ -319,20 +319,23 @@ function onWindowResize() {
 }
 
 function updateControlsAndButtons() {
-  if (photo_mode || embed_mode) return;
+  //if (photo_mode || embed_mode) return;
+  if (!nonvr_controls) return;
 
-  const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState >= 2);
+  if (video) {
+    const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState >= 2);
 
-  // Fade out but only if the mouse is not over a button
-  if (!nonvr_controls.mouse_is_over) {
-    --nonvr_menu_fade_counter;
-  }
+    // Fade out but only if the mouse is not over a button
+    if (!nonvr_controls.mouse_is_over) {
+      --nonvr_menu_fade_counter;
+    }
 
-  var opacity = video.ended || video_is_buffering ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
-  opacity *= nonvr_controls.mouse_is_over || video_is_buffering ? 1.0 : 0.7;
+    var opacity = video.ended || is_buffering ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
+    opacity *= nonvr_controls.mouse_is_over || is_buffering ? 1.0 : 0.7;
 
-  if (!video_is_playing) {
-    opacity = 1.0; // always show controls before playing. This is important for iOS where the video won't load without an interaction!
+    if (!video_is_playing) {
+      opacity = 1.0; // always show controls before playing. This is important for iOS where the video won't load without an interaction!
+    }
   }
 
   nonvr_controls.style.opacity = opacity;
@@ -348,7 +351,7 @@ function updateControlsAndButtons() {
     return;
   }
 
-  if (video_is_buffering) {
+  if (is_buffering) {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
@@ -362,7 +365,7 @@ function updateControlsAndButtons() {
     vrbutton_material.map = vrbutton_texture_rewind;
   }
 
-  if (video.ended) {
+  if (video && video.ended) {
     byId("play_button").style.display   = "none";
     byId("pause_button").style.display  = "none";
     byId("buffering_button").style.display = "none";
@@ -808,7 +811,7 @@ export function init({
     texture = new THREE.TextureLoader().load(
       _media_url,
       function(texture) {// onLoad callback
-        // Nothing to do
+        is_buffering = false;
       },
       function(xhr) { // Progress callback
         //const percentage = (xhr.loaded / xhr.total) * 100;
@@ -847,8 +850,9 @@ export function init({
 
     video.style.display = "none";
     video.preload = "auto";
-    video.addEventListener("waiting", function() { video_is_buffering = true; });
-    video.addEventListener("playing", function() { video_is_buffering = false; });
+    video.addEventListener("waiting", function() { is_buffering = true; });
+    video.addEventListener("playing", function() { is_buffering = false; });
+    video.addEventListener("canplay", function() { is_buffering = false; });
     video.addEventListener("error",     function() {
       document.documentElement.innerHTML = "Error loading video URL: "  + best_media_url;
     });
@@ -1025,7 +1029,7 @@ export function init({
     byId("rewind_button").addEventListener('click', handleNonVrPlayButton);
     byId("pause_button").addEventListener('click', handleNonVrPauseButton);
     byId("buffering_button").addEventListener('click', function() {
-      video_is_buffering = false;
+      is_buffering = false;
       handleNonVrPauseButton();
     });
 
