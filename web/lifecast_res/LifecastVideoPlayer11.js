@@ -75,7 +75,6 @@ let delay1frame_reset = false; // The sessionstart event happens one frame too e
 let photo_mode = false;
 let embed_mode = false;
 let cam_mode = "default";
-let vscroll_bias = 0; // Offsets the scroll effect in vscroll camera mode.
 let next_video_url;
 let next_video_thumbnail;
 let slideshow;
@@ -332,17 +331,6 @@ function handleNonVrPauseButton() {
 }
 
 
-function verticalScrollCameraHandler() {
-  var h = window.innerHeight;
-  var top = window.pageYOffset || document.documentElement.scrollTop;
-  var container_rect = container.getBoundingClientRect();
-  var y0 = container_rect.top;
-  var y1 = container_rect.bottom;
-  var y_mid = (y0 + y1) * 0.5;
-  var y_frac = 2.0 * y_mid / h - 1.0; // Ranges from -1 to 1 as the middle of the container moves from top to bottom of the window.
-  camera.position.set(0, -y_frac * 0.2 + vscroll_bias, 0.01);
-}
-
 function onWindowResize() {
   // In embed mode, use the width and height of the container div.
   let width = embed_mode ? container.clientWidth : window.innerWidth;
@@ -350,8 +338,6 @@ function onWindowResize() {
   camera.aspect = width / height;
   renderer.setSize(width, height);
   camera.updateProjectionMatrix();
-
-  if (cam_mode == "vscroll") { verticalScrollCameraHandler(); }
 }
 
 function updateControlsAndButtons() {
@@ -824,7 +810,6 @@ export function init({
   _embed_in_div = "",
   _cam_mode="default",
   _vfov = 80,
-  _vscroll_bias = 0.0,
   _ftheta_scale = null,
   _slideshow = [], // If there is a list of media files here, we can cycle through them
   _next_video_url = "",
@@ -842,7 +827,6 @@ export function init({
   }
 
   cam_mode        = _cam_mode;
-  vscroll_bias    = _vscroll_bias;
   next_video_url  = _next_video_url;
   next_video_thumbnail  = _next_video_thumbnail;
   slideshow       = _slideshow;
@@ -1160,9 +1144,6 @@ export function init({
 
   });
 
-  if (cam_mode == "vscroll") {
-    window.addEventListener("scroll", verticalScrollCameraHandler);
-  }
 
   if (is_ios) { // TODO: or android?
 
