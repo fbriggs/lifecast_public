@@ -25,7 +25,6 @@ THE SOFTWARE.
 import {LdiFthetaMesh} from "./LdiFthetaMesh11.js";
 import * as THREE from './three152.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
-import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
 import {HelpGetVR} from './HelpGetVR11.js';
 import {GestureControlModule} from './GestureControlModule.js';
@@ -51,7 +50,6 @@ let prev_vr_camera_position;
 
 let video;
 let texture;
-let vid_framerate = 30;
 let nonvr_menu_fade_counter = 0;
 let mouse_is_down = false;
 
@@ -77,16 +75,9 @@ let delay1frame_reset = false; // The sessionstart event happens one frame too e
 let photo_mode = false;
 let embed_mode = false;
 let cam_mode = "default";
-let vscroll_bias = 0; // Offsets the scroll effect in vscroll camera mode.
-let next_video_url;
-let next_video_thumbnail;
-let slideshow;
-let slideshow_index = 0;
 
 let lock_position = false;
 let orbit_controls;
-let create_button_url;
-let next_video_button, create_button;
 let mouse_last_moved_time = 0;
 
 let has_played_video = false;
@@ -105,19 +96,16 @@ let mobile_drag_u = 0.0;
 let mobile_drag_v = 0.0;
 
 // Used for programmatic camera animation
-let anim_fov_offset = 80;
 let anim_x_offset = 0;
 let anim_y_offset = 0;
 let anim_z_offset = 0;
 let anim_u_offset = 0;
 let anim_v_offset = 0;
-let anim_fov = 0;
 let anim_x = 0.15;
 let anim_y = 0.10;
 let anim_z = 0.05;
 let anim_u = 0.15;
 let anim_v = 0.10;
-let anim_fov_speed = 3000;
 let anim_x_speed = 7500;
 let anim_y_speed = 5100;
 let anim_z_speed = 6100;
@@ -174,34 +162,6 @@ function trackMouseStatus(element) {
 
 function makeNonVrControls() {
   var right_buttons_width = 0;
-  if (next_video_url && !embed_mode) {
-    next_video_button = document.createElement("a");
-    next_video_button.id                      = "next_video_button";
-    next_video_button.href                    = next_video_url;
-    next_video_button.innerHTML               = `<img src="${next_video_thumbnail}" style="width:96px;height:60px;border-radius:16px;object-fit:cover">`;
-    next_video_button.style.cursor            = "pointer";
-    next_video_button.draggable               = false;
-    next_video_button.style.position          = "absolute";
-    next_video_button.style.width             = '100px';
-    next_video_button.style.right             = "16px";
-    next_video_button.style.bottom            = "16px";
-    right_buttons_width += 116;
-    document.body.appendChild(next_video_button);
-  }
-
-  if (create_button_url && !embed_mode) {
-    create_button = document.createElement("a");
-    create_button.id                      = "create_button";
-    create_button.href                    = create_button_url;
-    create_button.target                  = "_blank";
-    create_button.innerHTML               = `<img src="lifecast_res/plus_button.png" style="width: 48px; height: 48px;">`;
-    create_button.style.cursor            = "pointer";
-    create_button.draggable               = false;
-    create_button.style.position          = "absolute";
-    create_button.style.right             = (right_buttons_width + 16).toString() + "px";
-    create_button.style.bottom            = "22px";
-    document.body.appendChild(create_button);
-  }
 
   if (photo_mode || embed_mode) return;
 
@@ -349,17 +309,6 @@ function handleNonVrPauseButton() {
 }
 
 
-function verticalScrollCameraHandler() {
-  var h = window.innerHeight;
-  var top = window.pageYOffset || document.documentElement.scrollTop;
-  var container_rect = container.getBoundingClientRect();
-  var y0 = container_rect.top;
-  var y1 = container_rect.bottom;
-  var y_mid = (y0 + y1) * 0.5;
-  var y_frac = 2.0 * y_mid / h - 1.0; // Ranges from -1 to 1 as the middle of the container moves from top to bottom of the window.
-  camera.position.set(0, -y_frac * 0.2 + vscroll_bias, 0.01);
-}
-
 function onWindowResize() {
   // In embed mode, use the width and height of the container div.
   let width = embed_mode ? container.clientWidth : window.innerWidth;
@@ -367,8 +316,6 @@ function onWindowResize() {
   camera.aspect = width / height;
   renderer.setSize(width, height);
   camera.updateProjectionMatrix();
-
-  if (cam_mode == "vscroll") { verticalScrollCameraHandler(); }
 }
 
 function updateControlsAndButtons() {
@@ -394,8 +341,6 @@ function updateControlsAndButtons() {
 
   if (!has_played_video && is_ios) {
     byId("play_button").style.display   = "inline";
-    if(next_video_button) next_video_button.style.display = "inline";
-    if(create_button) create_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -407,8 +352,6 @@ function updateControlsAndButtons() {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "inline";
@@ -421,8 +364,6 @@ function updateControlsAndButtons() {
 
   if (video.ended) {
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("buffering_button").style.display = "none";
     byId("rewind_button").style.display = "inline";
@@ -432,8 +373,6 @@ function updateControlsAndButtons() {
 
   if (!video || nonvr_menu_fade_counter <= 0) {
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -443,8 +382,6 @@ function updateControlsAndButtons() {
 
   if (video_is_playing) {
     byId("play_button").style.display   = "none";
-    if(next_video_button) next_video_button.style.display = "none";
-    if(create_button) create_button.style.display = "none";
     byId("pause_button").style.display  = "inline";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -454,8 +391,6 @@ function updateControlsAndButtons() {
 
   if (!video_is_playing && video.readyState >= 2) {
     byId("play_button").style.display   = "inline";
-    if(next_video_button) next_video_button.style.display = "inline";
-    if(create_button) create_button.style.display = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -510,11 +445,8 @@ function render() {
 
 
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
-  // This also enables programmatic pan, zoom, and dolly effects via updateEmbedControls
   if (cam_mode == "default" && !got_orientation_data) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
-      camera.fov = fov;
       let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
       let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
@@ -811,32 +743,6 @@ function setupHandAndControllerModels() {
   scene.add(new THREE.DirectionalLight( 0xffffff, 3));
 }
 
-export function updateEmbedControls(
-    _fov, _x, _y, _z, _u, _v,
-    _anim_fov, _anim_x, _anim_y, _anim_z, _anim_u, _anim_v,
-    _anim_fov_speed, _anim_x_speed, _anim_y_speed, _anim_z_speed, _anim_u_speed, _anim_v_speed,
-) {
-  anim_fov_offset = _fov;
-  anim_x_offset = _x;
-  anim_y_offset = _y;
-  anim_z_offset = _z;
-  anim_u_offset = _u;
-  anim_v_offset = _v;
-  anim_fov = _anim_fov;
-  anim_x = _anim_x;
-  anim_y = _anim_y;
-  anim_z = _anim_z;
-  anim_u = _anim_u;
-  anim_v = _anim_v;
-  anim_fov_speed = _anim_fov_speed;
-  anim_x_speed = _anim_x_speed;
-  anim_y_speed = _anim_y_speed;
-  anim_z_speed = _anim_z_speed;
-  anim_u_speed = _anim_u_speed;
-  anim_v_speed = _anim_v_speed;
-  onWindowResize();
-  playVideoIfReady();
-}
 
 export function init({
   _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
@@ -844,18 +750,11 @@ export function init({
   _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
   _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
-  _force_recenter_frames = [], // (If supported), VR coordinate frame is reset on these frames.
   _embed_in_div = "",
   _cam_mode="default",
   _vfov = 80,
-  _vscroll_bias = 0.0,
-  _framerate = 30,
   _ftheta_scale = null,
-  _slideshow = [], // If there is a list of media files here, we can cycle through them
-  _next_video_url = "",
-  _next_video_thumbnail = "",
   _lock_position = false,
-  _create_button_url = "",
   _decode_12bit = true,
   _looking_glass_config = null,
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
@@ -868,13 +767,7 @@ export function init({
   }
 
   cam_mode        = _cam_mode;
-  vscroll_bias    = _vscroll_bias;
-  vid_framerate   = _framerate;
-  next_video_url  = _next_video_url;
-  next_video_thumbnail  = _next_video_thumbnail;
-  slideshow       = _slideshow;
   lock_position   = _lock_position;
-  create_button_url = _create_button_url;
 
   looking_glass_config = _looking_glass_config;
   let enter_xr_button_title = "ENTER VR";
@@ -882,13 +775,6 @@ export function init({
   if(looking_glass_config) {
     enter_xr_button_title = "START LOOKING GLASS";
     exit_xr_button_title =  "EXIT LOOKING GLASS";
-  }
-
-  anim_fov_offset = _vfov;
-
-  if (slideshow.length > 0) {
-    photo_mode = true;
-    _media_url = slideshow[slideshow_index];
   }
 
   if (_embed_in_div == "") {
@@ -969,27 +855,11 @@ export function init({
 
     document.body.appendChild(video);
 
-    var frame_callback = function() {};
-    if (is_chrome) {
-      frame_callback = function(frame_index) {
-        // This fixes a weird bug in Chrome. Seriously WTF. When the video has an
-        // audio track, the callback's time is shifted by 1 frame.
-        if (hasAudio(video)) frame_index -= 1;
-        if (vid_framerate == 60) frame_index -= 1; // TODO: this is just a hack, its not fixing a bug in chrome. It is working around a quirk in upscaling 30->60FPS. Not tested with 60fps vids that have audio!
-        if (frame_index < 0) frame_index = 0;
-      };
-    }
-
-    // Firefox gets very slow unless we give it RGBA format (see https://threejs.org/docs/#api/en/textures/VideoTexture).
-    // We want to use THREE.FloatType textures here so we can benefit from 10 bit video,
-    // but it causes Firefox, Safari and Oculus browsers to be slow, so for these we need
-    // to use 8 bit textures :(. TODO: revisit this.
-    texture = new TimedVideoTexture(
-      video,
-      THREE.RGBAFormat,
-      THREE.UnsignedByteType,
-      frame_callback,
-      vid_framerate);
+    texture = new THREE.VideoTexture(video)
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.format = THREE.RGBAFormat;
+    texture.type = THREE.UnsignedByteType;
   }
 
   makeNonVrControls();
@@ -1179,23 +1049,6 @@ export function init({
     if (key == " ") {
       toggleVideoPlayPause();
     }
-    if (key == "s" && slideshow.length > 0) {
-      slideshow_index = (slideshow_index + 1) % slideshow.length;
-      ldi_ftheta_mesh.uniforms.uTexture.value = new THREE.TextureLoader().load(slideshow[slideshow_index]);
-
-      ldi_ftheta_mesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
-      ldi_ftheta_mesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
-      ldi_ftheta_mesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
-      ldi_ftheta_mesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
-      ldi_ftheta_mesh.uniforms.uTexture.value.generateMipmaps = false;
-
-      if (_format == "ldi3") {
-        ldi_ftheta_mesh.ldi3_layer0_material.needsUpdate = true;
-        ldi_ftheta_mesh.ldi3_layer1_material.needsUpdate = true;
-        ldi_ftheta_mesh.ldi3_layer2_material.needsUpdate = true;
-      }
-    }
-
     if (_format == "ldi3") {
       if (key == "z") { toggle_layer0 = !toggle_layer0; }
       if (key == "x") { toggle_layer1 = !toggle_layer1; }
@@ -1204,9 +1057,6 @@ export function init({
 
   });
 
-  if (cam_mode == "vscroll") {
-    window.addEventListener("scroll", verticalScrollCameraHandler);
-  }
 
   if (is_ios) { // TODO: or android?
 
