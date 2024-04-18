@@ -50,7 +50,7 @@ let prev_vr_camera_position;
 
 let video;
 let texture;
-let nonvr_menu_fade_counter = 0;
+let nonvr_menu_fade_counter = 1;
 let mouse_is_down = false;
 
 let toggle_layer0 = true;
@@ -288,9 +288,10 @@ function playVideoIfReady() {
 }
 
 function toggleVideoPlayPause() {
-  if (photo_mode || embed_mode) return;
+  if (photo_mode) return;
 
   nonvr_menu_fade_counter = 60;
+
   const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
   if (video_is_playing || is_buffering) {
     is_buffering = false;
@@ -319,7 +320,6 @@ function onWindowResize() {
 }
 
 function updateControlsAndButtons() {
-  //if (photo_mode || embed_mode) return;
   if (!nonvr_controls) return;
 
   if (video) {
@@ -329,6 +329,8 @@ function updateControlsAndButtons() {
     if (!nonvr_controls.mouse_is_over) {
       --nonvr_menu_fade_counter;
     }
+    nonvr_menu_fade_counter = Math.max(-60, nonvr_menu_fade_counter); // Allowing this to go negative means it takes a couple of frames of motion for it to become visible.
+
 
     var opacity = video.ended || is_buffering ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
     opacity *= nonvr_controls.mouse_is_over || is_buffering ? 1.0 : 0.7;
@@ -340,9 +342,7 @@ function updateControlsAndButtons() {
 
   nonvr_controls.style.opacity = opacity;
 
-  nonvr_menu_fade_counter = Math.max(-60, nonvr_menu_fade_counter); // Allowing this to go negative means it takes a couple of frames of motion for it to become visible.
-
-  if (!has_played_video && is_ios) {
+  if (video && !has_played_video && is_ios) {
     byId("play_button").style.display   = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
@@ -1020,7 +1020,7 @@ export function init({
     images[i].addEventListener('contextmenu', event => event.preventDefault());
   }
   container.addEventListener('contextmenu', event => event.preventDefault());
-  if (!(photo_mode || embed_mode)) {
+  if (!photo_mode) {
     nonvr_controls.addEventListener('contextmenu', event => event.preventDefault());
     trackMouseStatus(nonvr_controls);
 
