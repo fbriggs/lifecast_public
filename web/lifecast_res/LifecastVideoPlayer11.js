@@ -98,19 +98,16 @@ let mobile_drag_u = 0.0;
 let mobile_drag_v = 0.0;
 
 // Used for programmatic camera animation
-let anim_fov_offset = 80;
 let anim_x_offset = 0;
 let anim_y_offset = 0;
 let anim_z_offset = 0;
 let anim_u_offset = 0;
 let anim_v_offset = 0;
-let anim_fov = 0;
 let anim_x = 0.15;
 let anim_y = 0.10;
 let anim_z = 0.05;
 let anim_u = 0.15;
 let anim_v = 0.10;
-let anim_fov_speed = 3000;
 let anim_x_speed = 7500;
 let anim_y_speed = 5100;
 let anim_z_speed = 6100;
@@ -452,8 +449,6 @@ function render() {
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   if (cam_mode == "default" && !got_orientation_data) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      let fov = anim_fov_offset + anim_fov * Math.sin(Date.now() / anim_fov_speed * Math.PI) * 0.5;
-      camera.fov = fov;
       let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
       let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
@@ -784,8 +779,6 @@ export function init({
     enter_xr_button_title = "START LOOKING GLASS";
     exit_xr_button_title =  "EXIT LOOKING GLASS";
   }
-
-  anim_fov_offset = _vfov;
 
   if (slideshow.length > 0) {
     photo_mode = true;
