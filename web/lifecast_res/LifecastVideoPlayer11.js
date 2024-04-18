@@ -25,7 +25,6 @@ THE SOFTWARE.
 import {LdiFthetaMesh} from "./LdiFthetaMesh11.js";
 import * as THREE from './three152.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
-import {TimedVideoTexture} from "./TimedVideoTexture.js";
 import {HTMLMesh} from './HTMLMesh.js';
 import {HelpGetVR} from './HelpGetVR11.js';
 import {GestureControlModule} from './GestureControlModule.js';
@@ -51,7 +50,6 @@ let prev_vr_camera_position;
 
 let video;
 let texture;
-let vid_framerate = 30;
 let nonvr_menu_fade_counter = 0;
 let mouse_is_down = false;
 
@@ -827,7 +825,6 @@ export function init({
   _cam_mode="default",
   _vfov = 80,
   _vscroll_bias = 0.0,
-  _framerate = 30,
   _ftheta_scale = null,
   _slideshow = [], // If there is a list of media files here, we can cycle through them
   _next_video_url = "",
@@ -846,7 +843,6 @@ export function init({
 
   cam_mode        = _cam_mode;
   vscroll_bias    = _vscroll_bias;
-  vid_framerate   = _framerate;
   next_video_url  = _next_video_url;
   next_video_thumbnail  = _next_video_thumbnail;
   slideshow       = _slideshow;
@@ -945,27 +941,11 @@ export function init({
 
     document.body.appendChild(video);
 
-    var frame_callback = function() {};
-    if (is_chrome) {
-      frame_callback = function(frame_index) {
-        // This fixes a weird bug in Chrome. Seriously WTF. When the video has an
-        // audio track, the callback's time is shifted by 1 frame.
-        if (hasAudio(video)) frame_index -= 1;
-        if (vid_framerate == 60) frame_index -= 1; // TODO: this is just a hack, its not fixing a bug in chrome. It is working around a quirk in upscaling 30->60FPS. Not tested with 60fps vids that have audio!
-        if (frame_index < 0) frame_index = 0;
-      };
-    }
-
-    // Firefox gets very slow unless we give it RGBA format (see https://threejs.org/docs/#api/en/textures/VideoTexture).
-    // We want to use THREE.FloatType textures here so we can benefit from 10 bit video,
-    // but it causes Firefox, Safari and Oculus browsers to be slow, so for these we need
-    // to use 8 bit textures :(. TODO: revisit this.
-    texture = new TimedVideoTexture(
-      video,
-      THREE.RGBAFormat,
-      THREE.UnsignedByteType,
-      frame_callback,
-      vid_framerate);
+    texture = new THREE.VideoTexture(video)
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.format = THREE.RGBAFormat;
+    texture.type = THREE.UnsignedByteType;
   }
 
   makeNonVrControls();
