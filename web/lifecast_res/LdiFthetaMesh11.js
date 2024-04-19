@@ -82,7 +82,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             const inflation = 3.0;
             this.makeFthetaMesh(_format, ldi3_layer0_material, 128, 4, 0, inflation);
             this.makeFthetaMesh(_format, ldi3_layer1_material, 128, 4, 1, inflation);
-            this.makeFthetaMesh(_format, ldi3_layer2_material, 128, 4, 2, inflation);
+            this.makeFthetaMesh(_format, ldi3_layer2_material, 96, 4, 2, inflation); // HACK: a few less triangles here to give some overhead on Quest Pro to not exceed triangle limit when displaying extra UI elements.
         } else {
             console.log("Unrecognized format: ", _format);
         }

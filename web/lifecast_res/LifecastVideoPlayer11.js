@@ -490,14 +490,14 @@ function render() {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, true);
     setVisibilityForLayerMeshes(2, false);
-    renderer.clearDepth(); // TODO: not sure if we still need this with normalized depth
+    //renderer.clearDepth(); // TODO: not sure if we still need this with normalized depth
     renderer.render(scene, camera);
   }
   if (toggle_layer2) {
     setVisibilityForLayerMeshes(0, false);
     setVisibilityForLayerMeshes(1, false);
     setVisibilityForLayerMeshes(2, true);
-    renderer.clearDepth(); // TODO: not sure if we still need this with normalized depth
+    //renderer.clearDepth(); // TODO: not sure if we still need this with normalized depth
     renderer.render(scene, camera);
   }
 
@@ -930,8 +930,8 @@ export function init({
   });
   renderer.autoClear = false;
   renderer.autoClearColor = false;
-  renderer.autoClearDepth = false;
-  renderer.autoClearStencil = true; // HACK: this is to prevent THREE.js from causing an error when it attempts to clear with no bits set (despite autoClear=false).
+  renderer.autoClearDepth = true;
+  renderer.autoClearStencil = false;
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.xr.enabled = true;
   if (_transparent_bg) {
