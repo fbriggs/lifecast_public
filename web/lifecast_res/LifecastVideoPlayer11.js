@@ -1063,6 +1063,16 @@ export function init({
 
   });
 
+  renderer.domElement.addEventListener('wheel', function(event) {
+    event.preventDefault();
+    const MIN_FOV = 30;
+    const MAX_FOV = 120;
+    // Note: event.deltaY is typically +100 or -100 per wheel click
+    const FOV_CHANGE_SPEED = 0.01;
+    camera.fov += event.deltaY * FOV_CHANGE_SPEED;
+    camera.fov = Math.max(MIN_FOV, Math.min(camera.fov, MAX_FOV));
+    camera.updateProjectionMatrix();
+  }, false);
 
   if (is_ios) { // TODO: or android?
 
