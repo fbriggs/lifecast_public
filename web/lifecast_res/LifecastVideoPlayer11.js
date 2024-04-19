@@ -1186,5 +1186,11 @@ export function init({
     gesture_control.reset();
   });
 
+  // Hack to prevent double loading spinners
+  let preload_spinner = document.getElementById('lifecast_preload_buffering_button');
+  if (preload_spinner) {
+    preload_spinner.style.display = "none";
+  }
+
   animate();
 } // end init()
