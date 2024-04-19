@@ -50,7 +50,7 @@ let prev_vr_camera_position;
 
 let video;
 let texture;
-let nonvr_menu_fade_counter = 0;
+let nonvr_menu_fade_counter = 1;
 let mouse_is_down = false;
 
 let toggle_layer0 = true;
@@ -64,7 +64,7 @@ let cam_drag_v = 0.0;
 let right_mouse_is_down = false;
 
 let nonvr_controls;
-let video_is_buffering = false;
+let is_buffering = true;
 let vr_session_active = false; // true if we are in VR
 let vrbutton3d, vrbutton_material, vrbutton_texture_rewind, vrbutton_texture_buffering; // THREE.js object to render VR-only buttons
 // Used to keep track of whether a click or a drag occured. When a mousedown event occurs,
@@ -163,7 +163,6 @@ function trackMouseStatus(element) {
 function makeNonVrControls() {
   var right_buttons_width = 0;
 
-  if (photo_mode || embed_mode) return;
 
   nonvr_controls = document.createElement("div");
   nonvr_controls.id = "nonvr_controls";
@@ -222,7 +221,7 @@ function makeNonVrControls() {
   nonvr_controls.appendChild(rewind_button);
   nonvr_controls.appendChild(buffering_button);
 
-  document.body.appendChild(nonvr_controls);
+  container.appendChild(nonvr_controls);
 }
 
 function debugLog(message) {
@@ -288,12 +287,13 @@ function playVideoIfReady() {
 }
 
 function toggleVideoPlayPause() {
-  if (photo_mode || embed_mode) return;
+  if (photo_mode) return;
 
   nonvr_menu_fade_counter = 60;
+
   const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
-  if (video_is_playing || video_is_buffering) {
-    video_is_buffering = false;
+  if (video_is_playing || is_buffering) {
+    is_buffering = false;
     video.pause();
   } else {
     playVideoIfReady();
@@ -319,27 +319,28 @@ function onWindowResize() {
 }
 
 function updateControlsAndButtons() {
-  if (photo_mode || embed_mode) return;
+  if (!nonvr_controls) return;
 
-  const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState >= 2);
+  const video_is_playing = video && !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState >= 2);
+  if (video) {
+    // Fade out but only if the mouse is not over a button
+    if (!nonvr_controls.mouse_is_over) {
+      --nonvr_menu_fade_counter;
+    }
+    nonvr_menu_fade_counter = Math.max(-60, nonvr_menu_fade_counter); // Allowing this to go negative means it takes a couple of frames of motion for it to become visible.
 
-  // Fade out but only if the mouse is not over a button
-  if (!nonvr_controls.mouse_is_over) {
-    --nonvr_menu_fade_counter;
-  }
 
-  var opacity = video.ended || video_is_buffering ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
-  opacity *= nonvr_controls.mouse_is_over || video_is_buffering ? 1.0 : 0.7;
+    var opacity = video.ended || is_buffering ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
+    opacity *= nonvr_controls.mouse_is_over || is_buffering ? 1.0 : 0.7;
 
-  if (!video_is_playing) {
-    opacity = 1.0; // always show controls before playing. This is important for iOS where the video won't load without an interaction!
+    if (!video_is_playing) {
+      opacity = 1.0; // always show controls before playing. This is important for iOS where the video won't load without an interaction!
+    }
   }
 
   nonvr_controls.style.opacity = opacity;
 
-  nonvr_menu_fade_counter = Math.max(-60, nonvr_menu_fade_counter); // Allowing this to go negative means it takes a couple of frames of motion for it to become visible.
-
-  if (!has_played_video && is_ios) {
+  if (video && !has_played_video && is_ios) {
     byId("play_button").style.display   = "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
@@ -348,7 +349,7 @@ function updateControlsAndButtons() {
     return;
   }
 
-  if (video_is_buffering) {
+  if (is_buffering) {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
@@ -362,7 +363,7 @@ function updateControlsAndButtons() {
     vrbutton_material.map = vrbutton_texture_rewind;
   }
 
-  if (video.ended) {
+  if (video && video.ended) {
     byId("play_button").style.display   = "none";
     byId("pause_button").style.display  = "none";
     byId("buffering_button").style.display = "none";
@@ -779,11 +780,10 @@ export function init({
 
   if (_embed_in_div == "") {
     setBodyStyle();
-    container = document.createElement("div");
+    container = document.body;
     container.style.margin = "0px";
     container.style.border = "0px";
     container.style.padding = "0px";
-    document.body.appendChild(container);
   } else {
     embed_mode = true;
     container = byId(_embed_in_div);
@@ -808,13 +808,13 @@ export function init({
     texture = new THREE.TextureLoader().load(
       _media_url,
       function(texture) {// onLoad callback
-        // Nothing to do
+        is_buffering = false;
       },
       function(xhr) { // Progress callback
         //const percentage = (xhr.loaded / xhr.total) * 100;
       },
       function(error) { // error callback
-        document.documentElement.innerHTML = "Error loading texture: "  + _media_url;
+        container.innerHTML = "Error loading texture: "  + _media_url;
       }
     );
     // Some of this isn't necessary, but makes the texture consistent between Photo/Video.
@@ -847,10 +847,11 @@ export function init({
 
     video.style.display = "none";
     video.preload = "auto";
-    video.addEventListener("waiting", function() { video_is_buffering = true; });
-    video.addEventListener("playing", function() { video_is_buffering = false; });
+    video.addEventListener("waiting", function() { is_buffering = true; });
+    video.addEventListener("playing", function() { is_buffering = false; });
+    video.addEventListener("canplay", function() { is_buffering = false; });
     video.addEventListener("error",     function() {
-      document.documentElement.innerHTML = "Error loading video URL: "  + best_media_url;
+      container.innerHTML = "Error loading video URL: "  + best_media_url;
     });
 
     if(_autoplay_muted) {
@@ -1016,7 +1017,7 @@ export function init({
     images[i].addEventListener('contextmenu', event => event.preventDefault());
   }
   container.addEventListener('contextmenu', event => event.preventDefault());
-  if (!(photo_mode || embed_mode)) {
+  if (!photo_mode) {
     nonvr_controls.addEventListener('contextmenu', event => event.preventDefault());
     trackMouseStatus(nonvr_controls);
 
@@ -1025,7 +1026,7 @@ export function init({
     byId("rewind_button").addEventListener('click', handleNonVrPlayButton);
     byId("pause_button").addEventListener('click', handleNonVrPauseButton);
     byId("buffering_button").addEventListener('click', function() {
-      video_is_buffering = false;
+      is_buffering = false;
       handleNonVrPauseButton();
     });
 
@@ -1182,6 +1183,12 @@ export function init({
     world_group.position.set(0, 0, 0);
     gesture_control.reset();
   });
+
+  // Remove any redundant loading indicator (from LifecastVideoPlayerPreloader)
+  let preload_indicators = container.getElementsByClassName("lifecast_preload_indicator");
+  for (let i = 0; i < preload_indicators.length; i++) {
+    preload_indicators[i].style.display = "none";
+  }
 
   animate();
 } // end init()

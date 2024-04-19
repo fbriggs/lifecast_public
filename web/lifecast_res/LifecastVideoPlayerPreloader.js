@@ -7,7 +7,8 @@ export function init({
   }
 
   const buffering_button = document.createElement("img");
-  buffering_button.id                       = "buffering_button";
+  buffering_button.id                       = "lifecast_preload_buffering_button";
+  buffering_button.className                = "lifecast_preload_indicator";
   buffering_button.src                      = "lifecast_res/spinner.png";
   buffering_button.draggable                = false;
   buffering_button.style.opacity            = .5;
