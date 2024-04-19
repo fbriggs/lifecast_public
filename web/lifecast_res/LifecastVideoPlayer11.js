@@ -221,7 +221,6 @@ function makeNonVrControls() {
   nonvr_controls.appendChild(rewind_button);
   nonvr_controls.appendChild(buffering_button);
 
-  //document.body.appendChild(nonvr_controls);
   container.appendChild(nonvr_controls);
 }
 
@@ -781,11 +780,10 @@ export function init({
 
   if (_embed_in_div == "") {
     setBodyStyle();
-    container = document.createElement("div");
+    container = document.body;
     container.style.margin = "0px";
     container.style.border = "0px";
     container.style.padding = "0px";
-    document.body.appendChild(container);
   } else {
     embed_mode = true;
     container = byId(_embed_in_div);
@@ -1186,10 +1184,10 @@ export function init({
     gesture_control.reset();
   });
 
-  // Hack to prevent double loading spinners
-  let preload_spinner = document.getElementById('lifecast_preload_buffering_button');
-  if (preload_spinner) {
-    preload_spinner.style.display = "none";
+  // Remove any redundant loading indicator (from LifecastVideoPlayerPreloader)
+  let preload_indicators = container.getElementsByClassName("lifecast_preload_indicator");
+  for (let i = 0; i < preload_indicators.length; i++) {
+    preload_indicators[i].style.display = "none";
   }
 
   animate();
