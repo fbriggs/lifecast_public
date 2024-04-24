@@ -90,7 +90,6 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
     makeFthetaMesh(format, material, GRID_SIZE, NUM_PATCHES, order, ftheta_inflation, is_oculus) {
         const NUM_QUADS_PER_SIDE = NUM_PATCHES * GRID_SIZE;
-        const MARGIN = 3;
 
         for (var patch_j = 0; patch_j < NUM_PATCHES; ++patch_j) {
             for (var patch_i = 0; patch_i < NUM_PATCHES; ++patch_i) {
@@ -121,6 +120,11 @@ export class LdiFthetaMesh extends THREE.Object3D {
                     }
                 }
 
+                // HACK: this doesn't match ftheta scale, its just based on vignettes
+                // the smallest it can be while showing proper vignettes
+                const r_cull = NUM_QUADS_PER_SIDE/2 + 1;
+                const r_cull2 = r_cull * r_cull;
+
                 for (var j = 0; j < GRID_SIZE; ++j) {
                     for (var i = 0; i < GRID_SIZE; ++i) {
                         // Skip quads outside the image circle.
@@ -128,7 +132,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
                         const jj = j + patch_j * GRID_SIZE;
                         const di = ii - NUM_QUADS_PER_SIDE / 2;
                         const dj = jj - NUM_QUADS_PER_SIDE / 2;
-                        if (di * di + dj * dj > (NUM_QUADS_PER_SIDE-MARGIN) * (NUM_QUADS_PER_SIDE-MARGIN) / 4) continue;
+                        if (di * di + dj * dj > r_cull2) continue;
 
                         const a = i + (GRID_SIZE + 1) * j;
                         const b = a + 1;
