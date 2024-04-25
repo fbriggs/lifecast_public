@@ -16,7 +16,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
     ftheta_scale = null
 
-    constructor(_format, _decode_12bit, texture, _ftheta_scale = null, _transparent_bg = false) {
+    constructor(_format, _decode_12bit, texture, _ftheta_scale = null) {
 
         super()
 
@@ -38,7 +38,6 @@ export class LdiFthetaMesh extends THREE.Object3D {
         // Make the foreground mesh material.
         var shader_prefix = "";
         if (_decode_12bit) shader_prefix += "#define DECODE_12BIT\n";
-        if (_transparent_bg) shader_prefix += "#define TRANSPARENT_BG\n";
 
         //// LDI3 materials ////
 
@@ -48,7 +47,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             uniforms: this.uniforms,
             depthTest: true,
             depthWrite: true,
-            transparent: _transparent_bg,
+            transparent: true,
             wireframe: false
         });
         ldi3_layer0_material.side = THREE.BackSide;
@@ -122,7 +121,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
                 // HACK: this doesn't match ftheta scale, its just based on vignettes
                 // the smallest it can be while showing proper vignettes
-                const r_cull = NUM_QUADS_PER_SIDE/2 + 1;
+                const r_cull = NUM_QUADS_PER_SIDE/2 + 5;
                 const r_cull2 = r_cull * r_cull;
 
                 for (var j = 0; j < GRID_SIZE; ++j) {
