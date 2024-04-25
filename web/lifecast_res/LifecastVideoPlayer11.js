@@ -345,7 +345,7 @@ function updateControlsAndButtons() {
   nonvr_controls.style.opacity = opacity;
 
   if (video && !has_played_video && is_ios) {
-    byId("play_button").style.display   = "inline";
+    byId("play_button").style.display   = "none";  //"inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -395,7 +395,7 @@ function updateControlsAndButtons() {
   }
 
   if (!video_is_playing && video.readyState >= 2) {
-    byId("play_button").style.display   = "inline";
+    byId("play_button").style.display   = "none"; // "inline";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -549,21 +549,17 @@ function initHandControllers(handleft, handright) {
   if (!handright) { return; }
 
   handright.addEventListener('pinchstart', function() {
-    debugLog("Right pinchstart");
     gesture_control.rightPinchStart();
   });
   handright.addEventListener('pinchend', function() {
-    debugLog("Right pinchend");
     gesture_control.rightPinchEnd();
     playVideoIfReady();
   });
 
   handleft.addEventListener('pinchstart', function() {
-    debugLog("Left pinchstart");
     gesture_control.leftPinchStart();
   });
   handleft.addEventListener('pinchend', function() {
-    debugLog("Left pinchend");
     gesture_control.leftPinchEnd();
     playVideoIfReady();
   });
