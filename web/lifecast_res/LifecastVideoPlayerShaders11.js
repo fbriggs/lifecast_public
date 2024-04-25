@@ -140,13 +140,16 @@ void main() {
   vec3 rgb = texture2D(uTexture, texture_uv).rgb;
   float a = texture2D(uTexture, alpha_uv).r;
 
-  //a *= length(vPosLocal) > uTransitionT * 2.0 ? 0.0 : 1.0;
+  float effect_radius = uTransitionT * 5.0;
+  float l = length(vPosLocal);
+  if (abs(l - effect_radius) < 0.05) {
+    rgb = vec3(1.0, 0.0, 0.0);
+  }
+  if (l > effect_radius) a = 0.0;
 
   if (a < 0.02) discard;
 
-  if (abs(length(vPosLocal) - uTransitionT * 5.0) < 0.05) {
-    rgb = vec3(1.0, 0.0, 0.0);
-  }
+
 
   gl_FragColor = vec4(rgb, a);
 }

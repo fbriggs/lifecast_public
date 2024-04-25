@@ -114,6 +114,9 @@ let anim_v_speed = 5100;
 
 let AUTO_CAM_MOVE_TIME = 5000;
 
+const TRANSITION_ANIM_DURATION = 5.0;
+let transition_start_timer;
+
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
 var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
 var is_chrome =  (navigator.userAgent.indexOf("Chrome")  != -1) || is_oculus;
@@ -404,6 +407,11 @@ function updateControlsAndButtons() {
   }
 }
 
+function startAnimatedTransitionEffect() {
+  console.log("start transition!");
+  transition_start_timer = performance.now();
+}
+
 function setVisibilityForLayerMeshes(l, v) {
   for (var m of ldi_ftheta_mesh.layer_to_meshes[l]) { m.visible = v; }
 }
@@ -472,6 +480,11 @@ function render() {
 
   ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
   ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
+
+  if (transition_start_timer) {
+    const elapsed = (performance.now() - transition_start_timer) / 1000.0;
+    ldi_ftheta_mesh.uniforms.uTransitionT.value = Math.min(elapsed / TRANSITION_ANIM_DURATION, 1.0);
+  }
 
   // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
   if (is_safari && video != undefined) {
@@ -1069,6 +1082,8 @@ export function init({
       if (key == "x") { toggle_layer1 = !toggle_layer1; }
       if (key == "c") { toggle_layer2 = !toggle_layer2; }
     }
+
+    if (key == "a") startAnimatedTransitionEffect();
 
   });
 
