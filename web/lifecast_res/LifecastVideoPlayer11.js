@@ -109,7 +109,7 @@ let anim_v_speed = 5100;
 
 let AUTO_CAM_MOVE_TIME = 5000;
 
-const TRANSITION_ANIM_DURATION = 5.0;
+const TRANSITION_ANIM_DURATION = 8.0;
 let transition_start_timer;
 
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
@@ -859,6 +859,9 @@ export function init({
       _media_url,
       function(texture) {// onLoad callback
         is_buffering = false;
+        if (!transition_start_timer) {
+          startAnimatedTransitionEffect();
+        }
       },
       function(xhr) { // Progress callback
         //const percentage = (xhr.loaded / xhr.total) * 100;
@@ -898,8 +901,18 @@ export function init({
     video.style.display = "none";
     video.preload = "auto";
     video.addEventListener("waiting", function() { is_buffering = true; });
-    video.addEventListener("playing", function() { is_buffering = false; });
-    video.addEventListener("canplay", function() { is_buffering = false; });
+    video.addEventListener("playing", function() {
+      if (!transition_start_timer) {
+        startAnimatedTransitionEffect();
+      }
+      is_buffering = false;
+    });
+    video.addEventListener("canplay", function() {
+      if (!transition_start_timer) {
+        startAnimatedTransitionEffect();
+      }
+      is_buffering = false;
+    });
     video.addEventListener("error",     function() {
       container.innerHTML = "Error loading video URL: "  + best_media_url;
     });
