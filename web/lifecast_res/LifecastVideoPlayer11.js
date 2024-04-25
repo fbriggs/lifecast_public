@@ -345,7 +345,7 @@ function updateControlsAndButtons() {
   nonvr_controls.style.opacity = opacity;
 
   if (video && !has_played_video && is_ios) {
-    byId("play_button").style.display   = "inline";
+    byId("play_button").style.display   = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
@@ -387,7 +387,7 @@ function updateControlsAndButtons() {
 
   if (video_is_playing) {
     byId("play_button").style.display   = "none";
-    byId("pause_button").style.display  = "inline";
+    byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
     vrbutton3d.visible = false;
@@ -395,7 +395,7 @@ function updateControlsAndButtons() {
   }
 
   if (!video_is_playing && video.readyState >= 2) {
-    byId("play_button").style.display   = "inline";
+    byId("play_button").style.display   = "none";
     byId("pause_button").style.display  = "none";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
