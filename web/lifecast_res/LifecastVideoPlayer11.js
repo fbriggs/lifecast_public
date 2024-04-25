@@ -410,8 +410,10 @@ function updateControlsAndButtons() {
 }
 
 function startAnimatedTransitionEffect() {
-  console.log("start transition!");
-  transition_start_timer = performance.now();
+  if (_enable_intro_animation) {
+    console.log("start transition!");
+    transition_start_timer = performance.now();
+  }
 }
 
 function setVisibilityForLayerMeshes(l, v) {
@@ -807,6 +809,7 @@ export function init({
   _lock_position = false,
   _decode_12bit = true,
   _looking_glass_config = null,
+  _enable_intro_animation = true,
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
   _loop = false,
   _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
