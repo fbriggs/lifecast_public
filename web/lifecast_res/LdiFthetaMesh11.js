@@ -33,6 +33,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
         // Make the initial shader uniforms.
         this.uniforms = {
             uTexture: { value: texture },
+            uTransitionT: { value: 0.5 },
         };
 
         // Make the foreground mesh material.
