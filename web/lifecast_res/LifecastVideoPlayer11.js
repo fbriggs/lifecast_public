@@ -455,7 +455,18 @@ function updateCameraPosition() {
   }
 
   if (orbit_controls) {
-    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+    if (transition_start_timer) {
+      // Swoop-in animation
+      const elapsed = (performance.now() - transition_start_timer) / 1000.0;
+      const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
+      let x = (1 - t)*(1 - t) * -5.0;
+      let y = (1 - t)*(1 - t) * 3.0;
+      let z = (1 - t)*(1 - t) * 7.0;
+      orbit_controls.target.set(x, y, 0);
+      orbit_controls.position0.set(x, y, z);
+      orbit_controls.reset();
+    }
+    else if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let x = 4 * anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
       let z = -2.0 + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
