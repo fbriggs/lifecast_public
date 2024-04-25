@@ -891,7 +891,8 @@ export function init({
   vrbutton3d = new THREE.Mesh(vrbutton_geometry, vrbutton_material);
   vrbutton3d.visible = false;
   vrbutton3d.position.set(0, 0, -1);
-  interface_group.add(vrbutton3d);
+  vrbutton3d.renderOrder = 100;
+  ldi_ftheta_mesh.add(vrbutton3d);
 
   // See https://github.com/mrdoob/three.js/blob/dev/examples/webxr_vr_sandbox.html
   // for more examples of using HTMLMesh.
