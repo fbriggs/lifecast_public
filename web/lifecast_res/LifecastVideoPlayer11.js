@@ -456,10 +456,12 @@ function updateCameraPosition() {
 
   if (orbit_controls) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      let x = 3 * anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+      let x = 4 * anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
       let z = -2.0 + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
-      orbit_controls.target.set(x, 0, z);
+      orbit_controls.target.set(x, 0, -1.0);
+      orbit_controls.position0.set(-x, 0, .0);
+      orbit_controls.reset();
     }
     orbit_controls.update();
   }
