@@ -168,11 +168,9 @@ function makeNonVrControls() {
   nonvr_controls.id = "nonvr_controls";
   nonvr_controls.style["margin"]            = "auto";
   nonvr_controls.style["position"]          = "absolute";
-  nonvr_controls.style["top"]               = "1";
-  nonvr_controls.style["left"]              = "0";
-  nonvr_controls.style["bottom"]            = "0";
-  nonvr_controls.style["margin-left"]       = "16px";
-  nonvr_controls.style["margin-bottom"]     = "22px";
+  nonvr_controls.style["top"]               = "50%";
+  nonvr_controls.style["left"]              = "50%";
+  nonvr_controls.style["transform"]         = "translate(-50%, -50%)";
 
   let sz = "64px";
   nonvr_controls.style["width"]             = sz;
