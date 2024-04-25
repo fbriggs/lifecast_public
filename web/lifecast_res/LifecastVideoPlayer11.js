@@ -415,6 +415,53 @@ function setVisibilityForLayerMeshes(l, v) {
   for (var m of ldi_ftheta_mesh.layer_to_meshes[l]) { m.visible = v; }
 }
 
+function updateCameraPosition() {
+  if (handsAvailable()) {
+    const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
+    const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
+    gesture_control.updateLeftHand(indexFingerTipPosL);
+    gesture_control.updateRightHand(indexFingerTipPosR);
+    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+  } else if (vr_controller0 && vr_controller1) {
+    updateGamepad(vr_controller0, "left");
+    updateGamepad(vr_controller1, "right");
+    gesture_control.updateLeftHand(vr_controller0.position);
+    gesture_control.updateRightHand(vr_controller1.position);
+    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+  }
+
+  // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
+  if (cam_mode == "default" && !got_orientation_data) {
+    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+      let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+      let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
+      let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
+      camera.position.set(x, y, z);
+      let u = anim_u_offset + anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
+      let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
+      camera.lookAt(u, v, -4.0);
+      camera.updateProjectionMatrix();
+    } else {
+      if (!right_mouse_is_down) {
+        cam_drag_u *= 0.97;
+        cam_drag_v *= 0.97;
+      }
+      camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
+      camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
+    }
+  }
+
+  if (orbit_controls) {
+    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+      orbit_controls.autoRotate = true;
+    } else {
+      orbit_controls.autoRotate = false;
+    }
+    orbit_controls.update();
+  }
+}
+
+
 function render() {
   // The fragment shader uses the distance from the camera to the origin to determine how
   // aggressively to fade out fragments that might be part of a streaky triangle. We need
@@ -437,45 +484,10 @@ function render() {
 
   vr_camera_position.sub(world_group.position); // Subtract this to account for shifts in the world_group for view resets.
 
-
   updateControlsAndButtons();
   if (lock_position) { resetVRToCenter(); }
 
-  if (handsAvailable()) {
-    const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
-    const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
-    gesture_control.updateLeftHand(indexFingerTipPosL);
-    gesture_control.updateRightHand(indexFingerTipPosR);
-    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-  } else if (vr_controller0 && vr_controller1) {
-    updateGamepad(vr_controller0, "left");
-    updateGamepad(vr_controller1, "right");
-    gesture_control.updateLeftHand(vr_controller0.position);
-    gesture_control.updateRightHand(vr_controller1.position);
-    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-  }
-
-
-  // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
-  if (cam_mode == "default" && !got_orientation_data) {
-    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
-      let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
-      let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
-      camera.position.set(x, y, z);
-      let u = anim_u_offset + anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
-      let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
-      camera.lookAt(u, v, -4.0);
-      camera.updateProjectionMatrix();
-    } else {
-      if (!right_mouse_is_down) {
-        cam_drag_u *= 0.97;
-        cam_drag_v *= 0.97;
-      }
-      camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
-      camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
-    }
-  }
+  updateCameraPosition();
 
   ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
   ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
@@ -994,7 +1006,7 @@ export function init({
   }
 
   // Non_VR mouse camera controls.
-  if (cam_mode == "default" && !is_ios) {
+  if (!is_ios) {
     container.addEventListener('mousemove', function(e) {
       var rect = container.getBoundingClientRect();
       prev_mouse_u = ((e.clientX - rect.left) / rect.width) - 0.5;
