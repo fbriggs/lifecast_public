@@ -185,6 +185,7 @@ function makeNonVrControls() {
   play_button.draggable                     = false;
   play_button.style.display                 = "none";
   play_button.style.width                   = sz;
+  play_button.style.height                  = sz;
 
   const pause_button = document.createElement("img");
   pause_button.id                           = "pause_button";
@@ -192,6 +193,7 @@ function makeNonVrControls() {
   pause_button.draggable                    = false;
   pause_button.style.display                = "none";
   pause_button.style.width                  = sz;
+  pause_button.style.height                 = sz;
 
   const rewind_button = document.createElement("img");
   rewind_button.id                          = "rewind_button";
@@ -199,6 +201,7 @@ function makeNonVrControls() {
   rewind_button.draggable                   = false;
   rewind_button.style.display               = "none";
   rewind_button.style.width                 = sz;
+  rewind_button.style.height                = sz;
 
   const buffering_button = document.createElement("img");
   buffering_button.id                       = "buffering_button";
@@ -207,6 +210,7 @@ function makeNonVrControls() {
   buffering_button.style.display            = "none";
   buffering_button.style.opacity            = 0.5;
   buffering_button.style.width              = sz;
+  buffering_button.style.height             = sz;
 
 
   var spinner_rotation_angle = 0;
