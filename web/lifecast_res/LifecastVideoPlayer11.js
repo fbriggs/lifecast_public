@@ -996,10 +996,12 @@ export function init({
   }
 
   if (cam_mode == "orbit" && !is_ios) {
-    camera.position.set(0, 0, 2.0);
+    camera.position.set(0, 0, 0.0);
     orbit_controls = new OrbitControls(camera, renderer.domElement);
-    orbit_controls.panSpeed = 20.0;
-    orbit_controls.target.set(0, 0, -2.0); // NOTE the 2 here is half the octree size of 4 meters^3
+    orbit_controls.panSpeed = 0.25;
+    orbit_controls.rotateSpeed = 0.1;
+    orbit_controls.zoomSpeed = 0.05;
+    orbit_controls.target.set(0, 0, -1.0); // NOTE the 2 here is half the octree size of 4 meters^3
     orbit_controls.enableDamping = true;
     orbit_controls.enableZoom = true; // TODO: this is cool but needs some tweaking
     orbit_controls.dampingFactor = 0.3;
