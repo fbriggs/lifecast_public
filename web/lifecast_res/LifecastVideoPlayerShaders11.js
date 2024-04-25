@@ -140,10 +140,9 @@ void main() {
   float a = texture2D(uTexture, alpha_uv).r;
 
   float effect_radius = uTransitionT * 5.0;
-  if (abs(vS - effect_radius) < 0.05) {
-    rgb = vec3(1.0, 0.0, 0.0);
-  }
-  if (vS > effect_radius) a = 0.0;
+  float q = smoothstep(effect_radius - 0.02, effect_radius + 0.02, vS);
+  rgb = mix(rgb, vec3(0.6, 0.5, 1.0), q);
+  a *= smoothstep(effect_radius + 0.05, effect_radius, vS);
 
   if (a < 0.02) discard;
 
