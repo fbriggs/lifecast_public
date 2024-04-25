@@ -97,6 +97,7 @@ precision highp float;
 
 uniform sampler2D uTexture;
 varying vec2 vUv;
+varying float vS;
 `
 + decode12bit +
 `
@@ -109,9 +110,8 @@ void main() {
 #endif
 
   float s = clamp(0.3 / depth_sample, 0.01, 50.0);
-
-  vec4 position_shifted = vec4(position.xyz * s, 1.0);
-  gl_Position = projectionMatrix * modelViewMatrix * position_shifted;
+  vS = s;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position.xyz * s, 1.0);
 }
 `;
 
@@ -120,8 +120,10 @@ precision highp float;
 
 #include <common>
 uniform sampler2D uTexture;
+uniform float uEffectRadius;
 
 varying vec2 vUv;
+varying float vS;
 
 void main() {
 #if defined(LAYER2)
@@ -136,6 +138,12 @@ void main() {
 
   vec3 rgb = texture2D(uTexture, texture_uv).rgb;
   float a = texture2D(uTexture, alpha_uv).r;
+
+  // Transition effect
+  float q = smoothstep(uEffectRadius - 0.02, uEffectRadius + 0.02, vS);
+  rgb = mix(rgb, vec3(0.6, 0.5, 1.0), q);
+  a *= smoothstep(uEffectRadius + 0.05, uEffectRadius, vS);
+
   if (a < 0.02) discard;
 
   gl_FragColor = vec4(rgb, a);
@@ -149,16 +157,16 @@ uniform sampler2D uTexture;
 + decode12bit +
 `
 varying vec2 vUv;
+varying float vS;
 
 void main() {
   vUv = uv;
 
   float depth_sample = decodeInverseDepth(vUv, vec2(0.33333333, 0.0));
   float s = clamp(0.3 / depth_sample, 0.01, 50.0);
+  vS = s;
 
-  vec4 position_shifted = vec4(position.xyz * s, 1.0);
-
-  gl_Position = projectionMatrix * modelViewMatrix * position_shifted;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position.xyz * s, 1.0);
 }
 `;
 
@@ -167,13 +175,22 @@ precision highp float;
 
 #include <common>
 uniform sampler2D uTexture;
+uniform float uEffectRadius;
 varying vec2 vUv;
+varying float vS;
 
 void main() {
   vec2 texture_uv = vec2(vUv.s * 0.33333, vUv.t * 0.33333);
   vec2 alpha_uv   = vec2(vUv.s * 0.33333 + 0.66666, vUv.t * 0.33333);
   float a = texture2D(uTexture, alpha_uv).r;
+  vec3 rgb = texture2D(uTexture, texture_uv).rgb;
+
+  // Transition effect
+  float q = smoothstep(uEffectRadius - 0.02, uEffectRadius + 0.02, vS);
+  rgb = mix(rgb, vec3(0.6, 0.5, 1.0), q);
+  a *= smoothstep(uEffectRadius + 0.05, uEffectRadius, vS);
+
   if (a < 0.02) discard;
-  gl_FragColor = vec4(texture2D(uTexture, texture_uv).rgb, a);
+  gl_FragColor = vec4(rgb, a);
 }
 `;
