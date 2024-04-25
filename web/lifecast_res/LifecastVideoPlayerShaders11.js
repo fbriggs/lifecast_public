@@ -120,7 +120,7 @@ precision highp float;
 
 #include <common>
 uniform sampler2D uTexture;
-uniform float uTransitionT;
+uniform float uEffectRadius;
 
 varying vec2 vUv;
 varying float vS;
@@ -139,7 +139,7 @@ void main() {
   vec3 rgb = texture2D(uTexture, texture_uv).rgb;
   float a = texture2D(uTexture, alpha_uv).r;
 
-  float effect_radius = uTransitionT * 5.0;
+  float effect_radius = uEffectRadius;// * 50.0;
   float q = smoothstep(effect_radius - 0.02, effect_radius + 0.02, vS);
   rgb = mix(rgb, vec3(0.6, 0.5, 1.0), q);
   a *= smoothstep(effect_radius + 0.05, effect_radius, vS);

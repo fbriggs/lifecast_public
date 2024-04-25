@@ -483,7 +483,9 @@ function render() {
 
   if (transition_start_timer) {
     const elapsed = (performance.now() - transition_start_timer) / 1000.0;
-    ldi_ftheta_mesh.uniforms.uTransitionT.value = Math.min(elapsed / TRANSITION_ANIM_DURATION, 1.0);
+    const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
+    ldi_ftheta_mesh.uniforms.uEffectRadius.value =
+      Math.min(0.3 / ((1.0 - Math.pow(t, 0.2)) + 1e-6), 50);
   }
 
   // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
