@@ -16,7 +16,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
     ftheta_scale = null
 
-    constructor(_format, _decode_12bit, texture, _ftheta_scale = null, _transparent_bg = false) {
+    constructor(_format, _decode_12bit, texture, _ftheta_scale = null) {
 
         super()
 
@@ -38,7 +38,6 @@ export class LdiFthetaMesh extends THREE.Object3D {
         // Make the foreground mesh material.
         var shader_prefix = "";
         if (_decode_12bit) shader_prefix += "#define DECODE_12BIT\n";
-        if (_transparent_bg) shader_prefix += "#define TRANSPARENT_BG\n";
 
         //// LDI3 materials ////
 
@@ -48,7 +47,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
             uniforms: this.uniforms,
             depthTest: true,
             depthWrite: true,
-            transparent: _transparent_bg,
+            transparent: true,
             wireframe: false
         });
         ldi3_layer0_material.side = THREE.BackSide;
@@ -90,7 +89,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
 
     makeFthetaMesh(format, material, GRID_SIZE, NUM_PATCHES, order, ftheta_inflation, is_oculus) {
         const NUM_QUADS_PER_SIDE = NUM_PATCHES * GRID_SIZE;
-        const MARGIN = 3;
+        const MARGIN = 2;
 
         for (var patch_j = 0; patch_j < NUM_PATCHES; ++patch_j) {
             for (var patch_i = 0; patch_i < NUM_PATCHES; ++patch_i) {
@@ -128,7 +127,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
                         const jj = j + patch_j * GRID_SIZE;
                         const di = ii - NUM_QUADS_PER_SIDE / 2;
                         const dj = jj - NUM_QUADS_PER_SIDE / 2;
-                        if (di * di + dj * dj > (NUM_QUADS_PER_SIDE-MARGIN) * (NUM_QUADS_PER_SIDE-MARGIN) / 4) continue;
+                        if (di * di + dj * dj > (NUM_QUADS_PER_SIDE+MARGIN) * (NUM_QUADS_PER_SIDE+MARGIN) / 4) continue;
 
                         const a = i + (GRID_SIZE + 1) * j;
                         const b = a + 1;

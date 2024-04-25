@@ -880,7 +880,7 @@ export function init({
   scene.add(world_group);
   scene.add(interface_group);
 
-  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale, _transparent_bg)
+  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale)
   world_group.add(ldi_ftheta_mesh)
 
   // Make the point sprite for VR buttons.
