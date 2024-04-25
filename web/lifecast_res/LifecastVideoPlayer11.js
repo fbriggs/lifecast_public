@@ -433,8 +433,20 @@ function updateCameraPosition() {
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
   }
 
-  // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
-  if (cam_mode == "default" && !got_orientation_data) {
+  // Swoop-in animation
+  if (transition_start_timer) {
+    const elapsed = (performance.now() - transition_start_timer) / 1000.0;
+    const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
+    if (t < 1.0) {
+      let x = (1 - t)*(1 - t) * -5.0;
+      let y = (1 - t)*(1 - t) * 3.0;
+      let z = (1 - t)*(1 - t) * 7.0;
+      orbit_controls.target.set(x, y, 0);
+      orbit_controls.position0.set(x, y, z);
+      orbit_controls.reset();
+    }
+  } else if (cam_mode == "default" && !got_orientation_data) {
+    // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let x = anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
@@ -452,21 +464,8 @@ function updateCameraPosition() {
       camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
       camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
     }
-  }
-
-  if (orbit_controls) {
-    if (transition_start_timer) {
-      // Swoop-in animation
-      const elapsed = (performance.now() - transition_start_timer) / 1000.0;
-      const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
-      let x = (1 - t)*(1 - t) * -5.0;
-      let y = (1 - t)*(1 - t) * 3.0;
-      let z = (1 - t)*(1 - t) * 7.0;
-      orbit_controls.target.set(x, y, 0);
-      orbit_controls.position0.set(x, y, z);
-      orbit_controls.reset();
-    }
-    else if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+  } else if (orbit_controls) {
+    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let x = 4 * anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
       let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
       let z = -2.0 + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
@@ -1251,6 +1250,11 @@ export function init({
 
     // Move the world_group back to the origin 1 frame from now (doing it now wont work).
     delay1frame_reset = true; // Calls resetVRToCenter(); 1 frame from now.
+
+    // If the animation has already started, restart it
+    if (transition_start_timer) {
+      startAnimatedTransitionEffect();
+    }
   });
 
   renderer.xr.addEventListener('sessionend', function(event) {
