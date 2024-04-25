@@ -136,7 +136,7 @@ void main() {
 
   vec3 rgb = texture2D(uTexture, texture_uv).rgb;
   float a = texture2D(uTexture, alpha_uv).r;
-  if (a < 0.01) discard;
+  if (a < 0.02) discard;
 
   gl_FragColor = vec4(rgb, a);
 }
@@ -173,7 +173,7 @@ void main() {
   vec2 texture_uv = vec2(vUv.s * 0.33333, vUv.t * 0.33333);
   vec2 alpha_uv   = vec2(vUv.s * 0.33333 + 0.66666, vUv.t * 0.33333);
   float a = texture2D(uTexture, alpha_uv).r;
-  if (a < 0.01) discard;
+  if (a < 0.02) discard;
   gl_FragColor = vec4(texture2D(uTexture, texture_uv).rgb, a);
 }
 `;
