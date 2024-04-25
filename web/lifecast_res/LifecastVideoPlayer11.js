@@ -64,7 +64,7 @@ let cam_drag_v = 0.0;
 let right_mouse_is_down = false;
 
 let nonvr_controls;
-let is_buffering = true;
+let is_buffering_at = performance.now();
 let vr_session_active = false; // true if we are in VR
 let vrbutton3d, vrbutton_material, vrbutton_texture_rewind, vrbutton_texture_buffering; // THREE.js object to render VR-only buttons
 // Used to keep track of whether a click or a drag occured. When a mousedown event occurs,
@@ -74,7 +74,7 @@ let maybe_click = false;
 let delay1frame_reset = false; // The sessionstart event happens one frame too early. We need to wait 1 frame to reset the view after entering VR.
 let photo_mode = false;
 let embed_mode = false;
-let cam_mode = "default";
+let cam_mode = "orbit";
 
 let lock_position = false;
 let orbit_controls;
@@ -302,8 +302,8 @@ function toggleVideoPlayPause() {
   nonvr_menu_fade_counter = 60;
 
   const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
-  if (video_is_playing || is_buffering) {
-    is_buffering = false;
+  if (video_is_playing || buffering_at) {
+    is_buffering_at = false;
     video.pause();
   } else {
     playVideoIfReady();
@@ -340,8 +340,8 @@ function updateControlsAndButtons() {
     nonvr_menu_fade_counter = Math.max(-60, nonvr_menu_fade_counter); // Allowing this to go negative means it takes a couple of frames of motion for it to become visible.
 
 
-    var opacity = video.ended || is_buffering ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
-    opacity *= nonvr_controls.mouse_is_over || is_buffering ? 1.0 : 0.7;
+    var opacity = video.ended || is_buffering_at ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
+    opacity *= nonvr_controls.mouse_is_over || is_buffering_at ? 1.0 : 0.7;
 
     if (!video_is_playing) {
       opacity = 1.0; // always show controls before playing. This is important for iOS where the video won't load without an interaction!
@@ -359,7 +359,7 @@ function updateControlsAndButtons() {
     return;
   }
 
-  if (is_buffering) {
+  if (is_buffering_at && performance.now() - is_buffering_at > 1000) {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
@@ -436,19 +436,7 @@ function updateCameraPosition() {
     gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
   }
 
-  // Swoop-in animation
-  if (transition_start_timer) {
-    const elapsed = (performance.now() - transition_start_timer) / 1000.0;
-    const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
-    if (t < 1.0) {
-      let x = (1 - t)*(1 - t) * -5.0;
-      let y = (1 - t)*(1 - t) * 3.0;
-      let z = (1 - t)*(1 - t) * 7.0;
-      orbit_controls.target.set(x, y, 0);
-      orbit_controls.position0.set(x, y, z);
-      orbit_controls.reset();
-    }
-  } else if (cam_mode == "default" && !got_orientation_data) {
+  if (cam_mode == "first_person" && !got_orientation_data) {
     // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let x = anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
@@ -467,12 +455,23 @@ function updateCameraPosition() {
       camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
       camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
     }
-  } else if (orbit_controls) {
-    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+  } else if (cam_mode == "orbit") {
+    // Swoop-in animation
+    if (transition_start_timer) {
+      const elapsed = (performance.now() - transition_start_timer) / 1000.0;
+      const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
+      if (t < 1.0) {
+        let x = (1 - t)*(1 - t) * -5.0;
+        let y = (1 - t)*(1 - t) * 3.0;
+        let z = (1 - t)*(1 - t) * 7.0;
+        // Set the position
+        orbit_controls.target0.set(0, 0, -1.0);
+        orbit_controls.position0.set(x, y, z);
+        orbit_controls.reset();
+      }
+    } else if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
       let x = 4 * anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
-      let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
-      let z = -2.0 + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
-      orbit_controls.target.set(x, 0, -1.0);
+      orbit_controls.target0.set(x, 0, -1.0);
       orbit_controls.position0.set(-x, 0, .0);
       orbit_controls.reset();
     }
@@ -803,7 +802,7 @@ export function init({
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
   _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
   _embed_in_div = "",
-  _cam_mode="default",
+  _cam_mode="orbit",
   _vfov = 80,
   _min_fov = null,
   _ftheta_scale = null,
@@ -852,7 +851,7 @@ export function init({
     embed_mode = true;
   }
 
-  if (cam_mode == "default") {
+  if (cam_mode == "first_person") {
     container.style.cursor = "move";
   }
 
@@ -862,7 +861,7 @@ export function init({
     texture = new THREE.TextureLoader().load(
       _media_url,
       function(texture) {// onLoad callback
-        is_buffering = false;
+        is_buffering_at = false;
         if (!transition_start_timer) {
           startAnimatedTransitionEffect();
         }
@@ -904,18 +903,20 @@ export function init({
 
     video.style.display = "none";
     video.preload = "auto";
-    video.addEventListener("waiting", function() { is_buffering = true; });
+    video.addEventListener("waiting", function() { 
+      is_buffering_at = performance.now();
+    });
     video.addEventListener("playing", function() {
       if (!transition_start_timer) {
         startAnimatedTransitionEffect();
       }
-      is_buffering = false;
+      is_buffering_at = false;
     });
     video.addEventListener("canplay", function() {
       if (!transition_start_timer) {
         startAnimatedTransitionEffect();
       }
-      is_buffering = false;
+      is_buffering_at = false;
     });
     video.addEventListener("error",     function() {
       container.innerHTML = "Error loading video URL: "  + best_media_url;
@@ -965,6 +966,9 @@ export function init({
   vrbutton3d.position.set(0, 0, -1);
   vrbutton3d.renderOrder = 100;
   ldi_ftheta_mesh.add(vrbutton3d);
+  if (enable_intro_animation) {
+    ldi_ftheta_mesh.uniforms.uEffectRadius.value = 0.0;
+  }
 
   // See https://github.com/mrdoob/three.js/blob/dev/examples/webxr_vr_sandbox.html
   // for more examples of using HTMLMesh.
@@ -1058,7 +1062,6 @@ export function init({
   }
 
   if (cam_mode == "orbit" && !is_ios) {
-    camera.position.set(0, 0, 0.0);
     orbit_controls = new OrbitControls(camera, renderer.domElement);
     orbit_controls.panSpeed = 0.25;
     orbit_controls.rotateSpeed = 0.1;
@@ -1068,6 +1071,7 @@ export function init({
     orbit_controls.enableZoom = true; // TODO: this is cool but needs some tweaking
     orbit_controls.dampingFactor = 0.3;
     orbit_controls.saveState();
+    camera.position.set(0, 0, 0.0);
   }
 
   if (is_ios && !embed_mode) {
@@ -1101,7 +1105,7 @@ export function init({
     byId("rewind_button").addEventListener('click', handleNonVrPlayButton);
     byId("pause_button").addEventListener('click', handleNonVrPauseButton);
     byId("buffering_button").addEventListener('click', function() {
-      is_buffering = false;
+      is_buffering_at = false;
       handleNonVrPauseButton();
     });
 
