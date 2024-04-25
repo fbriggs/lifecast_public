@@ -64,7 +64,7 @@ let cam_drag_v = 0.0;
 let right_mouse_is_down = false;
 
 let nonvr_controls;
-let is_buffering = true;
+let is_buffering_at = performance.now();
 let vr_session_active = false; // true if we are in VR
 let vrbutton3d, vrbutton_material, vrbutton_texture_rewind, vrbutton_texture_buffering; // THREE.js object to render VR-only buttons
 // Used to keep track of whether a click or a drag occured. When a mousedown event occurs,
@@ -74,7 +74,7 @@ let maybe_click = false;
 let delay1frame_reset = false; // The sessionstart event happens one frame too early. We need to wait 1 frame to reset the view after entering VR.
 let photo_mode = false;
 let embed_mode = false;
-let cam_mode = "default";
+let cam_mode = "orbit";
 
 let lock_position = false;
 let orbit_controls;
@@ -96,11 +96,6 @@ let mobile_drag_u = 0.0;
 let mobile_drag_v = 0.0;
 
 // Used for programmatic camera animation
-let anim_x_offset = 0;
-let anim_y_offset = 0;
-let anim_z_offset = 0;
-let anim_u_offset = 0;
-let anim_v_offset = 0;
 let anim_x = 0.15;
 let anim_y = 0.10;
 let anim_z = 0.05;
@@ -114,8 +109,10 @@ let anim_v_speed = 5100;
 
 let AUTO_CAM_MOVE_TIME = 5000;
 
-const TRANSITION_ANIM_DURATION = 5.0;
+const BUFFERING_TIMEOUT = 500;
+const TRANSITION_ANIM_DURATION = 8000;
 let transition_start_timer;
+let enable_intro_animation;
 
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
 var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
@@ -171,11 +168,9 @@ function makeNonVrControls() {
   nonvr_controls.id = "nonvr_controls";
   nonvr_controls.style["margin"]            = "auto";
   nonvr_controls.style["position"]          = "absolute";
-  nonvr_controls.style["top"]               = "1";
-  nonvr_controls.style["left"]              = "0";
-  nonvr_controls.style["bottom"]            = "0";
-  nonvr_controls.style["margin-left"]       = "16px";
-  nonvr_controls.style["margin-bottom"]     = "22px";
+  nonvr_controls.style["top"]               = "50%";
+  nonvr_controls.style["left"]              = "50%";
+  nonvr_controls.style["transform"]         = "translate(-50%, -50%)";
 
   let sz = "64px";
   nonvr_controls.style["width"]             = sz;
@@ -262,6 +257,13 @@ function resetVRToCenter() {
   if (!renderer.xr.isPresenting) return;
   delay1frame_reset = false;
 
+  // Reset the orbit controls
+  if (orbit_controls) {
+    orbit_controls.target0.set(0, 0, -1.0);
+    orbit_controls.position0.set(0, 0, 0);
+    orbit_controls.reset();
+  }
+
   // Sadly, the code below is close but not quite right (it doesn't get 0 when the Oculus
   // reset button is pressed). Whatever is in renderer.xr.getCamera() isn't the position
   // we need.
@@ -306,8 +308,8 @@ function toggleVideoPlayPause() {
   nonvr_menu_fade_counter = 60;
 
   const video_is_playing = !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
-  if (video_is_playing || is_buffering) {
-    is_buffering = false;
+  if (video_is_playing || buffering_at) {
+    is_buffering_at = false;
     video.pause();
   } else {
     playVideoIfReady();
@@ -344,8 +346,8 @@ function updateControlsAndButtons() {
     nonvr_menu_fade_counter = Math.max(-60, nonvr_menu_fade_counter); // Allowing this to go negative means it takes a couple of frames of motion for it to become visible.
 
 
-    var opacity = video.ended || is_buffering ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
-    opacity *= nonvr_controls.mouse_is_over || is_buffering ? 1.0 : 0.7;
+    var opacity = video.ended || is_buffering_at ? 1.0 : Math.min(1.0, nonvr_menu_fade_counter / 30.0);
+    opacity *= nonvr_controls.mouse_is_over || is_buffering_at ? 1.0 : 0.7;
 
     if (!video_is_playing) {
       opacity = 1.0; // always show controls before playing. This is important for iOS where the video won't load without an interaction!
@@ -363,7 +365,7 @@ function updateControlsAndButtons() {
     return;
   }
 
-  if (is_buffering) {
+  if (is_buffering_at && performance.now() - is_buffering_at > BUFFERING_TIMEOUT) {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
@@ -415,13 +417,78 @@ function updateControlsAndButtons() {
 }
 
 function startAnimatedTransitionEffect() {
-  console.log("start transition!");
-  transition_start_timer = performance.now();
+  if (enable_intro_animation) {
+    transition_start_timer = performance.now();
+  }
 }
 
 function setVisibilityForLayerMeshes(l, v) {
   for (var m of ldi_ftheta_mesh.layer_to_meshes[l]) { m.visible = v; }
 }
+
+function updateCameraPosition() {
+  if (handsAvailable()) {
+    const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
+    const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
+    gesture_control.updateLeftHand(indexFingerTipPosL);
+    gesture_control.updateRightHand(indexFingerTipPosR);
+    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+  } else if (vr_controller0 && vr_controller1) {
+    updateGamepad(vr_controller0, "left");
+    updateGamepad(vr_controller1, "right");
+    gesture_control.updateLeftHand(vr_controller0.position);
+    gesture_control.updateRightHand(vr_controller1.position);
+    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+  }
+
+  if (cam_mode == "first_person" && !got_orientation_data) {
+    // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
+    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+      let x = anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+      let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
+      let z = anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
+      camera.position.set(x, y, z);
+      let u = anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
+      let v = anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
+      camera.lookAt(u, v, -4.0);
+      camera.updateProjectionMatrix();
+    } else {
+      if (!right_mouse_is_down) {
+        cam_drag_u *= 0.97;
+        cam_drag_v *= 0.97;
+      }
+      camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
+      camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
+    }
+  } else if (cam_mode == "orbit" && !is_ios) {
+    let t = 1.0;
+    if (transition_start_timer) {
+      t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
+    } 
+    // Swoop-in animation, displayed in the initial TRANSITION_ANIM_DURATION seconds
+    if (t < 1.0) {
+      let x = (1 - t)*(1 - t) * -5.0;
+      let y = (1 - t)*(1 - t) * 3.0;
+      let z = (1 - t)*(1 - t) * 7.0;
+      // Set target0 and position0 then reset() to update the private camera position
+      orbit_controls.target0.set(0, 0, -1.0);
+      orbit_controls.position0.set(x, y, z);
+      orbit_controls.reset();
+    } else if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
+      // Idle animation, only displayed after the initial animation and when idle
+      var xt = performance.now();
+      if (transition_start_timer) {
+        xt -= transition_start_timer;
+      }
+      let x = anim_x * Math.sin(xt / anim_x_speed * Math.PI) * 0.5;
+      orbit_controls.target0.set(x, 0, -1.0);
+      orbit_controls.position0.set(-2.0 * x, 0, .0);
+      orbit_controls.reset();
+    }
+    orbit_controls.update();
+  }
+}
+
 
 function render() {
   // The fragment shader uses the distance from the camera to the origin to determine how
@@ -445,52 +512,16 @@ function render() {
 
   vr_camera_position.sub(world_group.position); // Subtract this to account for shifts in the world_group for view resets.
 
-
   updateControlsAndButtons();
   if (lock_position) { resetVRToCenter(); }
 
-  if (handsAvailable()) {
-    const indexFingerTipPosL = hand0.joints['index-finger-tip'].position;
-    const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
-    gesture_control.updateLeftHand(indexFingerTipPosL);
-    gesture_control.updateRightHand(indexFingerTipPosR);
-    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-  } else if (vr_controller0 && vr_controller1) {
-    updateGamepad(vr_controller0, "left");
-    updateGamepad(vr_controller1, "right");
-    gesture_control.updateLeftHand(vr_controller0.position);
-    gesture_control.updateRightHand(vr_controller1.position);
-    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
-  }
-
-
-  // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
-  if (cam_mode == "default" && !got_orientation_data) {
-    if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
-      let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
-      let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
-      camera.position.set(x, y, z);
-      let u = anim_u_offset + anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
-      let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
-      camera.lookAt(u, v, -4.0);
-      camera.updateProjectionMatrix();
-    } else {
-      if (!right_mouse_is_down) {
-        cam_drag_u *= 0.97;
-        cam_drag_v *= 0.97;
-      }
-      camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
-      camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
-    }
-  }
+  updateCameraPosition();
 
   ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
   ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
 
   if (transition_start_timer) {
-    const elapsed = (performance.now() - transition_start_timer) / 1000.0;
-    const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
+    const t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
     ldi_ftheta_mesh.uniforms.uEffectRadius.value =
       Math.min(0.3 / ((1.0 - Math.pow(t, 0.2)) + 1e-6), 51); // HACK: the max radius of the mesh is 50, so this goes past it (which we want!)
   }
@@ -780,13 +811,14 @@ export function init({
   _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
   _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
   _embed_in_div = "",
-  _cam_mode="default",
+  _cam_mode="orbit",
   _vfov = 80,
   _min_fov = null,
   _ftheta_scale = null,
   _lock_position = false,
   _decode_12bit = true,
   _looking_glass_config = null,
+  _enable_intro_animation = true,
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
   _loop = false,
   _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
@@ -798,6 +830,7 @@ export function init({
 
   cam_mode        = _cam_mode;
   lock_position   = _lock_position;
+  enable_intro_animation = _enable_intro_animation;
 
   looking_glass_config = _looking_glass_config;
   let enter_xr_button_title = "ENTER VR";
@@ -827,7 +860,7 @@ export function init({
     embed_mode = true;
   }
 
-  if (cam_mode == "default") {
+  if (cam_mode == "first_person") {
     container.style.cursor = "move";
   }
 
@@ -837,7 +870,10 @@ export function init({
     texture = new THREE.TextureLoader().load(
       _media_url,
       function(texture) {// onLoad callback
-        is_buffering = false;
+        is_buffering_at = false;
+        if (!transition_start_timer) {
+          startAnimatedTransitionEffect();
+        }
       },
       function(xhr) { // Progress callback
         //const percentage = (xhr.loaded / xhr.total) * 100;
@@ -876,9 +912,21 @@ export function init({
 
     video.style.display = "none";
     video.preload = "auto";
-    video.addEventListener("waiting", function() { is_buffering = true; });
-    video.addEventListener("playing", function() { is_buffering = false; });
-    video.addEventListener("canplay", function() { is_buffering = false; });
+    video.addEventListener("waiting", function() { 
+      is_buffering_at = performance.now();
+    });
+    video.addEventListener("playing", function() {
+      if (!transition_start_timer) {
+        startAnimatedTransitionEffect();
+      }
+      is_buffering_at = false;
+    });
+    video.addEventListener("canplay", function() {
+      if (!transition_start_timer) {
+        startAnimatedTransitionEffect();
+      }
+      is_buffering_at = false;
+    });
     video.addEventListener("error",     function() {
       container.innerHTML = "Error loading video URL: "  + best_media_url;
     });
@@ -927,6 +975,9 @@ export function init({
   vrbutton3d.position.set(0, 0, -1);
   vrbutton3d.renderOrder = 100;
   ldi_ftheta_mesh.add(vrbutton3d);
+  if (enable_intro_animation) {
+    ldi_ftheta_mesh.uniforms.uEffectRadius.value = 0.0;
+  }
 
   // See https://github.com/mrdoob/three.js/blob/dev/examples/webxr_vr_sandbox.html
   // for more examples of using HTMLMesh.
@@ -1009,7 +1060,7 @@ export function init({
   }
 
   // Non_VR mouse camera controls.
-  if (cam_mode == "default" && !is_ios) {
+  if (!is_ios) {
     container.addEventListener('mousemove', function(e) {
       var rect = container.getBoundingClientRect();
       prev_mouse_u = ((e.clientX - rect.left) / rect.width) - 0.5;
@@ -1020,7 +1071,6 @@ export function init({
   }
 
   if (cam_mode == "orbit" && !is_ios) {
-    camera.position.set(0, 0, 0.0);
     orbit_controls = new OrbitControls(camera, renderer.domElement);
     orbit_controls.panSpeed = 0.25;
     orbit_controls.rotateSpeed = 0.1;
@@ -1030,6 +1080,7 @@ export function init({
     orbit_controls.enableZoom = true; // TODO: this is cool but needs some tweaking
     orbit_controls.dampingFactor = 0.3;
     orbit_controls.saveState();
+    camera.position.set(0, 0, 0.0);
   }
 
   if (is_ios && !embed_mode) {
@@ -1063,7 +1114,7 @@ export function init({
     byId("rewind_button").addEventListener('click', handleNonVrPlayButton);
     byId("pause_button").addEventListener('click', handleNonVrPauseButton);
     byId("buffering_button").addEventListener('click', function() {
-      is_buffering = false;
+      is_buffering_at = false;
       handleNonVrPauseButton();
     });
 
@@ -1217,6 +1268,11 @@ export function init({
 
     // Move the world_group back to the origin 1 frame from now (doing it now wont work).
     delay1frame_reset = true; // Calls resetVRToCenter(); 1 frame from now.
+
+    // If the animation has already started, restart it
+    if (transition_start_timer) {
+      startAnimatedTransitionEffect();
+    }
   });
 
   renderer.xr.addEventListener('sessionend', function(event) {
