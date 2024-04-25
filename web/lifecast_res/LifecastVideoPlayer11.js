@@ -413,7 +413,6 @@ function updateControlsAndButtons() {
 
 function startAnimatedTransitionEffect() {
   if (enable_intro_animation) {
-    console.log("start transition!");
     transition_start_timer = performance.now();
   }
 }
@@ -456,7 +455,7 @@ function updateCameraPosition() {
       camera.position.set(-prev_mouse_u * 0.2 + cam_drag_u, prev_mouse_v * 0.2 + cam_drag_v, 0.0);
       camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
     }
-  } else if (cam_mode == "orbit") {
+  } else if (cam_mode == "orbit" && !is_ios) {
     let t = 1.0;
     if (transition_start_timer) {
       t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
