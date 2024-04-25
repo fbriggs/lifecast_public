@@ -96,11 +96,6 @@ let mobile_drag_u = 0.0;
 let mobile_drag_v = 0.0;
 
 // Used for programmatic camera animation
-let anim_x_offset = 0;
-let anim_y_offset = 0;
-let anim_z_offset = 0;
-let anim_u_offset = 0;
-let anim_v_offset = 0;
 let anim_x = 0.15;
 let anim_y = 0.10;
 let anim_z = 0.05;
@@ -433,12 +428,12 @@ function updateCameraPosition() {
   // If in non-VR and not moving the mouse, show that it's 3D using a nice gentle rotation
   if (cam_mode == "default" && !got_orientation_data) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      let x = anim_x_offset + anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
-      let y = anim_y_offset + anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
-      let z = anim_z_offset + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
+      let x = anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+      let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
+      let z = anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
       camera.position.set(x, y, z);
-      let u = anim_u_offset + anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
-      let v = anim_v_offset + anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
+      let u = anim_u * Math.sin(Date.now() / anim_u_speed * Math.PI) * 0.5;
+      let v = anim_v * Math.sin(Date.now() / anim_v_speed * Math.PI) * 0.5;
       camera.lookAt(u, v, -4.0);
       camera.updateProjectionMatrix();
     } else {
@@ -453,9 +448,10 @@ function updateCameraPosition() {
 
   if (orbit_controls) {
     if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      orbit_controls.autoRotate = true;
-    } else {
-      orbit_controls.autoRotate = false;
+      let x = 3 * anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+      let y = anim_y * Math.sin(Date.now() / anim_y_speed * Math.PI) * 0.5;
+      let z = -2.0 + anim_z * Math.sin(Date.now() / anim_z_speed * Math.PI) * 0.5;
+      orbit_controls.target.set(x, 0, z);
     }
     orbit_controls.update();
   }
