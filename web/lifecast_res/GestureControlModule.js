@@ -92,15 +92,7 @@ class GestureControlModule {
   }
 
   updateTransformation(world_group_position, mesh_position) {
-    if (this.isLeftPinching && !this.isRightPinching) {
-      let translationDelta = this.leftHandPosition.clone().sub(this.prevLeftHandPosition);
-      this.currentTranslation.add(translationDelta);
-    }
-    else if (this.isRightPinching && !this.isLeftPinching) {
-      let translationDelta = this.rightHandPosition.clone().sub(this.prevRightHandPosition);
-      this.currentTranslation.add(translationDelta);
-    }
-    else if (this.isLeftPinching && this.isRightPinching) {
+    if (this.isLeftPinching && this.isRightPinching) {
       // Use the average of both left and right translation
       let translationDeltaLeft = this.leftHandPosition.clone().sub(this.prevLeftHandPosition);
       let translationDeltaRight = this.rightHandPosition.clone().sub(this.prevRightHandPosition);
