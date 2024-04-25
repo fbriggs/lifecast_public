@@ -111,6 +111,7 @@ let AUTO_CAM_MOVE_TIME = 5000;
 
 const TRANSITION_ANIM_DURATION = 8.0;
 let transition_start_timer;
+let enable_intro_animation;
 
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
 var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
@@ -410,7 +411,7 @@ function updateControlsAndButtons() {
 }
 
 function startAnimatedTransitionEffect() {
-  if (_enable_intro_animation) {
+  if (enable_intro_animation) {
     console.log("start transition!");
     transition_start_timer = performance.now();
   }
@@ -821,6 +822,7 @@ export function init({
 
   cam_mode        = _cam_mode;
   lock_position   = _lock_position;
+  enable_intro_animation = _enable_intro_animation;
 
   looking_glass_config = _looking_glass_config;
   let enter_xr_button_title = "ENTER VR";
