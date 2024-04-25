@@ -249,7 +249,7 @@ function handleGenericButtonPress() {
     // TODO: Decide on a way to reset view that doesn't interfere with gesture controls
     //resetVRToCenter();
   } else {
-    toggleVideoPlayPause();
+    playVideoIfReady();
   }
 }
 
@@ -288,6 +288,13 @@ function playVideoIfReady() {
 
   video.play();
   has_played_video = true;
+}
+
+function pauseVideo() {
+  if (photo_mode) return;
+
+  nonvr_menu_fade_counter = 60;
+  video.pause();
 }
 
 function toggleVideoPlayPause() {
@@ -387,7 +394,7 @@ function updateControlsAndButtons() {
 
   if (video_is_playing) {
     byId("play_button").style.display   = "none";
-    byId("pause_button").style.display  = "inline";
+    byId("pause_button").style.display  = "none"; // "inline";
     byId("rewind_button").style.display = "none";
     byId("buffering_button").style.display = "none";
     vrbutton3d.visible = false;
@@ -550,6 +557,7 @@ function initHandControllers(handleft, handright) {
 
   handright.addEventListener('pinchstart', function() {
     gesture_control.rightPinchStart();
+    pauseVideo();
   });
   handright.addEventListener('pinchend', function() {
     gesture_control.rightPinchEnd();
@@ -558,6 +566,7 @@ function initHandControllers(handleft, handright) {
 
   handleft.addEventListener('pinchstart', function() {
     gesture_control.leftPinchStart();
+    pauseVideo();
   });
   handleft.addEventListener('pinchend', function() {
     gesture_control.leftPinchEnd();
@@ -612,6 +621,7 @@ function updateGamepad(vr_controller, hand) {
     } else {
       gesture_control.rightPinchStart();
     }
+    pauseVideo();
   } else if (!vr_controller.button_A && prev_button_A) {
     debugLog("Controller button A end hand " + hand);
     if (hand == "left") {
@@ -619,6 +629,7 @@ function updateGamepad(vr_controller, hand) {
     } else {
       gesture_control.rightPinchEnd();
     }
+    playVideoIfReady();
   }
 
   if (vr_controller.button_B && !prev_button_B) {
@@ -628,6 +639,7 @@ function updateGamepad(vr_controller, hand) {
     } else {
       gesture_control.rightPinchStart();
     }
+    pauseVideo();
   } else if (!vr_controller.button_B && prev_button_B) {
     debugLog("Controller button B end hand " + hand);
     if (hand == "left") {
@@ -635,6 +647,7 @@ function updateGamepad(vr_controller, hand) {
     } else {
       gesture_control.rightPinchEnd();
     }
+    playVideoIfReady();
   }
 
   vr_controller.lockout_timer = Math.max(0, vr_controller.lockout_timer - 1);
@@ -1140,7 +1153,7 @@ export function init({
   });
   container.addEventListener('mouseup', function() {
     if (maybe_click) {
-      toggleVideoPlayPause();
+      playVideoIfReady();
     }
   });
 
