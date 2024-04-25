@@ -257,6 +257,13 @@ function resetVRToCenter() {
   if (!renderer.xr.isPresenting) return;
   delay1frame_reset = false;
 
+  // Reset the orbit controls
+  if (orbit_controls) {
+    orbit_controls.target0.set(0, 0, -1.0);
+    orbit_controls.position0.set(0, 0, 0);
+    orbit_controls.reset();
+  }
+
   // Sadly, the code below is close but not quite right (it doesn't get 0 when the Oculus
   // reset button is pressed). Whatever is in renderer.xr.getCamera() isn't the position
   // we need.
