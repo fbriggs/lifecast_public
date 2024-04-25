@@ -97,7 +97,7 @@ precision highp float;
 
 uniform sampler2D uTexture;
 varying vec2 vUv;
-varying vec3 vPosLocal;
+varying float vS;
 `
 + decode12bit +
 `
@@ -110,9 +110,8 @@ void main() {
 #endif
 
   float s = clamp(0.3 / depth_sample, 0.01, 50.0);
-
-  vPosLocal = position.xyz * s;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosLocal, 1.0);
+  vS = s;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position.xyz * s, 1.0);
 }
 `;
 
@@ -124,7 +123,7 @@ uniform sampler2D uTexture;
 uniform float uTransitionT;
 
 varying vec2 vUv;
-varying vec3 vPosLocal;
+varying float vS;
 
 void main() {
 #if defined(LAYER2)
@@ -141,15 +140,12 @@ void main() {
   float a = texture2D(uTexture, alpha_uv).r;
 
   float effect_radius = uTransitionT * 5.0;
-  float l = length(vPosLocal);
-  if (abs(l - effect_radius) < 0.05) {
+  if (abs(vS - effect_radius) < 0.05) {
     rgb = vec3(1.0, 0.0, 0.0);
   }
-  if (l > effect_radius) a = 0.0;
+  if (vS > effect_radius) a = 0.0;
 
   if (a < 0.02) discard;
-
-
 
   gl_FragColor = vec4(rgb, a);
 }
