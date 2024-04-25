@@ -109,6 +109,7 @@ let anim_v_speed = 5100;
 
 let AUTO_CAM_MOVE_TIME = 5000;
 
+const BUFFERING_TIMEOUT = 500;
 const TRANSITION_ANIM_DURATION = 8.0;
 let transition_start_timer;
 let enable_intro_animation;
@@ -359,7 +360,7 @@ function updateControlsAndButtons() {
     return;
   }
 
-  if (is_buffering_at && performance.now() - is_buffering_at > 1000) {
+  if (is_buffering_at && performance.now() - is_buffering_at > BUFFERING_TIMEOUT) {
     vrbutton3d.rotateZ(-0.1);
     vrbutton_material.map = vrbutton_texture_buffering;
     byId("play_button").style.display   = "none";
