@@ -139,10 +139,9 @@ void main() {
   vec3 rgb = texture2D(uTexture, texture_uv).rgb;
   float a = texture2D(uTexture, alpha_uv).r;
 
-  float effect_radius = uEffectRadius;// * 50.0;
-  float q = smoothstep(effect_radius - 0.02, effect_radius + 0.02, vS);
+  float q = smoothstep(uEffectRadius - 0.02, uEffectRadius + 0.02, vS);
   rgb = mix(rgb, vec3(0.6, 0.5, 1.0), q);
-  a *= smoothstep(effect_radius + 0.05, effect_radius, vS);
+  a *= smoothstep(uEffectRadius + 0.05, uEffectRadius, vS);
 
   if (a < 0.02) discard;
 
