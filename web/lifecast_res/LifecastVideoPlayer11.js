@@ -754,6 +754,7 @@ export function init({
   _embed_in_div = "",
   _cam_mode="default",
   _vfov = 80,
+  _min_fov = null,
   _ftheta_scale = null,
   _lock_position = false,
   _decode_12bit = true,
@@ -870,7 +871,12 @@ export function init({
 
   makeNonVrControls();
 
-  camera = new THREE.PerspectiveCamera(_vfov, window.innerWidth / window.innerHeight, 0.1, 110);
+  let aspect_ratio = window.innerWidth / window.innerHeight;
+  if (_min_fov && _vfov * aspect_ratio < _min_fov) {
+    // For tall aspect ratios, ensure a minimum FOV
+    _vfov = _min_fov / aspect_ratio;
+  }
+  camera = new THREE.PerspectiveCamera(_vfov, aspect_ratio, 0.1, 110);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
