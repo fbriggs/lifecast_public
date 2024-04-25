@@ -110,7 +110,7 @@ let anim_v_speed = 5100;
 let AUTO_CAM_MOVE_TIME = 5000;
 
 const BUFFERING_TIMEOUT = 500;
-const TRANSITION_ANIM_DURATION = 8.0;
+const TRANSITION_ANIM_DURATION = 8000;
 let transition_start_timer;
 let enable_intro_animation;
 
@@ -457,23 +457,28 @@ function updateCameraPosition() {
       camera.lookAt(cam_drag_u, cam_drag_v, -0.3);
     }
   } else if (cam_mode == "orbit") {
-    // Swoop-in animation
+    let t = 1.0;
     if (transition_start_timer) {
-      const elapsed = (performance.now() - transition_start_timer) / 1000.0;
-      const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
-      if (t < 1.0) {
-        let x = (1 - t)*(1 - t) * -5.0;
-        let y = (1 - t)*(1 - t) * 3.0;
-        let z = (1 - t)*(1 - t) * 7.0;
-        // Set the position
-        orbit_controls.target0.set(0, 0, -1.0);
-        orbit_controls.position0.set(x, y, z);
-        orbit_controls.reset();
-      }
+      t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
+    } 
+    // Swoop-in animation, displayed in the initial TRANSITION_ANIM_DURATION seconds
+    if (t < 1.0) {
+      let x = (1 - t)*(1 - t) * -5.0;
+      let y = (1 - t)*(1 - t) * 3.0;
+      let z = (1 - t)*(1 - t) * 7.0;
+      // Set target0 and position0 then reset() to update the private camera position
+      orbit_controls.target0.set(0, 0, -1.0);
+      orbit_controls.position0.set(x, y, z);
+      orbit_controls.reset();
     } else if (Date.now() - mouse_last_moved_time > AUTO_CAM_MOVE_TIME) {
-      let x = 4 * anim_x * Math.sin(Date.now() / anim_x_speed * Math.PI) * 0.5;
+      // Idle animation, only displayed after the initial animation and when idle
+      var xt = performance.now();
+      if (transition_start_timer) {
+        xt -= transition_start_timer;
+      }
+      let x = anim_x * Math.sin(xt / anim_x_speed * Math.PI) * 0.5;
       orbit_controls.target0.set(x, 0, -1.0);
-      orbit_controls.position0.set(-x, 0, .0);
+      orbit_controls.position0.set(-2.0 * x, 0, .0);
       orbit_controls.reset();
     }
     orbit_controls.update();
@@ -512,8 +517,7 @@ function render() {
   ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
 
   if (transition_start_timer) {
-    const elapsed = (performance.now() - transition_start_timer) / 1000.0;
-    const t = Math.min(1.0, elapsed / TRANSITION_ANIM_DURATION);
+    const t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
     ldi_ftheta_mesh.uniforms.uEffectRadius.value =
       Math.min(0.3 / ((1.0 - Math.pow(t, 0.2)) + 1e-6), 51); // HACK: the max radius of the mesh is 50, so this goes past it (which we want!)
   }
