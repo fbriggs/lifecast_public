@@ -478,7 +478,7 @@ function updateCameraPosition() {
       // Idle animation, only displayed after the initial animation and when idle
       var xt = performance.now();
       if (transition_start_timer) {
-        xt -= transition_start_timer;
+        xt -= (transition_start_timer + TRANSITION_ANIM_DURATION);
       }
       let x = anim_x * Math.sin(xt / anim_x_speed * Math.PI) * 0.5;
       orbit_controls.target0.set(x, 0, -1.0);
