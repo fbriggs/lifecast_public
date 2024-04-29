@@ -117,7 +117,7 @@ let enable_intro_animation;
 var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
 var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
 var is_chrome =  (navigator.userAgent.indexOf("Chrome")  != -1) || is_oculus;
-var is_safari =  (navigator.userAgent.indexOf("Safari")  != -1) && !is_chrome;
+var is_safari =  (navigator.userAgent.indexOf("Safari")  != -1);// && !is_chrome;
 var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
 // TODO: android?
 
@@ -464,7 +464,7 @@ function updateCameraPosition() {
     let t = 1.0;
     if (transition_start_timer) {
       t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
-    } 
+    }
     // Swoop-in animation, displayed in the initial TRANSITION_ANIM_DURATION seconds
     if (t < 1.0) {
       let x = (1 - t)*(1 - t) * -5.0;
@@ -912,7 +912,7 @@ export function init({
 
     video.style.display = "none";
     video.preload = "auto";
-    video.addEventListener("waiting", function() { 
+    video.addEventListener("waiting", function() {
       is_buffering_at = performance.now();
     });
     video.addEventListener("playing", function() {
