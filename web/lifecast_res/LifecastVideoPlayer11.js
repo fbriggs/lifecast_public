@@ -210,7 +210,6 @@ function makeNonVrControls() {
   buffering_button.style.width              = sz;
   buffering_button.style.height             = sz;
 
-
   var spinner_rotation_angle = 0;
   setInterval(function() {
     buffering_button.style.transform = "rotate(" + spinner_rotation_angle + "deg)";
