@@ -120,8 +120,6 @@ var is_oculus = (ua.indexOf("Oculus") != -1);
 var is_chrome =  (ua.indexOf("Chrome")  != -1) || is_oculus;
 var is_safarish =  (ua.indexOf("Safari")  != -1) && (!is_chrome || (ua.indexOf("Mac")  != -1)); // This can still be true on Chrome for Mac...
 var is_ios = ua.match(/iPhone|iPad|iPod/i);
-// TODO: android?
-console.log("is_safarish=", is_safarish);
 
 function byId(id) { return document.getElementById( id ); };
 
