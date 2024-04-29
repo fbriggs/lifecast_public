@@ -114,12 +114,12 @@ const TRANSITION_ANIM_DURATION = 8000;
 let transition_start_timer;
 let enable_intro_animation;
 
-var is_firefox = navigator.userAgent.indexOf("Firefox") != -1;
-var is_oculus = (navigator.userAgent.indexOf("Oculus") != -1);
-var is_chrome =  (navigator.userAgent.indexOf("Chrome")  != -1) || is_oculus;
-var is_safari =  (navigator.userAgent.indexOf("Safari")  != -1);// && !is_chrome;
-var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
-// TODO: android?
+var ua = navigator.userAgent;
+var is_firefox = ua.indexOf("Firefox") != -1;
+var is_oculus = (ua.indexOf("Oculus") != -1);
+var is_chrome =  (ua.indexOf("Chrome")  != -1) || is_oculus;
+var is_safarish =  (ua.indexOf("Safari")  != -1) && (!is_chrome || (ua.indexOf("Mac")  != -1)); // This can still be true on Chrome for Mac...
+var is_ios = ua.match(/iPhone|iPad|iPod/i);
 
 function byId(id) { return document.getElementById( id ); };
 
@@ -527,7 +527,7 @@ function render() {
   }
 
   // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
-  if (is_safari && video != undefined) {
+  if (is_safarish && video != undefined) {
     texture.needsUpdate = true;
   }
 
@@ -904,7 +904,7 @@ export function init({
     if (_media_url_mobile != "" && is_ios) {
       best_media_url = _media_url_mobile;
     }
-    if (_media_url_safari != "" && is_safari && !is_ios) {
+    if (_media_url_safari != "" && is_safarish && !is_ios) {
       best_media_url = _media_url_safari;
     }
     video.src = best_media_url;
