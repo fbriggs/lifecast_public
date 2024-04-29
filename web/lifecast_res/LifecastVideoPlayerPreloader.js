@@ -13,6 +13,7 @@ export function init({
   buffering_button.draggable                = false;
   buffering_button.style.opacity            = .5;
   buffering_button.style.width              = "64px";
+  buffering_button.style.height             = "64px";
   buffering_button.style.position           = 'absolute';
 
   if (_embed_in_div == "") {
@@ -22,7 +23,7 @@ export function init({
   }
 
   buffering_button.style.left               = '50%';
-  buffering_button.style.transform          = 'translate(-50%, -50%)'; 
+  buffering_button.style.transform          = 'translate(-50%, -50%)';
   buffering_button.style.animation          = 'spin 2s linear infinite';
 
   const styleTag = document.createElement("style");
