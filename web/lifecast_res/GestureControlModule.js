@@ -98,7 +98,10 @@ class GestureControlModule {
       let translationDeltaRight = this.rightHandPosition.clone().sub(this.prevRightHandPosition);
       let translationDelta = translationDeltaLeft.add(translationDeltaRight).multiplyScalar(0.5);
       this.currentTranslation.add(translationDelta);
+    }
 
+    let handDistance = this.leftHandPosition.distanceTo(this.rightHandPosition);
+    if (this.isLeftPinching && this.isRightPinching && handDistance > 0.1) {
       let prevDistance = this.prevLeftHandPosition.distanceTo(this.prevRightHandPosition);
       let currentDistance = this.leftHandPosition.distanceTo(this.rightHandPosition);
       let scaleDelta = currentDistance / prevDistance;
