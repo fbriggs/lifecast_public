@@ -37,7 +37,7 @@ let enable_debug_text = false; // Turn this on if you want to use debugLog() or 
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
-let always_enable_hands = false;
+let force_hand_tracking = false;
 
 let container, camera, scene, renderer;
 let vr_controller0, vr_controller1; // used for getting controller state, including buttons
@@ -820,13 +820,13 @@ export function init({
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
   _loop = false,
   _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
-  _always_enable_hands = false,  // If true, hand-tracking will be enabled on Apple Vision Pro
+  _force_hand_tracking = false,  // If true, hand-tracking will be enabled on Apple Vision Pro
 }={}) {
 
   cam_mode        = _cam_mode;
   lock_position   = _lock_position;
   enable_intro_animation = _enable_intro_animation;
-  always_enable_hands = _always_enable_hands;
+  force_hand_tracking = _force_hand_tracking;
 
   looking_glass_config = _looking_glass_config;
   let enter_xr_button_title = "ENTER VR";
@@ -1040,13 +1040,13 @@ export function init({
     // have permissions and can tell if this is the case because we will have some data)
     setTimeout(function() {
       if (!got_orientation_data) {
-        get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, always_enable_hands);
+        get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, force_hand_tracking);
         container.appendChild(get_vr_button);
       }
     }, 1000);
 
   } else {
-    get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, always_enable_hands);
+    get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, force_hand_tracking);
     container.appendChild(get_vr_button);
   }
 
