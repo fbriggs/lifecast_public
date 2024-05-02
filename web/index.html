@@ -15,19 +15,20 @@
 <script type="module">
   import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer11.js';
   LifecastVideoPlayer.init({
-    _media_url: "media/ldi3.png",
-    //_media_url_oculus: "", // use this URL when playing in oculus browser (which might support h265)
-    //_media_url_mobile: "", // a fallback video file for mobile devices that can't play higher res video
-    //_media_url_safari: "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
+    _media_urls: [
+      "media/facepaint_ldi3_h265_hvc1.mp4",
+      "media/facepaint_ldi3_h264.mp4",
+      "media/facepaint_ldi3_h264_1920x1920.mp4"
+    ],
     //_embed_in_div: "",
     //_cam_mode: "orbit", // orbit, first_person
     //_vfov: 80,  // vertical field of view
     //_min_fov: 60,  // field of view will scale up such that the lesser of hfov and vfov is this value
     //_lock_position: false, // If true, do not allow camera motion
     //_enable_intro_animation: true, // Displays a 8-second animation on load
-    //_autoplay_muted: true, // If this is a video, try to start playing immediately (muting is required)
-    //_loop: true,  // If true, loop video
-    //_transparent_bg: true //  If you don't need transparency, it is faster to set this to false
+    _autoplay_muted: true, // If this is a video, try to start playing immediately (muting is required)
+    _loop: true,  // If true, loop video
+    _transparent_bg: true //  If you don't need transparency, it is faster to set this to false
   });
 </script>
 

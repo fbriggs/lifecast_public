@@ -805,10 +805,7 @@ function setupHandAndControllerModels() {
 
 export function init({
   _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
-  _media_url = "",        // this should be high-res, but h264 for compatibility
-  _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
-  _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
-  _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
+  _media_urls = [],  // Array in order of preference (highest-quality first)
   _embed_in_div = "",
   _cam_mode="orbit",
   _vfov = 80,
@@ -822,10 +819,6 @@ export function init({
   _loop = false,
   _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
 }={}) {
-  if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
-    _format = "ldi3";
-    console.log("Inferred format 'ldi3' from filename");
-  }
 
   cam_mode        = _cam_mode;
   lock_position   = _lock_position;
@@ -863,8 +856,9 @@ export function init({
     container.style.cursor = "move";
   }
 
-  var ext = filenameExtension(_media_url);
+  var ext = filenameExtension(_media_urls[0]);
   if (ext == "png" || ext == "jpg") {
+    var _media_url = _media_urls[0];
     photo_mode = true;
     texture = new THREE.TextureLoader().load(
       _media_url,
@@ -910,38 +904,15 @@ export function init({
       }
       is_buffering_at = false;
     });
-    video.addEventListener("error",     function() {
-      container.innerHTML = "Error loading video URL: "  + best_media_url;
-    });
 
     document.body.appendChild(video);
 
-    // Add all sources in order of preference
-    if (_media_url_oculus) {
-      const sourceOculus = document.createElement('source');
-      sourceOculus.src = _media_url_oculus;
-      sourceOculus.type = 'video/mp4';
-      video.appendChild(sourceOculus);
-    }
-
-    if (_media_url_safari) {
-      const sourceSafari = document.createElement('source');
-      sourceSafari.src = _media_url_safari;
-      sourceSafari.type = 'video/mp4';
-      video.appendChild(sourceSafari);
-    }
-
-    // The default/fallback source, if none of the above is compatible
-    const sourceDefault = document.createElement('source');
-    sourceDefault.src = _media_url;
-    sourceDefault.type = 'video/mp4';
-    video.appendChild(sourceDefault);
-
-    if (_media_url_mobile) {
-      const sourceMobile = document.createElement('source');
-      sourceMobile.src = _media_url_mobile;
-      sourceMobile.type = 'video/mp4';
-      video.appendChild(sourceMobile);
+    // Create a <source> for each item in _media_urls
+    for (let i = 0; i < _media_urls.length; i++) {
+      let source = document.createElement('source');
+      source.src = _media_urls[i];
+      //source.type = "video/mp4";  // TODO: Support different types
+      video.appendChild(source);
     }
 
     // Add error handling for video not being able to load
