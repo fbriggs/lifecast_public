@@ -46,12 +46,12 @@
 
   window.nextMedia = () => {
     media_index = (media_index + 1) % media_playlist.length;
-    LifecastVideoPlayer.load(media_playlist[media_index]);
+    LifecastVideoPlayer.loadMedia(media_playlist[media_index]);
   };
 
   window.prevMedia = () => {
     media_index = (media_index - 1 + media_playlist.length) % media_playlist.length;
-    LifecastVideoPlayer.load(media_playlist[media_index]);
+    LifecastVideoPlayer.loadMedia(media_playlist[media_index]);
   };
 </script>
 

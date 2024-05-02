@@ -909,7 +909,7 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
   }
 }
 
-export function load(_media_urls, _loop = true, _autoplay_muted = true, _enable_intro_animation = true) {
+export function loadMedia(_media_urls, _loop = true, _autoplay_muted = true, _enable_intro_animation = true) {
   loadTexture(_media_urls, _loop, _autoplay_muted);
   if (_enable_intro_animation) {
     startAnimatedTransitionEffect();
