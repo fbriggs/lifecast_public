@@ -98,12 +98,15 @@ class GestureControlModule {
       let translationDeltaRight = this.rightHandPosition.clone().sub(this.prevRightHandPosition);
       let translationDelta = translationDeltaLeft.add(translationDeltaRight).multiplyScalar(0.5);
       this.currentTranslation.add(translationDelta);
+    }
 
+    let handDistance = this.leftHandPosition.distanceTo(this.rightHandPosition);
+    if (this.isLeftPinching && this.isRightPinching && handDistance > 0.1) {
       let prevDistance = this.prevLeftHandPosition.distanceTo(this.prevRightHandPosition);
       let currentDistance = this.leftHandPosition.distanceTo(this.rightHandPosition);
       let scaleDelta = currentDistance / prevDistance;
       this.currentScale *= scaleDelta;
-      this.currentScale = Math.max(0.01, Math.min(this.currentScale, 2));
+      this.currentScale = Math.max(0.1, Math.min(this.currentScale, 2));
 
       // Scaling the mesh down moves the grasp point toward the mesh center
       // To compensate, translate the mesh toward the grasp point (if scaleDelta < 1) or away from the grasp point (if scaleDelta > 1)
@@ -111,9 +114,9 @@ class GestureControlModule {
       grasp_point.sub(world_group_position);
       grasp_point.sub(mesh_position);
       this.currentTranslation.add(grasp_point.clone().multiplyScalar(1.0 - scaleDelta));
-      this.currentTranslation.x = Math.max(-100.0, Math.min(this.currentTranslation.x, 100.0));
-      this.currentTranslation.y = Math.max(-100.0, Math.min(this.currentTranslation.y, 100.0));
-      this.currentTranslation.z = Math.max(-100.0, Math.min(this.currentTranslation.z, 100.0));
+      this.currentTranslation.x = Math.max(-10.0, Math.min(this.currentTranslation.x, 10.0));
+      this.currentTranslation.y = Math.max(-10.0, Math.min(this.currentTranslation.y, 10.0));
+      this.currentTranslation.z = Math.max(-5.0, Math.min(this.currentTranslation.z, 5.0));
 
       // Rotate only about the Y axis
       let rotationDelta = this.normalizeAngle(this.getHandAngle(this.leftHandPosition, this.rightHandPosition) - this.getHandAngle(this.prevLeftHandPosition, this.prevRightHandPosition));
