@@ -24,7 +24,7 @@ THE SOFTWARE.
 */
 
 class HelpGetVR {
-  static createBanner(renderer, enter_xr_button_title, exit_xr_button_title, debugLog) {
+  static createBanner(renderer, enter_xr_button_title, exit_xr_button_title, always_enable_hands) {
     var banner = document.createElement( 'div' );
 
     function showEnterVR() {
@@ -55,8 +55,12 @@ class HelpGetVR {
 
       banner.onclick = async function () {
         if ( currentSession === null ) {
-          const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor', 'hand-tracking', 'layers' ] };
+          var optionalFeatures = [ 'local-floor', 'bounded-floor', 'layers' ];
           const supports_AR = await navigator.xr.isSessionSupported( 'immersive-ar' );
+          if (supports_AR || always_enable_hands) {
+            optionalFeatures.push('hand-tracking');
+          }
+          const sessionInit = { optionalFeatures: optionalFeatures };
           navigator.xr.requestSession(
            supports_AR ? 'immersive-ar' : 'immersive-vr', sessionInit ).then( onSessionStarted );
         } else {
