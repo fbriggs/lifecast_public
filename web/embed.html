@@ -30,33 +30,29 @@
 </script>
 <script type="module">
   import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer11.js';
-  const mediaSets = [
+  const media_playlist = [
     ["media/facepaint_ldi3_h265_hvc1.mp4", "media/facepaint_ldi3_h264.mp4", "media/facepaint_ldi3_h264_1920x1920.mp4"],
     ["media/ldi3_h265_hvc1_welder.mp4", "media/ldi3_h264_welder.mp4"],
     ["media/ldi3.png"]
   ];
 
-  let currentSetIndex = 0;
+  let media_index = 0;
   LifecastVideoPlayer.init({
-    _media_urls: mediaSets[currentSetIndex],
+    _media_urls: media_playlist[media_index],
     _embed_in_div: "player_div",
     _cam_mode: "orbit",
     _transparent_bg: true
   });
 
-  window.lifecastLoad = (urls) => LifecastVideoPlayer.load(urls);
-
   window.nextMedia = () => {
-    currentSetIndex = (currentSetIndex + 1) % mediaSets.length;
-    lifecastLoad(mediaSets[currentSetIndex]);
+    media_index = (media_index + 1) % media_playlist.length;
+    LifecastVideoPlayer.load(media_playlist[media_index]);
   };
 
   window.prevMedia = () => {
-    currentSetIndex = (currentSetIndex - 1 + mediaSets.length) % mediaSets.length;
-    lifecastLoad(mediaSets[currentSetIndex]);
+    media_index = (media_index - 1 + media_playlist.length) % media_playlist.length;
+    LifecastVideoPlayer.load(media_playlist[media_index]);
   };
-
-  lifecastLoad(mediaSets[currentSetIndex]);
 </script>
 
 </head>
