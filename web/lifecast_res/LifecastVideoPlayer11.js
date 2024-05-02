@@ -915,22 +915,16 @@ export function init({
     for (let i = 0; i < _media_urls.length; i++) {
       let source = document.createElement('source');
       source.src = _media_urls[i];
-      //source.type = "video/mp4";  // TODO: Support different types
       video.appendChild(source);
     }
 
-    // Add error handling for video not being able to load
     video.addEventListener("error", function() {
-      // You might want to check if the error is for the video itself
-      // or for any of its sources
-      container.innerHTML = "Error loading video.";
+      container.innerHTML = "Failed to load videos: " + _media_urls;
     });
 
-    // Starting to play if _autoplay_muted is true
     if (_autoplay_muted) {
       video.muted = true;
       video.play().catch(e => {
-        // handle any errors that may occur here
         console.error("Error attempting to play video:", e.message);
       });
     }
