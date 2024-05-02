@@ -805,12 +805,10 @@ function setupHandAndControllerModels() {
 
 function loadTexture(_media_urls, _loop, _autoplay_muted) {
   console.log("Loading texture from media urls: " + _media_urls);
-  // If texture currently exists, deallocate it 
   if (texture) {
     console.log("Deallocating texture " + texture);
     texture.dispose();
   }
-  // If a <video id="lifecast-video"> element exists, remove it
   if (document.getElementById("lifecast-video")) {
     console.log("Removing video element ", document.getElementById("lifecast-video"));
     document.getElementById("lifecast-video").remove();
@@ -819,7 +817,6 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
   // Create a new <video> element
   var ext = filenameExtension(_media_urls[0]);
   if (ext == "png" || ext == "jpg") {
-    console.log("Initializing texture from image");
     photo_mode = true;
     texture = new THREE.TextureLoader().load(
       _media_urls[0],
@@ -843,7 +840,6 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     texture.magFilter = THREE.LinearFilter;
     texture.generateMipmaps = false;
   } else {
-    console.log("Initializing texture from video");
     is_buffering_at = performance.now();
     photo_mode = false;
     video = document.createElement('video');
@@ -854,18 +850,15 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     video.style.display = "none";
     video.preload = "auto";
     video.addEventListener("waiting", function() {
-      console.log("video.waiting");
       is_buffering_at = performance.now();
     });
     video.addEventListener("playing", function() {
-      console.log("video.playing");
       if (!transition_start_timer) {
         startAnimatedTransitionEffect();
       }
       is_buffering_at = false;
     });
     video.addEventListener("canplay", function() {
-      console.log("video.canplay");
       if (!transition_start_timer) {
         startAnimatedTransitionEffect();
       }
@@ -899,7 +892,6 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     texture.type = THREE.UnsignedByteType;
   }
   if (ldi_ftheta_mesh) {
-    console.log("Setting texture to LDI ftheta mesh ", ldi_ftheta_mesh);
     ldi_ftheta_mesh.uniforms.uTexture = texture;
     ldi_ftheta_mesh.ldi3_layer0_material.uniforms.uTexture.value = texture;
     ldi_ftheta_mesh.ldi3_layer1_material.uniforms.uTexture.value = texture;
@@ -917,8 +909,11 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
   }
 }
 
-export function load(_media_urls, _loop = true, _autoplay_muted = true) {
+export function load(_media_urls, _loop = true, _autoplay_muted = true, _enable_intro_animation = true) {
   loadTexture(_media_urls, _loop, _autoplay_muted);
+  if (_enable_intro_animation) {
+    startAnimatedTransitionEffect();
+  }
 }
 
 export function init({
