@@ -6,6 +6,21 @@
 <meta name="description" content="A 6DOF VR video that you can watch in WebVR on Oculus Quest 2.">
 <meta name="keywords" content="VR Video, 6DOF, Volumetric, Oculus, Quest, Quest 2, WebVR, WebXR, Quest Browser, VR180">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<style>
+#player_div {
+  width: 600px;
+  height: 500px;
+}
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  width: 600px;
+}
+.carousel-controls button {
+  margin: 0 5px;
+}
+</style>
 
 <script type="module">
   import * as LifecastVideoPlayerPreloader from './lifecast_res/LifecastVideoPlayerPreloader.js';
@@ -15,12 +30,29 @@
 </script>
 <script type="module">
   import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer11.js';
+  const media_playlist = [
+    ["media/facepaint_ldi3_h265_hvc1.mp4", "media/facepaint_ldi3_h264.mp4", "media/facepaint_ldi3_h264_1920x1920.mp4"],
+    ["media/ldi3_h265_hvc1_welder.mp4", "media/ldi3_h264_welder.mp4"],
+    ["media/ldi3.png"]
+  ];
+
+  let media_index = 0;
   LifecastVideoPlayer.init({
-    _media_urls: ["media/ldi3.png"],
+    _media_urls: media_playlist[media_index],
     _embed_in_div: "player_div",
     _cam_mode: "orbit",
     _transparent_bg: true
   });
+
+  window.nextMedia = () => {
+    media_index = (media_index + 1) % media_playlist.length;
+    LifecastVideoPlayer.loadMedia(media_playlist[media_index]);
+  };
+
+  window.prevMedia = () => {
+    media_index = (media_index - 1 + media_playlist.length) % media_playlist.length;
+    LifecastVideoPlayer.loadMedia(media_playlist[media_index]);
+  };
 </script>
 
 </head>
@@ -29,6 +61,11 @@
 Hello!
 
 <div id="player_div" style="width: 600px; height: 500px;"></div>
+
+<div class="carousel-controls">
+  <button onclick="prevMedia()">&lt; Prev</button>
+  <button onclick="nextMedia()">Next &gt;</button>
+</div>
 
 </body>
 </html>

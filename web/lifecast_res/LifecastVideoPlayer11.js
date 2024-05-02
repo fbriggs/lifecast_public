@@ -766,10 +766,8 @@ function setupHandAndControllerModels() {
   hand0 = renderer.xr.getHand(0);
   hand1 = renderer.xr.getHand(1);
 
-  debugLog("calling initVrController...");
   initVrController(vr_controller0);
   initVrController(vr_controller1);
-  debugLog("calling initHandControllers...");
   initHandControllers(hand0, hand1);
 
   const hand_material = new THREE.MeshPhongMaterial({
@@ -804,6 +802,119 @@ function setupHandAndControllerModels() {
   scene.add(new THREE.DirectionalLight( 0xffffff, 3));
 }
 
+
+function loadTexture(_media_urls, _loop, _autoplay_muted) {
+  console.log("Loading texture from media urls: " + _media_urls);
+  if (texture) {
+    console.log("Deallocating texture " + texture);
+    texture.dispose();
+  }
+  if (document.getElementById("lifecast-video")) {
+    console.log("Removing video element ", document.getElementById("lifecast-video"));
+    document.getElementById("lifecast-video").remove();
+  }
+
+  // Create a new <video> element
+  var ext = filenameExtension(_media_urls[0]);
+  if (ext == "png" || ext == "jpg") {
+    photo_mode = true;
+    texture = new THREE.TextureLoader().load(
+      _media_urls[0],
+      function(texture) {// onLoad callback
+        is_buffering_at = false;
+        if (!transition_start_timer) {
+          startAnimatedTransitionEffect();
+        }
+      },
+      function(xhr) { // Progress callback
+        //const percentage = (xhr.loaded / xhr.total) * 100;
+      },
+      function(error) { // error callback
+        container.innerHTML = "Error loading texture: "  + _media_urls[0];
+      }
+    );
+    // Some of this isn't necessary, but makes the texture consistent between Photo/Video.
+    texture.format = THREE.RGBAFormat;
+    texture.type = THREE.UnsignedByteType;
+    texture.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
+    texture.magFilter = THREE.LinearFilter;
+    texture.generateMipmaps = false;
+  } else {
+    is_buffering_at = performance.now();
+    photo_mode = false;
+    video = document.createElement('video');
+    video.setAttribute("crossorigin", "anonymous");
+    video.setAttribute("playsinline", true);
+    video.loop = _loop;
+    video.id = "lifecast-video";
+    video.style.display = "none";
+    video.preload = "auto";
+    video.addEventListener("waiting", function() {
+      is_buffering_at = performance.now();
+    });
+    video.addEventListener("playing", function() {
+      if (!transition_start_timer) {
+        startAnimatedTransitionEffect();
+      }
+      is_buffering_at = false;
+    });
+    video.addEventListener("canplay", function() {
+      if (!transition_start_timer) {
+        startAnimatedTransitionEffect();
+      }
+      is_buffering_at = false;
+    });
+
+    document.body.appendChild(video);
+
+    // Create a <source> for each item in _media_urls
+    for (let i = 0; i < _media_urls.length; i++) {
+      let source = document.createElement('source');
+      source.src = _media_urls[i];
+      video.appendChild(source);
+    }
+
+    video.addEventListener("error", function() {
+      container.innerHTML = "Failed to load videos: " + _media_urls;
+    });
+
+    if (_autoplay_muted) {
+      video.muted = true;
+      video.play().catch(e => {
+        console.error("Error attempting to play video:", e.message);
+      });
+    }
+
+    texture = new THREE.VideoTexture(video)
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.format = THREE.RGBAFormat;
+    texture.type = THREE.UnsignedByteType;
+  }
+  if (ldi_ftheta_mesh) {
+    ldi_ftheta_mesh.uniforms.uTexture = texture;
+    ldi_ftheta_mesh.ldi3_layer0_material.uniforms.uTexture.value = texture;
+    ldi_ftheta_mesh.ldi3_layer1_material.uniforms.uTexture.value = texture;
+    ldi_ftheta_mesh.ldi3_layer2_material.uniforms.uTexture.value = texture;
+
+    ldi_ftheta_mesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
+    ldi_ftheta_mesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
+    ldi_ftheta_mesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter;
+    ldi_ftheta_mesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
+    ldi_ftheta_mesh.uniforms.uTexture.value.generateMipmaps = false;
+
+    ldi_ftheta_mesh.ldi3_layer0_material.needsUpdate = true;
+    ldi_ftheta_mesh.ldi3_layer1_material.needsUpdate = true;
+    ldi_ftheta_mesh.ldi3_layer2_material.needsUpdate = true;
+  }
+}
+
+export function loadMedia(_media_urls, _loop = true, _autoplay_muted = true, _enable_intro_animation = true) {
+  loadTexture(_media_urls, _loop, _autoplay_muted);
+  if (_enable_intro_animation) {
+    startAnimatedTransitionEffect();
+  }
+}
 
 export function init({
   _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
@@ -860,81 +971,7 @@ export function init({
     container.style.cursor = "move";
   }
 
-  var ext = filenameExtension(_media_urls[0]);
-  if (ext == "png" || ext == "jpg") {
-    var _media_url = _media_urls[0];
-    photo_mode = true;
-    texture = new THREE.TextureLoader().load(
-      _media_url,
-      function(texture) {// onLoad callback
-        is_buffering_at = false;
-        if (!transition_start_timer) {
-          startAnimatedTransitionEffect();
-        }
-      },
-      function(xhr) { // Progress callback
-        //const percentage = (xhr.loaded / xhr.total) * 100;
-      },
-      function(error) { // error callback
-        container.innerHTML = "Error loading texture: "  + _media_url;
-      }
-    );
-    // Some of this isn't necessary, but makes the texture consistent between Photo/Video.
-    texture.format = THREE.RGBAFormat;
-    texture.type = THREE.UnsignedByteType;
-    texture.minFilter = THREE.LinearFilter; // This matters! Fixes a rendering glitch.
-    texture.magFilter = THREE.LinearFilter;
-    texture.generateMipmaps = false;
-  } else {
-    photo_mode = false;
-    video = document.createElement('video');
-    video.setAttribute("crossorigin", "anonymous");
-    video.setAttribute("playsinline", true);
-    video.loop = _loop;
-    video.style.display = "none";
-    video.preload = "auto";
-    video.addEventListener("waiting", function() {
-      is_buffering_at = performance.now();
-    });
-    video.addEventListener("playing", function() {
-      if (!transition_start_timer) {
-        startAnimatedTransitionEffect();
-      }
-      is_buffering_at = false;
-    });
-    video.addEventListener("canplay", function() {
-      if (!transition_start_timer) {
-        startAnimatedTransitionEffect();
-      }
-      is_buffering_at = false;
-    });
-
-    document.body.appendChild(video);
-
-    // Create a <source> for each item in _media_urls
-    for (let i = 0; i < _media_urls.length; i++) {
-      let source = document.createElement('source');
-      source.src = _media_urls[i];
-      video.appendChild(source);
-    }
-
-    video.addEventListener("error", function() {
-      container.innerHTML = "Failed to load videos: " + _media_urls;
-    });
-
-    if (_autoplay_muted) {
-      video.muted = true;
-      video.play().catch(e => {
-        console.error("Error attempting to play video:", e.message);
-      });
-    }
-
-    texture = new THREE.VideoTexture(video)
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    texture.format = THREE.RGBAFormat;
-    texture.type = THREE.UnsignedByteType;
-  }
+  loadTexture(_media_urls, _loop, _autoplay_muted);
 
   makeNonVrControls();
 
