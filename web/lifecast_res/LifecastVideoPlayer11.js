@@ -1179,13 +1179,6 @@ export function init({
 
     if (key == "a") startAnimatedTransitionEffect();
 
-    if (key == "n") {
-      let new_media_urls = ["media/ldi3.png"];
-      console.log("Switching texture to ", new_media_urls);
-      loadTexture(new_media_urls);
-    }
-
-
   });
 
   renderer.domElement.addEventListener('wheel', function(event) {
