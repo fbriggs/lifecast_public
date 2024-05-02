@@ -7,10 +7,15 @@
 <meta name="keywords" content="VR Video, 6DOF, Volumetric, Oculus, Quest, Quest 2, WebVR, WebXR, Quest Browser, VR180">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <style>
+#player_div {
+  width: 600px;
+  height: 500px;
+}
 .carousel-controls {
   display: flex;
   justify-content: center;
   margin-top: 10px;
+  width: 600px;
 }
 .carousel-controls button {
   margin: 0 5px;
@@ -31,8 +36,7 @@
     ["media/ldi3.png"]
   ];
 
-  let currentSetIndex = 0; // Tracks the current index of the mediaSets array
-
+  let currentSetIndex = 0;
   LifecastVideoPlayer.init({
     _media_urls: mediaSets[currentSetIndex],
     _embed_in_div: "player_div",
@@ -42,19 +46,16 @@
 
   window.lifecastLoad = (urls) => LifecastVideoPlayer.load(urls);
 
-  // Function to load the next set of media
   window.nextMedia = () => {
     currentSetIndex = (currentSetIndex + 1) % mediaSets.length;
     lifecastLoad(mediaSets[currentSetIndex]);
   };
 
-  // Function to load the previous set of media
   window.prevMedia = () => {
     currentSetIndex = (currentSetIndex - 1 + mediaSets.length) % mediaSets.length;
     lifecastLoad(mediaSets[currentSetIndex]);
   };
 
-  // Initialize the first media set
   lifecastLoad(mediaSets[currentSetIndex]);
 </script>
 
@@ -65,9 +66,9 @@ Hello!
 
 <div id="player_div" style="width: 600px; height: 500px;"></div>
 
-<div style="display: flex; width: 600px;" class="carousel-controls">
-  <button onclick="prevMedia()">Prev</button>
-  <button onclick="nextMedia()">Next</button>
+<div class="carousel-controls">
+  <button onclick="prevMedia()">&lt; Prev</button>
+  <button onclick="nextMedia()">Next &gt;</button>
 </div>
 
 </body>
