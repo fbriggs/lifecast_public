@@ -891,24 +891,8 @@ export function init({
     photo_mode = false;
     video = document.createElement('video');
     video.setAttribute("crossorigin", "anonymous");
-    video.setAttribute("type", "video/mp4");
     video.setAttribute("playsinline", true);
     video.loop = _loop;
-
-    // Select the best URL based on browser
-    let best_media_url = _media_url;
-    if (_media_url_oculus != "" && is_oculus) {
-      best_media_url = _media_url_oculus;
-    }
-    if (_media_url_mobile != "" && is_ios) {
-      best_media_url = _media_url_mobile;
-    }
-    if (_media_url_safari != "" && is_safarish && !is_ios) {
-      best_media_url = _media_url_safari;
-    }
-    video.src = best_media_url;
-
-
     video.style.display = "none";
     video.preload = "auto";
     video.addEventListener("waiting", function() {
@@ -930,12 +914,51 @@ export function init({
       container.innerHTML = "Error loading video URL: "  + best_media_url;
     });
 
-    if(_autoplay_muted) {
-      video.muted = true;
-      video.play();
+    document.body.appendChild(video);
+
+    // Add all sources in order of preference
+    if (_media_url_oculus) {
+      const sourceOculus = document.createElement('source');
+      sourceOculus.src = _media_url_oculus;
+      sourceOculus.type = 'video/mp4';
+      video.appendChild(sourceOculus);
     }
 
-    document.body.appendChild(video);
+    if (_media_url_safari) {
+      const sourceSafari = document.createElement('source');
+      sourceSafari.src = _media_url_safari;
+      sourceSafari.type = 'video/mp4';
+      video.appendChild(sourceSafari);
+    }
+
+    // The default/fallback source, if none of the above is compatible
+    const sourceDefault = document.createElement('source');
+    sourceDefault.src = _media_url;
+    sourceDefault.type = 'video/mp4';
+    video.appendChild(sourceDefault);
+
+    if (_media_url_mobile) {
+      const sourceMobile = document.createElement('source');
+      sourceMobile.src = _media_url_mobile;
+      sourceMobile.type = 'video/mp4';
+      video.appendChild(sourceMobile);
+    }
+
+    // Add error handling for video not being able to load
+    video.addEventListener("error", function() {
+      // You might want to check if the error is for the video itself
+      // or for any of its sources
+      container.innerHTML = "Error loading video.";
+    });
+
+    // Starting to play if _autoplay_muted is true
+    if (_autoplay_muted) {
+      video.muted = true;
+      video.play().catch(e => {
+        // handle any errors that may occur here
+        console.error("Error attempting to play video:", e.message);
+      });
+    }
 
     texture = new THREE.VideoTexture(video)
     texture.minFilter = THREE.LinearFilter;
