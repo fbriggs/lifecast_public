@@ -37,6 +37,7 @@ let enable_debug_text = false; // Turn this on if you want to use debugLog() or 
 let debug_text_mesh, debug_text_div;
 let debug_log = "";
 let debug_msg_count = 0;
+let force_hand_tracking = false;
 
 let container, camera, scene, renderer;
 let vr_controller0, vr_controller1; // used for getting controller state, including buttons
@@ -113,6 +114,7 @@ const BUFFERING_TIMEOUT = 500;
 const TRANSITION_ANIM_DURATION = 8000;
 let transition_start_timer;
 let enable_intro_animation;
+
 
 var ua = navigator.userAgent;
 var is_firefox = ua.indexOf("Firefox") != -1;
@@ -805,10 +807,7 @@ function setupHandAndControllerModels() {
 
 export function init({
   _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
-  _media_url = "",        // this should be high-res, but h264 for compatibility
-  _media_url_oculus = "", // use this URL when playing in oculus browser (which might support h265)
-  _media_url_mobile = "", // a fallback video file for mobile devices that can't play higher res video
-  _media_url_safari = "", // a fallback video file for safari (i.e. Vision Pro) [not mobile]
+  _media_urls = [],  // Array in order of preference (highest-quality first)
   _embed_in_div = "",
   _cam_mode="orbit",
   _vfov = 80,
@@ -821,15 +820,13 @@ export function init({
   _autoplay_muted = false, // If this is a video, try to start playing immediately (muting is required)
   _loop = false,
   _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
+  _force_hand_tracking = false,  // If true, hand-tracking will be enabled on Apple Vision Pro
 }={}) {
-  if (_media_url.includes("ldi3") || _media_url_oculus.includes("ldi3") || _media_url_mobile.includes("ldi3")) {
-    _format = "ldi3";
-    console.log("Inferred format 'ldi3' from filename");
-  }
 
   cam_mode        = _cam_mode;
   lock_position   = _lock_position;
   enable_intro_animation = _enable_intro_animation;
+  force_hand_tracking = _force_hand_tracking;
 
   looking_glass_config = _looking_glass_config;
   let enter_xr_button_title = "ENTER VR";
@@ -863,8 +860,9 @@ export function init({
     container.style.cursor = "move";
   }
 
-  var ext = filenameExtension(_media_url);
+  var ext = filenameExtension(_media_urls[0]);
   if (ext == "png" || ext == "jpg") {
+    var _media_url = _media_urls[0];
     photo_mode = true;
     texture = new THREE.TextureLoader().load(
       _media_url,
@@ -891,24 +889,8 @@ export function init({
     photo_mode = false;
     video = document.createElement('video');
     video.setAttribute("crossorigin", "anonymous");
-    video.setAttribute("type", "video/mp4");
     video.setAttribute("playsinline", true);
     video.loop = _loop;
-
-    // Select the best URL based on browser
-    let best_media_url = _media_url;
-    if (_media_url_oculus != "" && is_oculus) {
-      best_media_url = _media_url_oculus;
-    }
-    if (_media_url_mobile != "" && is_ios) {
-      best_media_url = _media_url_mobile;
-    }
-    if (_media_url_safari != "" && is_safarish && !is_ios) {
-      best_media_url = _media_url_safari;
-    }
-    video.src = best_media_url;
-
-
     video.style.display = "none";
     video.preload = "auto";
     video.addEventListener("waiting", function() {
@@ -926,16 +908,26 @@ export function init({
       }
       is_buffering_at = false;
     });
-    video.addEventListener("error",     function() {
-      container.innerHTML = "Error loading video URL: "  + best_media_url;
-    });
-
-    if(_autoplay_muted) {
-      video.muted = true;
-      video.play();
-    }
 
     document.body.appendChild(video);
+
+    // Create a <source> for each item in _media_urls
+    for (let i = 0; i < _media_urls.length; i++) {
+      let source = document.createElement('source');
+      source.src = _media_urls[i];
+      video.appendChild(source);
+    }
+
+    video.addEventListener("error", function() {
+      container.innerHTML = "Failed to load videos: " + _media_urls;
+    });
+
+    if (_autoplay_muted) {
+      video.muted = true;
+      video.play().catch(e => {
+        console.error("Error attempting to play video:", e.message);
+      });
+    }
 
     texture = new THREE.VideoTexture(video)
     texture.minFilter = THREE.LinearFilter;
@@ -1048,13 +1040,13 @@ export function init({
     // have permissions and can tell if this is the case because we will have some data)
     setTimeout(function() {
       if (!got_orientation_data) {
-        get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, debugLog);
+        get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, force_hand_tracking);
         container.appendChild(get_vr_button);
       }
     }, 1000);
 
   } else {
-    get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, debugLog);
+    get_vr_button = HelpGetVR.createBanner(renderer, enter_xr_button_title, exit_xr_button_title, force_hand_tracking);
     container.appendChild(get_vr_button);
   }
 
