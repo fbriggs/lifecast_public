@@ -917,6 +917,10 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
   }
 }
 
+export function load(_media_urls, _loop = true, _autoplay_muted = true) {
+  loadTexture(_media_urls, _loop, _autoplay_muted);
+}
+
 export function init({
   _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
   _media_urls = [],  // Array in order of preference (highest-quality first)

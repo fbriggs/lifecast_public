@@ -21,6 +21,7 @@
     _cam_mode: "orbit",
     _transparent_bg: true
   });
+  window.lifecastLoad = LifecastVideoPlayer.load;
 </script>
 
 </head>
@@ -29,6 +30,12 @@
 Hello!
 
 <div id="player_div" style="width: 600px; height: 500px;"></div>
+
+<div style="display: flex; width: 600px;">
+  <button style="flex: 1" onclick="lifecastLoad(['media/facepaint_ldi3_h265_hvc1.mp4', 'media/facepaint_ldi3_h264.mp4', 'media/facepaint_ldi3_h264_1920x1920.mp4'])">Facepaint</button>
+  <button style="flex: 1" onclick="lifecastLoad(['media/ldi3_h265_hvc1_welder.mp4', 'media/ldi3_h264_welder.mp4'])">Welder</button>
+  <button style="flex: 1" onclick="lifecastLoad(['media/ldi3.png'])">Orrery</button>
+</div>
 
 </body>
 </html>
