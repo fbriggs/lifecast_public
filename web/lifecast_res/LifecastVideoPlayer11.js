@@ -528,7 +528,7 @@ function render() {
   }
 
   // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
-  if (is_safarish && video != undefined) {
+  if (is_safarish && video != undefined && !photo_mode) {
     texture.needsUpdate = true;
   }
 
