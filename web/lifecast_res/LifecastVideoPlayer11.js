@@ -526,7 +526,7 @@ function render() {
   if (transition_start_timer) {
     const t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
     ldi_ftheta_mesh.uniforms.uEffectRadius.value =
-      Math.min(0.3 / ((1.0 - Math.pow(t, 0.2)) + 1e-6), 51); // HACK: the max radius of the mesh is 50, so this goes past it (which we want!)
+      Math.min(0.6 / ((1.0 - Math.pow(t, 0.2)) + 1e-6), 51); // HACK: the max radius of the mesh is 50, so this goes past it (which we want!)
   }
 
   // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
