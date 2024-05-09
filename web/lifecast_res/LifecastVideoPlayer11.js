@@ -997,8 +997,8 @@ export function init({
 
   // Make the point sprite for VR buttons.
   const vrbutton_geometry = new THREE.PlaneGeometry(0.1, 0.1);
-  vrbutton_texture_rewind = new THREE.TextureLoader().load('./lifecast_res/rewind_button.png');
-  vrbutton_texture_buffering = new THREE.TextureLoader().load('./lifecast_res/spinner.png');
+  vrbutton_texture_rewind = new THREE.TextureLoader().load(Icons.rewind_button);
+  vrbutton_texture_buffering = new THREE.TextureLoader().load(Icons.spinner);
   vrbutton_material = new THREE.MeshBasicMaterial({map: vrbutton_texture_buffering, transparent: true});
   vrbutton3d = new THREE.Mesh(vrbutton_geometry, vrbutton_material);
   vrbutton3d.visible = false;
