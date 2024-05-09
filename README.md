@@ -21,5 +21,24 @@ https://drive.google.com/file/d/197Ea3MHUKMsS4BUy86iVwGukmClV0V_9/view?usp=share
 
 # WebGL / WebVR / Javascript
 
-An example page is available in the /web directory of this repo.
+Use the following HTML to display an LDI file on your own site:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/gh/fbriggs/lifecast_public/lifecast.min.js"></script>
+</head>
+<body>
+<script>
+LifecastVideoPlayer.init({
+  _format: "ldi3",
+  _media_urls: ["ldi3.png"],
+});
+</script>
+</body>
+</html>
+```
+
+For more examples, see the web/ directory of this repo.
 
