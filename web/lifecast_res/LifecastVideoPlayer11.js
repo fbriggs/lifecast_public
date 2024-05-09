@@ -30,6 +30,7 @@ import {HelpGetVR} from './HelpGetVR11.js';
 import {GestureControlModule} from './GestureControlModule.js';
 import {XRControllerModelFactory} from './XRControllerModelFactory.js';
 import {XRHandModelFactory} from './XRHandModelFactory.js';
+import * as Icons from './Icons.js';
 
 const gesture_control = new GestureControlModule();
 
@@ -181,7 +182,7 @@ function makeNonVrControls() {
 
   const play_button = document.createElement("img");
   play_button.id                            = "play_button";
-  play_button.src                           = "lifecast_res/play_button.png";
+  play_button.src                           = Icons.play_button;
   play_button.draggable                     = false;
   play_button.style.display                 = "none";
   play_button.style.width                   = sz;
@@ -189,7 +190,7 @@ function makeNonVrControls() {
 
   const pause_button = document.createElement("img");
   pause_button.id                           = "pause_button";
-  pause_button.src                          = "lifecast_res/pause_button.png";
+  pause_button.src                          = Icons.pause_button;
   pause_button.draggable                    = false;
   pause_button.style.display                = "none";
   pause_button.style.width                  = sz;
@@ -197,7 +198,7 @@ function makeNonVrControls() {
 
   const rewind_button = document.createElement("img");
   rewind_button.id                          = "rewind_button";
-  rewind_button.src                         = "lifecast_res/rewind_button.png";
+  rewind_button.src                         = Icons.rewind_button;
   rewind_button.draggable                   = false;
   rewind_button.style.display               = "none";
   rewind_button.style.width                 = sz;
@@ -205,7 +206,7 @@ function makeNonVrControls() {
 
   const buffering_button = document.createElement("img");
   buffering_button.id                       = "buffering_button";
-  buffering_button.src                      = "lifecast_res/spinner.png";
+  buffering_button.src                      = Icons.spinner;
   buffering_button.draggable                = false;
   buffering_button.style.display            = "none";
   buffering_button.style.opacity            = 0.5;
@@ -219,6 +220,7 @@ function makeNonVrControls() {
   }, 16);
 
   makeUnselectable(nonvr_controls);
+  makeUnselectable(buffering_button);
   nonvr_controls.appendChild(play_button);
   nonvr_controls.appendChild(pause_button);
   nonvr_controls.appendChild(rewind_button);

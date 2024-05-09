@@ -5,12 +5,11 @@ module.exports = {
 
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'lifecast-video-player-bundle.js',
+    filename: 'lifecast.min.js',
     library: 'LifecastVideoPlayer',
     libraryTarget: 'umd',
     globalObject: 'this',
   },
 
   mode: 'production',
-  devtool: 'source-map',
 };
