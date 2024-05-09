@@ -50,8 +50,8 @@ let world_group; // A THREE.Group that stores all of the meshes (foreground and 
 let interface_group; // A separate Group for 3D interface components
 let prev_vr_camera_position;
 
-let video;
-let texture;
+export let video;
+export let texture;
 let nonvr_menu_fade_counter = 1;
 let mouse_is_down = false;
 
@@ -530,7 +530,7 @@ function render() {
   }
 
   // HACK: The video texture doesn't update as it should on Vision Pro, so here' well force it.
-  if (is_safarish && video != undefined && !photo_mode) {
+  if (is_safarish && video != undefined && !photo_mode && texture.source.data.videoWidth > 0) {
     texture.needsUpdate = true;
   }
 
@@ -935,6 +935,7 @@ export function init({
   _transparent_bg = false, //  If you don't need transparency, it is faster to set this to false
   _force_hand_tracking = false,  // If true, hand-tracking will be enabled on Apple Vision Pro
 }={}) {
+  window.lifecast_player = this;
 
   cam_mode        = _cam_mode;
   lock_position   = _lock_position;
