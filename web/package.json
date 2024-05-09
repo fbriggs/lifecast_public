@@ -1,0 +1,20 @@
+{
+  "name": "lifecast-video-player",
+  "version": "11.0.0",
+  "description": "A 3D video library for web applications.",
+  "scripts": {
+    "build": "webpack --mode production --stats verbose",
+    "dev": "webpack --mode development"
+  },
+  "keywords": [
+    "3D video",
+    "web library",
+    "VR"
+  ],
+  "author": "Lifecast",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
