@@ -41,6 +41,7 @@ let debug_msg_count = 0;
 let force_hand_tracking = false;
 
 let container, camera, scene, renderer;
+let error_message_div;
 let vr_controller0, vr_controller1; // used for getting controller state, including buttons
 let controller_grip0, controller_grip1; // used for rendering controller models
 let hand0, hand1, hand_model0, hand_model1; // for XR hand-tracking
@@ -838,7 +839,7 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
         //const percentage = (xhr.loaded / xhr.total) * 100;
       },
       function(error) { // error callback
-        container.innerHTML = "Error loading texture: "  + _media_urls[0];
+        error_message_div.innerHTML = "Error loading texture: "  + _media_urls[0];
       }
     );
     // Some of this isn't necessary, but makes the texture consistent between Photo/Video.
@@ -882,7 +883,7 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     }
 
     video.addEventListener("error", function() {
-      container.innerHTML = "Failed to load videos: " + _media_urls;
+      error_message_div.innerHTML = "Failed to load videos: " + _media_urls;
     });
 
     if (_autoplay_muted) {
@@ -978,6 +979,10 @@ export function init({
   if (cam_mode == "first_person") {
     container.style.cursor = "move";
   }
+
+  error_message_div = document.createElement("div");
+  container.appendChild(error_message_div);
+
 
   loadTexture(_media_urls, _loop, _autoplay_muted);
 
