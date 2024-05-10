@@ -803,13 +803,12 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
   console.log("Loading texture from media urls: " + _media_urls);
   if (texture) {
     console.log("Deallocating texture " + texture);
-    texture.dispose();
+    //texture.dispose(); // Not clear if this helps or hurst as far as WebGL: context lost errors
     texture = null;
   }
-  //if (document.getElementById("lifecast-video")) {
-  //  console.log("Removing video element ", document.getElementById("lifecast-video"));
-  //  document.getElementById("lifecast-video").remove();
-  //}
+  if (ldi_ftheta_mesh && ldi_ftheta_mesh.uniforms.uTexture) {
+    ldi_ftheta_mesh.uniforms.uTexture = null;
+  }
   if (video) {
     // Delete the video sources to prevent a memory leak
     while(video.firstChild) {
@@ -852,7 +851,6 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     video.setAttribute("crossorigin", "anonymous");
     video.setAttribute("playsinline", true);
     video.loop = _loop;
-    //video.id = "lifecast-video";
     video.style.display = "none";
     video.preload = "auto";
     video.addEventListener("waiting", function() {
