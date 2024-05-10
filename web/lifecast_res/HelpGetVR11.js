@@ -50,7 +50,7 @@ class HelpGetVR {
       };
 
       banner.onmouseleave = function () {
-        banner.style.opacity = '0.5';
+        banner.style.opacity = '0.75';
       };
 
       banner.onclick = async function () {
