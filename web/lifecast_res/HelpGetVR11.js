@@ -86,34 +86,31 @@ class HelpGetVR {
     }
 
     banner.id = 'HelpGetVR';
-    banner.style.position = 'absolute'; // Keeps the banner positioned absolutely within the container
-    banner.style.bottom = '20px'; // Positions the banner at the bottom of the container
-    banner.style.padding = '12px 6px';
-    banner.style.border = '1px solid #fff';
-    banner.style.borderRadius = '4px';
-    banner.style.background = 'rgba(0,0,0,0.0)';
-    banner.style.color = '#fff';
-    banner.style.font = 'normal 12px sans-serif';
-    banner.style.textAlign = 'center';
-    //banner.style.opacity = '0.5';
-    banner.style.outline = 'none';
-    banner.style.zIndex = '999';
-    banner.style.left = '50%'; // Center the banner horizontally
-    banner.style.transform = 'translateX(-50%)'; // Adjust for the banner's width to truly center it
-    banner.style.width = '350px';
     banner.style.display = "none";
 
     var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
 
     if (is_ios) {
-
       banner.innerHTML = "<button onclick='DeviceOrientationEvent.requestPermission(); parentNode.style.display=\"none\";' style='font-size: 24px;'>Enable Tilt Control</button>";
       banner.style.border = '';
-      banner.style.bottom = '120px';
       banner.style.display = "block";
       return banner;
-
     } else if ('xr' in navigator) {
+      banner.style.position = 'absolute'; // Keeps the banner positioned absolutely within the container
+      banner.style.bottom = '20px'; // Positions the banner at the bottom of the container
+      banner.style.padding = '12px 6px';
+      banner.style.border = '1px solid #fff';
+      banner.style.borderRadius = '4px';
+      banner.style.background = 'rgba(0,0,0,0.0)';
+      banner.style.color = '#fff';
+      banner.style.font = 'normal 12px sans-serif';
+      banner.style.textAlign = 'center';
+      banner.style.opacity = '0.5';
+      banner.style.outline = 'none';
+      banner.style.zIndex = '999';
+      banner.style.left = '50%'; // Center the banner horizontally
+      banner.style.transform = 'translateX(-50%)'; // Adjust for the banner's width to truly center it
+      banner.style.width = '350px';
       navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
         if (supported) {
           showEnterVR();
@@ -121,7 +118,6 @@ class HelpGetVR {
           showWebXRNotFound();
         }
       } );
-
       return banner;
     } else {
       if (!window.isSecureContext) {
