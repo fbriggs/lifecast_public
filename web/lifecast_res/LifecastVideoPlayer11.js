@@ -807,7 +807,7 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
   console.log("Loading texture from media urls: " + _media_urls);
   if (texture) {
     console.log("Deallocating texture " + texture);
-    //texture.dispose(); // Not clear if this helps or hurst as far as WebGL: context lost errors
+    texture.dispose(); // Not clear if this helps or hurst as far as WebGL: context lost errors
     texture = null;
   }
   if (ldi_ftheta_mesh && ldi_ftheta_mesh.uniforms.uTexture) {
