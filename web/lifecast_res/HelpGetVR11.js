@@ -91,7 +91,7 @@ class HelpGetVR {
     banner.style.padding = '12px 6px';
     banner.style.border = '1px solid #fff';
     banner.style.borderRadius = '4px';
-    banner.style.background = 'rgba(0,0,0,0.1)';
+    banner.style.background = 'rgba(0,0,0,0.0)';
     banner.style.color = '#fff';
     banner.style.font = 'normal 12px sans-serif';
     banner.style.textAlign = 'center';
