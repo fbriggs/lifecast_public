@@ -95,7 +95,7 @@ class HelpGetVR {
     banner.style.color = '#fff';
     banner.style.font = 'normal 12px sans-serif';
     banner.style.textAlign = 'center';
-    banner.style.opacity = '0.5';
+    //banner.style.opacity = '0.5';
     banner.style.outline = 'none';
     banner.style.zIndex = '999';
     banner.style.left = '50%'; // Center the banner horizontally
