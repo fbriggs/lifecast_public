@@ -128,12 +128,6 @@ function byId(id) { return document.getElementById( id ); };
 
 function filenameExtension(filename) { return filename.split('.').pop(); }
 
-function hasAudio (video) {
-    return video.mozHasAudio ||
-    Boolean(video.webkitAudioDecodedByteCount) ||
-    Boolean(video.audioTracks && video.audioTracks.length);
-}
-
 function loadJSON(json_path, callback) {
   var xobj = new XMLHttpRequest();
   xobj.overrideMimeType("application/json");
@@ -810,10 +804,20 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
   if (texture) {
     console.log("Deallocating texture " + texture);
     texture.dispose();
+    texture = null;
   }
-  if (document.getElementById("lifecast-video")) {
-    console.log("Removing video element ", document.getElementById("lifecast-video"));
-    document.getElementById("lifecast-video").remove();
+  //if (document.getElementById("lifecast-video")) {
+  //  console.log("Removing video element ", document.getElementById("lifecast-video"));
+  //  document.getElementById("lifecast-video").remove();
+  //}
+  if (video) {
+    // Delete the video sources to prevent a memory leak
+    while(video.firstChild) {
+      console.log("removing source", video.firstChild);
+      video.removeChild(video.firstChild);
+    }
+    video.remove();
+    video = null;
   }
 
   // Create a new <video> element
@@ -848,7 +852,7 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     video.setAttribute("crossorigin", "anonymous");
     video.setAttribute("playsinline", true);
     video.loop = _loop;
-    video.id = "lifecast-video";
+    //video.id = "lifecast-video";
     video.style.display = "none";
     video.preload = "auto";
     video.addEventListener("waiting", function() {
