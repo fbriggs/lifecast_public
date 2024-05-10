@@ -150,6 +150,9 @@ function makeUnselectable(element) {
   element.style["-moz-user-select"]       = "none";
   element.style["-ms-user-select"]        = "none";
   element.style["user-select"]            = "none";
+  element.style["-webkit-tap-highlight-color"] = "rgba(0,0,0,0)";
+  element.style["-webkit-touch-callout"]  = "none";
+  element.style.pointerEvents = "none";
 }
 
 function trackMouseStatus(element) {
