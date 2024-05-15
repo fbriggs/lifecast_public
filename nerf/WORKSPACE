@@ -1,0 +1,676 @@
+# MIT License. Copyright (c) 2024 Lifecast Incorporated. Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
+
+
+### cuda ###
+
+# See https://github.com/tensorflow/runtime/tree/master/third_party/rules_cuda
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "rules_cuda",
+    sha256 = "2f8c8c8c85f727bec4423efecec12d3b751cb0a98bda99f0f9d351608a23b858",
+    strip_prefix = "rules_cuda-v0.2.1",
+    urls = ["https://github.com/bazel-contrib/rules_cuda/releases/download/v0.2.1/rules_cuda-v0.2.1.tar.gz"],
+)
+
+# NOTE: this needs to happen before anything that pulls in @rules_cc
+load("@rules_cuda//cuda:repositories.bzl", "register_detected_cuda_toolchains", "rules_cuda_dependencies")
+rules_cuda_dependencies()
+
+# TODO: check if the line below breaks things for Mac
+register_detected_cuda_toolchains()
+
+### gtest ####
+
+git_repository(
+    name = "com_github_google_googletest",
+    remote = "https://github.com/google/googletest",
+    branch = "v1.10.x",
+)
+bind(name="gtest", actual="@com_github_google_googletest//:gtest")
+bind(name="gtest_main", actual="@com_github_google_googletest//:gtest_main")
+
+### gflags ###
+
+# On Mac and Linux we compile gflags from source.
+http_archive(
+    name = "com_github_gflags_gflags",
+    sha256 = "6e16c8bc91b1310a44f3965e616383dbda48f83e8c1eaa2370a215057b00cabe",
+    strip_prefix = "gflags-77592648e3f3be87d6c7123eb81cbad75f9aef5a",
+    urls = [
+        "https://mirror.bazel.build/github.com/gflags/gflags/archive/77592648e3f3be87d6c7123eb81cbad75f9aef5a.tar.gz",
+        "https://github.com/gflags/gflags/archive/77592648e3f3be87d6c7123eb81cbad75f9aef5a.tar.gz",
+    ],
+)
+bind(name="gflags", actual="@com_github_gflags_gflags//:gflags")
+
+
+# On windows we compile gflags from vcpkg
+new_local_repository(
+  name = "gflags_windows_vcpkg",
+  path = "../vcpkg/packages/gflags_x64-windows",
+  build_file_content =
+"""
+cc_library(
+    name = "gflags",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), 
+    hdrs = glob(["include/gflags/*.h"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+### glog ###
+
+http_archive(
+    name = "com_github_google_glog",
+    sha256 = "7083af285bed3995b5dc2c982f7de39bced9f0e6fd78d631f3285490922a0c3d",
+    strip_prefix = "glog-3106945d8d3322e5cbd5658d482c9ffed2d892c0",
+    urls = [
+        "https://github.com/drigz/glog/archive/3106945d8d3322e5cbd5658d482c9ffed2d892c0.tar.gz",
+    ],
+)
+bind(name="glog", actual="@com_github_google_glog//:glog")
+
+new_local_repository(
+  name = "glog_windows_vcpkg",
+  path = "../vcpkg/packages/glog_x64-windows",
+  build_file_content =
+"""
+cc_library(
+    name = "glog",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), 
+    hdrs = glob(["include/glog/*.h"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+### eigen ####
+
+http_archive(
+    name = "com_github_eigen_eigen",
+    sha256 = "b170583f59d6778be4bfeae88583c77ed610df5b803ce5cb4aa850d0e8017c2f",
+    strip_prefix = "eigen-3.3.4",
+    urls = [
+        "https://gitlab.com/libeigen/eigen/-/archive/3.3.4/eigen-3.3.4.tar.bz2"
+    ],
+    build_file_content =
+"""
+cc_library(
+    name = 'eigen',
+    srcs = [],
+    includes = ['.'],
+    hdrs = glob(['Eigen/**']),
+    copts=["-O3 -Wno-unused-function -Wno-int-in-bool-context"],
+    visibility = ['//visibility:public'],
+)
+"""
+)
+bind(name="eigen", actual="@com_github_eigen_eigen//:eigen")
+
+### ceres ###
+
+# ceres via homebrew for os x- seems to be much faster (multithreaded)
+new_local_repository(
+  name = "ceres_osx_homebrew",
+  path = "/usr/local/Cellar/ceres-solver/2.2.0_1",
+  build_file_content =
+"""
+cc_library(
+    name = "ceres",
+    srcs = glob(["lib/*.dylib"]),
+    hdrs = glob(["include/ceres/*.h", "include/ceres/**/*.h"]),
+    includes = ["include"],
+    deps = ["//external:glog"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+bind(name="ceres", actual="@ceres_osx_homebrew//:ceres")
+
+new_local_repository(
+  name = "ceres_linux",
+  path = "/usr",
+  build_file_content =
+"""
+cc_library(
+    name = "ceres",
+    includes = ["include/ceres"],
+    srcs = ["lib/libceres.so"],
+    hdrs = glob(["include/ceres/*.h", "include/ceres/internal/*.h"]),
+    deps = ["//external:glog"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+new_local_repository(
+  name = "ceres_windows_vcpkg",
+  path = "../vcpkg/packages/ceres_x64-windows",
+  build_file_content =
+"""
+cc_library(
+    name = "ceres",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), 
+    hdrs = glob(["include/ceres/*.h"]),
+    includes = ["include"],
+    deps = [
+      "@glog_windows_vcpkg//:glog",
+      "@gflags_windows_vcpkg//:gflags",
+    ],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+### glfw ###
+
+new_local_repository(
+  name = "glfw_osx_homebrew",
+  path = "/usr/local/Cellar/glfw/3.3.9",
+  build_file_content =
+"""
+cc_library(
+    name = "glfw",
+    srcs = glob(["lib/*.dylib"]),
+    hdrs = glob(["include/**/*.h"]),
+    linkopts = ["-framework OpenGL"],
+    includes = ["include"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+# glfw for Linux
+new_local_repository(
+  name = "glfw_linux",
+  path = "/usr/include/GLFW",
+  build_file_content =
+"""
+cc_library(
+    name = "glfw",
+    srcs = glob(["lib/*.so"]),
+    hdrs = glob(["include/GL/*.h", "include/GLFW/*.h"]),
+    linkopts = ["-lglfw -lGL -ldl"],
+    includes = ["include"],
+    copts=["-O3 -DGL_GLEXT_PROTOTYPES"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+new_local_repository(
+  name = "glfw_windows_vcpkg",
+  #path = "../vcpkg/packages/glfw3_x86-windows", # use this if we install the x86 vcpkg instead (this would happen by default without specifying the platform)
+  path = "../vcpkg/packages/glfw3_x64-windows",
+  build_file_content =
+"""
+cc_library(
+    name = "glfw",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), # include the dll here to copy it to the build directory!
+    hdrs = glob(["include/**/*.h"]),
+    linkopts = ["opengl32.lib"],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+### opencv ###
+
+new_local_repository(
+  name = "opencv_osx_homebrew",
+  path = "/usr/local/Cellar/opencv/4.9.0_3",
+  build_file_content =
+"""
+cc_library(
+  name = "opencv",
+  srcs = glob(["lib/*.dylib"]),
+  hdrs = glob([
+    "include/opencv4/opencv2/**/*.h",
+    "include/opencv4/opencv2/**/*.hpp",
+    "include/opencv4/opencv2/*.hpp"
+  ]),
+  includes = ["include"],
+  strip_include_prefix = "include/opencv4",
+  copts=["-O3"],
+  visibility = ["//visibility:public"],
+  linkstatic = 1,
+)
+"""
+)
+
+new_local_repository(
+  name = "opencv_linux",
+  path = "/usr/",
+  build_file_content =
+"""
+cc_library(
+  name = "opencv",
+  srcs = glob(["lib/x86_64-linux-gnu/libopencv*.so"]),
+  hdrs = glob([
+    "include/opencv4/opencv2/**/*.h",
+    "include/opencv4/opencv2/**/*.hpp",
+    "include/opencv4/opencv2/*.hpp"
+  ]),
+  includes = ["include/opencv4"],
+  strip_include_prefix = "include/opencv4",
+  copts=["-O3"],
+  linkopts=["-lopencv_core"],
+  visibility = ["//visibility:public"],
+  linkstatic = 1,
+)
+"""
+)
+
+## start of dependencies for opencv_windows_vcpkg
+
+new_local_repository(
+  name = "zlib_windows_vcpkg",
+  path = "../vcpkg/packages/zlib_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "zlib",
+    srcs = glob(["bin/*.dll"]),
+    hdrs = [], # not used, only included indirectly
+    visibility = ["//visibility:public"],
+)""")
+
+new_local_repository(
+  name = "liblzma_windows_vcpkg",
+  path = "../vcpkg/packages/liblzma_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "liblzma",
+    srcs = glob(["bin/*.dll"]),
+    hdrs = [], # not used, only included indirectly
+    visibility = ["//visibility:public"],
+)""")
+
+new_local_repository(
+  name = "libpng_windows_vcpkg",
+  path = "../vcpkg/packages/libpng_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "libpng",
+    srcs = glob(["bin/*.dll"]),
+    hdrs = [], # not used, only included indirectly
+    visibility = ["//visibility:public"],
+)""")
+
+new_local_repository(
+  name = "libwebp_windows_vcpkg",
+  path = "../vcpkg/packages/libwebp_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "libwebp",
+    srcs = glob(["bin/*.dll"]),
+    hdrs = [], # not used, only included indirectly
+    visibility = ["//visibility:public"],
+)""")
+
+new_local_repository(
+  name = "tiff_windows_vcpkg",
+  path = "../vcpkg/packages/tiff_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "tiff",
+    srcs = glob(["bin/*.dll"]),
+    hdrs = [], # not used, only included indirectly
+    visibility = ["//visibility:public"],
+)""")
+
+new_local_repository(
+  name = "ffmpeg_windows_vcpkg",
+  path = "../vcpkg/packages/ffmpeg_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "ffmpeg",
+    srcs = glob(["bin/*.dll"]),
+    hdrs = [], # not used, only included indirectly
+    visibility = ["//visibility:public"],
+)""")
+
+new_local_repository(
+  name = "protobuf_windows_vcpkg",
+  path = "../vcpkg/packages/protobuf_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "protobuf",
+    srcs = glob(["bin/*.dll"]),
+    hdrs = [], # not used, only included indirectly
+    visibility = ["//visibility:public"],
+)""")
+
+## end of dependencies for opencv_windows_vcpkg
+
+new_local_repository(
+  name = "opencv_windows_vcpkg",
+  path = "../vcpkg/packages/opencv4_x64-windows",
+  build_file_content =
+"""
+cc_library(
+    name = "opencv",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), # include the dll here to copy it to the build directory!
+    hdrs = glob(["include/opencv2/*.hpp", "include/opencv2/**/*.hpp"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    deps = [
+      "@zlib_windows_vcpkg//:zlib",
+      "@liblzma_windows_vcpkg//:liblzma",
+      "@libpng_windows_vcpkg//:libpng",
+      "@libwebp_windows_vcpkg//:libwebp",
+      "@tiff_windows_vcpkg//:tiff",
+      "@ffmpeg_windows_vcpkg//:ffmpeg",
+      "@libjpeg-turbo_windows_vcpkg//:jpegturbo",
+      "@protobuf_windows_vcpkg//:protobuf",
+    ]
+)
+"""
+)
+
+### libjpeg-turbo ###
+
+new_local_repository(
+  name = "jpegturbo_osx_homebrew",
+  path = "/usr/local/Cellar/jpeg-turbo/3.0.1",
+  build_file_content =
+"""
+cc_library(
+    name = "jpegturbo",
+    srcs = glob(["lib/*.dylib"]),
+    hdrs = glob(["include/*.h"]),
+    includes = ["include"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+new_local_repository(
+  name = "jpegturbo_linux",
+  path = "/usr",
+  build_file_content =
+"""
+cc_library(
+    name = "jpegturbo",
+    srcs = glob(["lib/x86_64-linux-gnu/libturbojpeg.so"]),
+    hdrs = glob(["include/*.h"]),
+    includes = ["include"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+new_local_repository(
+  name = "libjpeg-turbo_windows_vcpkg",
+  path = "../vcpkg/packages/libjpeg-turbo_x64-windows",
+  build_file_content = """
+cc_library(
+    name = "jpegturbo",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), 
+    hdrs = glob(["include/*.h"]),
+    strip_include_prefix = "include",
+    visibility = ["//visibility:public"],
+)""")
+
+
+### torch ###
+
+# NOTE: When we updated to pytorch 2.0.1 there were nasty linker errors. It was fixed by:
+# https://github.com/pytorch/pytorch/issues/63558#issuecomment-1116353447
+# "symbol not found in flat namespace '_PyBaseObject_Type' error in my Libtorch program was
+# resolved by removing/not linking to libtorch_python.dylib"
+new_local_repository(
+  name = "libtorch_osx_homebrew",
+  path = "/usr/local/Cellar/pytorch/2.1.2_2",
+  build_file_content =
+"""
+cc_library(
+    name = "libtorch",
+    srcs = [
+    "lib/libtorch.dylib",
+    #"lib/libtorch_python.dylib", # apparently this causes problems!
+    "lib/libtorch_global_deps.dylib",
+    "lib/libtorch_cpu.dylib",
+    "lib/libshm.dylib",
+    "lib/libc10.dylib",
+    ],
+    hdrs = glob(["include/**/*.h", "include/torch/csrc/api/include/torch/*.h"]),
+    includes = ["include", "include/torch/csrc/api/include/"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+new_local_repository(
+  name = "libtorch_linux",
+  path = "/usr/local/torch/",
+  build_file_content =
+"""
+cc_library(
+    name = "libtorch",
+    srcs = [
+        "lib/libc10.so",
+        "lib/libc10_cuda.so",
+        "lib/libtorch.so",
+        "lib/libtorch_cuda.so",
+        "lib/libtorch_cuda_cu.so",
+        "lib/libtorch_cuda_cpp.so",
+        "lib/libasmjit.a",
+        "lib/libonnx.a",
+        "lib/libtorch_cpu.so",
+        "lib/libgomp.so.1",
+        "lib/libcudart.so.11.0",
+        "lib/libnvToolsExt.so.1",
+        "lib/libnvrtc.so.11.2",
+        "lib/libnvrtc-builtins.so.11.6",
+    ],
+    hdrs = glob(["include/**/*.h"]),
+    includes = ["include/", "include/torch/csrc/api/include/"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+new_local_repository(
+  name = "libtorch_windows",
+  path = "../libtorch-win-shared-with-deps-1.12.0+cu116/libtorch",
+  #path = "../libtorch-win-shared-with-deps-1.12.0+cu113/libtorch",
+  #path = "../libtorch-win-shared-with-deps-1.11.0+cu113/libtorch",
+  #path = "../libtorch-win-shared-with-deps-debug-1.12.0+cu113/libtorch",
+  build_file_content = """
+cc_library(
+    name = "libtorch",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), 
+    hdrs = glob(["include/*.h", "include/**/*.h", "include/torch/csrc/api/include/torch/*.h"]),
+    includes = ["include/", "include/torch/csrc/api/include/"],
+    visibility = ["//visibility:public"],
+)""")
+
+
+### CUDA ###
+
+# TODO: this probably isn't needed with the new rules_cuda
+new_local_repository(
+  name = "cuda_linux",
+  path = "/usr",
+  build_file_content = """
+cc_library(
+    name = "cuda",
+    srcs = glob([
+      "local/cuda/lib64/*.so",
+    ]),
+    hdrs = glob(["local/cuda/include/**/*.h", "local/cuda/include/**/*.hpp"]),
+    includes = ["local/cuda/include/"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+
+### tensorrt ###
+
+# TODO: maybe use arch instead of x86_64
+# TODO: see if there's a way to get CUDA from rules_cuda instead of manually here
+new_local_repository(
+  name = "tensorrt_linux",
+  path = "/usr",
+  build_file_content = """
+cc_library(
+    name = "tensorrt",
+    deps = ["@cuda_linux//cuda"], # TODO: rules_cuda's runtime
+    srcs = glob([
+      "lib/x86_64-linux-gnu/libnvinfer.so",
+      "lib/x86_64-linux-gnu/libnvinfer_plugin.so",
+      "lib/x86_64-linux-gnu/libnvonnxparser.so",
+      "lib/x86_64-linux-gnu/libnvparsers.so",
+    ]),
+    hdrs = glob(["include/x86_64-linux-gnu/Nv*.h", "local/cuda/include/**/*.h", "local/cuda/include/**/*.hpp"]),
+    includes = ["include/x86_64-linux-gnu/", "local/cuda/include/"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+### cpprest ###
+
+new_local_repository(
+  name = "openssl_osx_homebrew",
+  path = "/usr/local/Cellar/openssl@3/3.2.1",
+  build_file_content =
+"""
+cc_library(
+    name = "openssl",
+    srcs = glob(["lib/*.dylib"]),
+    hdrs = glob(["include/*.h", "include/**/*.h"]),
+    includes = ["include"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+new_local_repository(
+  name = "boost_osx_homebrew",
+  path = "/usr/local/Cellar/boost/1.84.0",
+  build_file_content =
+"""
+cc_library(
+    name = "boost",
+    srcs = glob(["lib/*.dylib"]),
+    hdrs = glob(["include/*", "include/**/*"]),
+    includes = ["include"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+new_local_repository(
+  name = "cpprest_osx_homebrew",
+  path = "/usr/local/Cellar/cpprestsdk/2.10.19",
+  build_file_content =
+"""
+cc_library(
+    name = "cpprest",
+    srcs = glob(["lib/*.dylib"]),
+    hdrs = glob(["include/*.h", "include/**/*.h", "include/cpprest/details/*"]),
+    includes = ["include"],
+    deps = [
+      "@boost_osx_homebrew//:boost",
+      "@openssl_osx_homebrew//:openssl",
+    ],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+    linkstatic = 1,
+)
+"""
+)
+
+new_local_repository(
+  name = "openssl_linux",
+  path = "/usr",
+  build_file_content =
+"""
+cc_library(
+    name = "openssl",
+    includes = ["include/openssl"],
+    srcs = [
+      "lib/x86_64-linux-gnu/libcrypto.so",
+      "lib/x86_64-linux-gnu/libssl.so",
+    ],
+    hdrs = glob(["include/openssl/*.h"]),
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+new_local_repository(
+  name = "cpprest_linux",
+  path = "/usr",
+  build_file_content =
+"""
+cc_library(
+    name = "cpprest",
+    includes = ["include/cpprest"],
+    srcs = ["lib/x86_64-linux-gnu/libcpprest.so"],
+    hdrs = glob(["include/cpprest/*.h", "include/cpprest/**/*.h"]),
+    deps = ["@openssl_linux//:openssl"],
+    copts=["-O3"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+new_local_repository(
+  name = "cpprestsdk_windows_vcpkg",
+  path = "../vcpkg/packages/cpprestsdk_x64-windows",
+  build_file_content =
+"""
+cc_library(
+    name = "cpprest",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), 
+    hdrs = glob(["include/cpprest/*.h"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
+
+## glew ##
+
+new_local_repository(
+  name = "glew_windows_vcpkg",
+  path = "../vcpkg/packages/glew_x64-windows",
+  build_file_content =
+"""
+cc_library(
+    name = "glew",
+    srcs = glob(["lib/*.lib", "bin/*.dll"]), 
+    hdrs = glob(["include/GL/*.h"]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+"""
+)
