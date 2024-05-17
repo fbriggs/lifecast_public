@@ -33,15 +33,16 @@ export class Vr180Mesh extends THREE.Object3D {
     }
 
     createVr180Mesh(material, isLeftEye) {
-        const geometry = new THREE.SphereGeometry(1000, 64, 64, Math.PI, Math.PI*2);
+        // A half-sphere from angle 180 to 360 degrees, 1000 meter radius
+        const geometry = new THREE.SphereGeometry(1000, 64, 64, Math.PI, Math.PI);
 
         // Modify UVs for stereo view
         const uvs = geometry.attributes.uv.array;
         for (let i = 0; i < uvs.length; i += 2) {
             if (isLeftEye) {
-                uvs[i] = uvs[i] * 0.5;  // Left eye
+                uvs[i] = (1.0 - uvs[i]) * 0.5;  // Left eye
             } else {
-                uvs[i] = uvs[i] * 0.5 + 0.5;  // Right eye
+                uvs[i] = 1.0 - (uvs[i] * 0.5 + 0.5);  // Right eye
             }
         }
 
