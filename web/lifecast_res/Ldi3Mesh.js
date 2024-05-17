@@ -71,12 +71,12 @@ export class Ldi3Mesh extends THREE.Object3D {
         ldi3_layer2_material.depthFunc = THREE.LessEqualDepth;
 
         const inflation = 3.0;
-        this.makeFthetaMesh(ldi3_layer0_material, 128, 4, 0, inflation);
-        this.makeFthetaMesh(ldi3_layer1_material, 128, 4, 1, inflation);
-        this.makeFthetaMesh(ldi3_layer2_material, 96, 4, 2, inflation); // HACK: a few less triangles here to give some overhead on Quest Pro to not exceed triangle limit when displaying extra UI elements.
+        this.makeEquiangularMesh(ldi3_layer0_material, 128, 4, 0, inflation);
+        this.makeEquiangularMesh(ldi3_layer1_material, 128, 4, 1, inflation);
+        this.makeEquiangularMesh(ldi3_layer2_material, 96, 4, 2, inflation); // HACK: a few less triangles here to give some overhead on Quest Pro to not exceed triangle limit when displaying extra UI elements.
     }
 
-    makeFthetaMesh(material, GRID_SIZE, NUM_PATCHES, order, ftheta_inflation, is_oculus) {
+    makeEquiangularMesh(material, GRID_SIZE, NUM_PATCHES, order, ftheta_inflation, is_oculus) {
         const NUM_QUADS_PER_SIDE = NUM_PATCHES * GRID_SIZE;
         const MARGIN = 2;
 
