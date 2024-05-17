@@ -522,8 +522,10 @@ function render() {
 
   updateCameraPosition();
 
-  media_mesh.matrix = gesture_control.getCurrentTransformation();
-  media_mesh.matrix.decompose(media_mesh.position, media_mesh.quaternion, media_mesh.scale);
+  if (format != "vr180") {
+    media_mesh.matrix = gesture_control.getCurrentTransformation();
+    media_mesh.matrix.decompose(media_mesh.position, media_mesh.quaternion, media_mesh.scale);
+  }
 
   if (transition_start_timer) {
     const t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
