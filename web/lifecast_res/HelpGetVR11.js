@@ -96,16 +96,16 @@ class HelpGetVR {
       banner.style.display = "block";
       return banner;
     } else if ('xr' in navigator) {
-      banner.style.position = 'absolute'; // Keeps the banner positioned absolutely within the container
-      banner.style.bottom = '20px'; // Positions the banner at the bottom of the container
+      banner.style.position = 'absolute';
+      banner.style.bottom = '15%';
       banner.style.padding = '12px 6px';
-      banner.style.border = '1px solid #fff';
-      banner.style.borderRadius = '4px';
-      banner.style.background = 'rgba(0,0,0,0.0)';
-      banner.style.color = '#fff';
-      banner.style.font = 'normal 12px sans-serif';
+      banner.style.border = '1px solid #ffffff40';
+      banner.style.borderRadius = '12px';
+      banner.style.background = 'rgba(0,0,0,0.5)';
+      banner.style.color = '#ffffffff';
+      banner.style.font = 'normal 32px sans-serif';
       banner.style.textAlign = 'center';
-      banner.style.opacity = '0.5';
+      banner.style.opacity = '0.75';
       banner.style.outline = 'none';
       banner.style.zIndex = '999';
       banner.style.left = '50%'; // Center the banner horizontally
