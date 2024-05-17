@@ -18,7 +18,7 @@ export class Vr180Mesh extends THREE.Object3D {
             fragmentShader: VR180_FragmentShader,
             uniforms: this.uniforms,
             side: THREE.DoubleSide,
-            transparent: true
+            transparent: false
         });
 
         // Create left eye mesh
