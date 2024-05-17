@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lifecast LDI Player</title>
+
+<script type="module">
+  import * as LifecastVideoPlayerPreloader from './lifecast_res/LifecastVideoPlayerPreloader.js';
+  LifecastVideoPlayerPreloader.init();
+</script>
+<script type="module">
+  import * as LifecastVideoPlayer from './lifecast_res/LifecastVideoPlayer11.js';
+  LifecastVideoPlayer.init({
+    _format: 'vr180',
+    _media_urls: [
+      "media/pathway_vr180.jpg",
+    ],
+    _enable_intro_animation: false,
+    _loop: true,
+    _autoplay_muted: true,
+  });
+</script>
+
+</head>
+<body style="background-color: green;">
+</body>
+</html>

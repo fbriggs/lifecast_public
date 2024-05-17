@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-export const debugVertexShader = `
+export const VR180_VertexShader = `
 varying vec2 vUv;
 void main() {
   vUv = uv;
@@ -30,7 +30,7 @@ void main() {
 }
 `;
 
-export const debugFragmentShader = `
+export const VR180_FragmentShader = `
 precision highp float;
 
 #include <common>
@@ -38,7 +38,7 @@ uniform sampler2D uTexture;
 varying vec2 vUv;
 
 void main() {
-  vec2 texture_uv = vec2(vUv.s, vUv.t * 0.5 + 0.5);
+  vec2 texture_uv = vec2(vUv.s, vUv.t);
   gl_FragColor = texture2D(uTexture, texture_uv);
 }
 `;
