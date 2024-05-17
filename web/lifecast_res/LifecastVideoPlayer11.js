@@ -1000,6 +1000,9 @@ export function init({
   }
   let z_far = (format == "ldi3") ? 110 : 1100;
   camera = new THREE.PerspectiveCamera(_vfov, aspect_ratio, 0.1, z_far);
+  if (format == "vr180") {
+    camera.layers.enable( 1 );
+  }
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);

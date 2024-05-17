@@ -23,7 +23,7 @@ export class Vr180Mesh extends THREE.Object3D {
 
         // Create left eye mesh
         const leftMesh = this.createVr180Mesh(material, true);
-        //leftMesh.layers.set(1);  // Use layer 1 for left eye
+        leftMesh.layers.set(1);  // Use layer 1 for left eye
         this.add(leftMesh);
 
         // Create right eye mesh
@@ -42,7 +42,7 @@ export class Vr180Mesh extends THREE.Object3D {
             if (isLeftEye) {
                 uvs[i] = (1.0 - uvs[i]) * 0.5;  // Left eye
             } else {
-                uvs[i] = 1.0 - (uvs[i] * 0.5 + 0.5);  // Right eye
+                uvs[i] = 1.0 - (uvs[i] * 0.5);  // Right eye
             }
         }
 
