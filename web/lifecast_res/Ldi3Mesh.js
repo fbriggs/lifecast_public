@@ -11,24 +11,16 @@ export const NUM_LAYERS = 3;
 /*
  That class is a THREE Object3D displaying a LDI.
  */
-export class LdiFthetaMesh extends THREE.Object3D {
+export class Ldi3Mesh extends THREE.Object3D {
     layer_to_meshes = Array.from({ length: NUM_LAYERS }, () => []);
 
     ftheta_scale = null
 
-    constructor(_format, _decode_12bit, texture, _ftheta_scale = null) {
+    constructor(_decode_12bit, texture, _ftheta_scale = null) {
 
         super()
-
-        if (_ftheta_scale == null) {
-            if (_format == "ldi3") this.ftheta_scale = 1.15;
-            else { console.log("Error, unknown format: ", _format); }
-        } else {
-            this.ftheta_scale = _ftheta_scale
-        }
-        console.log("_format=", _format);
+        this.ftheta_scale = 1.15;
         console.log("_ftheta_scale=", this.ftheta_scale);
-
 
         // Make the initial shader uniforms.
         this.uniforms = {
@@ -78,17 +70,13 @@ export class LdiFthetaMesh extends THREE.Object3D {
         ldi3_layer2_material.side = THREE.BackSide;
         ldi3_layer2_material.depthFunc = THREE.LessEqualDepth;
 
-        if (_format == "ldi3") {
-            const inflation = 3.0;
-            this.makeFthetaMesh(_format, ldi3_layer0_material, 128, 4, 0, inflation);
-            this.makeFthetaMesh(_format, ldi3_layer1_material, 128, 4, 1, inflation);
-            this.makeFthetaMesh(_format, ldi3_layer2_material, 96, 4, 2, inflation); // HACK: a few less triangles here to give some overhead on Quest Pro to not exceed triangle limit when displaying extra UI elements.
-        } else {
-            console.log("Unrecognized format: ", _format);
-        }
+        const inflation = 3.0;
+        this.makeFthetaMesh(ldi3_layer0_material, 128, 4, 0, inflation);
+        this.makeFthetaMesh(ldi3_layer1_material, 128, 4, 1, inflation);
+        this.makeFthetaMesh(ldi3_layer2_material, 96, 4, 2, inflation); // HACK: a few less triangles here to give some overhead on Quest Pro to not exceed triangle limit when displaying extra UI elements.
     }
 
-    makeFthetaMesh(format, material, GRID_SIZE, NUM_PATCHES, order, ftheta_inflation, is_oculus) {
+    makeFthetaMesh(material, GRID_SIZE, NUM_PATCHES, order, ftheta_inflation, is_oculus) {
         const NUM_QUADS_PER_SIDE = NUM_PATCHES * GRID_SIZE;
         const MARGIN = 2;
 
@@ -109,7 +97,7 @@ export class LdiFthetaMesh extends THREE.Object3D {
                         const b = 2.0 * (v - 0.5);
                         const theta = Math.atan2(b, a);
                         var r = Math.sqrt(a * a + b * b) / this.ftheta_scale;
-                        if (format == "ldi3") r = 0.5 * r + 0.5 * Math.pow(r, ftheta_inflation);
+                        r = 0.5 * r + 0.5 * Math.pow(r, ftheta_inflation);
                         const phi = r * Math.PI / 2.0;
 
                         const x = Math.cos(theta) * Math.sin(phi);

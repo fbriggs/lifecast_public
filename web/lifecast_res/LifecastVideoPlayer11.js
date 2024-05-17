@@ -1,7 +1,7 @@
 /*
 The MIT License
 
-Copyright © 2021 Lifecast Incorporated
+Copyright © 2021-2024 Lifecast Incorporated
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import {LdiFthetaMesh} from "./LdiFthetaMesh11.js";
+import {Ldi3Mesh} from "./Ldi3Mesh.js";
 import * as THREE from './three152.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
 import {HTMLMesh} from './HTMLMesh.js';
@@ -41,12 +41,13 @@ let debug_msg_count = 0;
 let force_hand_tracking = false;
 
 let container, camera, scene, renderer;
+let format;
 let error_message_div;
 let vr_controller0, vr_controller1; // used for getting controller state, including buttons
 let controller_grip0, controller_grip1; // used for rendering controller models
 let hand0, hand1, hand_model0, hand_model1; // for XR hand-tracking
 
-let ldi_ftheta_mesh;
+let media_mesh;
 let world_group; // A THREE.Group that stores all of the meshes (foreground and background), so they can be transformed together by modifying the group.
 let interface_group; // A separate Group for 3D interface components
 let prev_vr_camera_position;
@@ -424,7 +425,7 @@ function startAnimatedTransitionEffect() {
 }
 
 function setVisibilityForLayerMeshes(l, v) {
-  for (var m of ldi_ftheta_mesh.layer_to_meshes[l]) { m.visible = v; }
+  for (var m of media_mesh.layer_to_meshes[l]) { m.visible = v; }
 }
 
 function updateCameraPosition() {
@@ -433,13 +434,13 @@ function updateCameraPosition() {
     const indexFingerTipPosR = hand1.joints['index-finger-tip'].position;
     gesture_control.updateLeftHand(indexFingerTipPosL);
     gesture_control.updateRightHand(indexFingerTipPosR);
-    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+    gesture_control.updateTransformation(world_group.position, media_mesh.position);
   } else if (vr_controller0 && vr_controller1) {
     updateGamepad(vr_controller0, "left");
     updateGamepad(vr_controller1, "right");
     gesture_control.updateLeftHand(vr_controller0.position);
     gesture_control.updateRightHand(vr_controller1.position);
-    gesture_control.updateTransformation(world_group.position, ldi_ftheta_mesh.position);
+    gesture_control.updateTransformation(world_group.position, media_mesh.position);
   }
 
   if (cam_mode == "first_person" && !got_orientation_data) {
@@ -518,12 +519,12 @@ function render() {
 
   updateCameraPosition();
 
-  ldi_ftheta_mesh.matrix = gesture_control.getCurrentTransformation();
-  ldi_ftheta_mesh.matrix.decompose(ldi_ftheta_mesh.position, ldi_ftheta_mesh.quaternion, ldi_ftheta_mesh.scale);
+  media_mesh.matrix = gesture_control.getCurrentTransformation();
+  media_mesh.matrix.decompose(media_mesh.position, media_mesh.quaternion, media_mesh.scale);
 
   if (transition_start_timer) {
     const t = Math.min(1.0, (performance.now() - transition_start_timer) / TRANSITION_ANIM_DURATION);
-    ldi_ftheta_mesh.uniforms.uEffectRadius.value =
+    media_mesh.uniforms.uEffectRadius.value =
       Math.min(0.6 / ((1.0 - Math.pow(t, 0.2)) + 1e-6), 51); // HACK: the max radius of the mesh is 50, so this goes past it (which we want!)
   }
 
@@ -810,8 +811,8 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     texture.dispose(); // Not clear if this helps or hurst as far as WebGL: context lost errors
     texture = null;
   }
-  if (ldi_ftheta_mesh && ldi_ftheta_mesh.uniforms.uTexture) {
-    ldi_ftheta_mesh.uniforms.uTexture = null;
+  if (media_mesh && media_mesh.uniforms.uTexture) {
+    media_mesh.uniforms.uTexture = null;
   }
   if (video) {
     // Delete the video sources to prevent a memory leak
@@ -899,21 +900,21 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     texture.format = THREE.RGBAFormat;
     texture.type = THREE.UnsignedByteType;
   }
-  if (ldi_ftheta_mesh) {
-    ldi_ftheta_mesh.uniforms.uTexture = texture;
-    ldi_ftheta_mesh.ldi3_layer0_material.uniforms.uTexture.value = texture;
-    ldi_ftheta_mesh.ldi3_layer1_material.uniforms.uTexture.value = texture;
-    ldi_ftheta_mesh.ldi3_layer2_material.uniforms.uTexture.value = texture;
+  if (format == "ldi3" && media_mesh) {
+    media_mesh.uniforms.uTexture = texture;
+    media_mesh.ldi3_layer0_material.uniforms.uTexture.value = texture;
+    media_mesh.ldi3_layer1_material.uniforms.uTexture.value = texture;
+    media_mesh.ldi3_layer2_material.uniforms.uTexture.value = texture;
 
-    ldi_ftheta_mesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
-    ldi_ftheta_mesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
-    ldi_ftheta_mesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter;
-    ldi_ftheta_mesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
-    ldi_ftheta_mesh.uniforms.uTexture.value.generateMipmaps = false;
+    media_mesh.uniforms.uTexture.value.format = THREE.RGBAFormat;
+    media_mesh.uniforms.uTexture.value.type = THREE.UnsignedByteType;
+    media_mesh.uniforms.uTexture.value.minFilter = THREE.LinearFilter;
+    media_mesh.uniforms.uTexture.value.magFilter = THREE.LinearFilter;
+    media_mesh.uniforms.uTexture.value.generateMipmaps = false;
 
-    ldi_ftheta_mesh.ldi3_layer0_material.needsUpdate = true;
-    ldi_ftheta_mesh.ldi3_layer1_material.needsUpdate = true;
-    ldi_ftheta_mesh.ldi3_layer2_material.needsUpdate = true;
+    media_mesh.ldi3_layer0_material.needsUpdate = true;
+    media_mesh.ldi3_layer1_material.needsUpdate = true;
+    media_mesh.ldi3_layer2_material.needsUpdate = true;
   }
 }
 
@@ -925,7 +926,7 @@ export function loadMedia(_media_urls, _loop = true, _autoplay_muted = true, _en
 }
 
 export function init({
-  _format = "ldi3", // ldi3 only for now.. maybe add VR180 and other formats later?
+  _format = "ldi3", // ldi3, vr180
   _media_urls = [],  // Array in order of preference (highest-quality first)
   _embed_in_div = "",
   _cam_mode="orbit",
@@ -947,6 +948,7 @@ export function init({
   lock_position   = _lock_position;
   enable_intro_animation = _enable_intro_animation;
   force_hand_tracking = _force_hand_tracking;
+  format = _format;
 
   looking_glass_config = _looking_glass_config;
   let enter_xr_button_title = "ENTER VR";
@@ -1003,8 +1005,12 @@ export function init({
   scene.add(world_group);
   scene.add(interface_group);
 
-  ldi_ftheta_mesh = new LdiFthetaMesh(_format, _decode_12bit, texture, _ftheta_scale)
-  world_group.add(ldi_ftheta_mesh)
+  if (format == "ldi3") {
+    media_mesh = new Ldi3Mesh(_decode_12bit, texture, _ftheta_scale)
+  else {
+    media_mesh = new Vr180Mesh(texture);
+  }
+  world_group.add(media_mesh)
 
   // Make the point sprite for VR buttons.
   const vrbutton_geometry = new THREE.PlaneGeometry(0.1, 0.1);
@@ -1015,9 +1021,9 @@ export function init({
   vrbutton3d.visible = false;
   vrbutton3d.position.set(0, 0, -1);
   vrbutton3d.renderOrder = 100;
-  ldi_ftheta_mesh.add(vrbutton3d);
+  media_mesh.add(vrbutton3d);
   if (enable_intro_animation) {
-    ldi_ftheta_mesh.uniforms.uEffectRadius.value = 0.0;
+    media_mesh.uniforms.uEffectRadius.value = 0.0;
   }
 
   // See https://github.com/mrdoob/three.js/blob/dev/examples/webxr_vr_sandbox.html
