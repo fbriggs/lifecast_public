@@ -1002,7 +1002,7 @@ export function init({
     // For tall aspect ratios, ensure a minimum FOV
     _vfov = _min_fov / aspect_ratio;
   }
-  let z_far = (format == "ldi3") ? 110 : 1100;
+  let z_far = (format == "ldi3") ? 110 : 200;
   camera = new THREE.PerspectiveCamera(_vfov, aspect_ratio, 0.1, z_far);
   if (format == "vr180") {
     camera.layers.enable( 1 );

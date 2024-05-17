@@ -34,7 +34,7 @@ export class Vr180Mesh extends THREE.Object3D {
 
     createVr180Mesh(material, isLeftEye) {
         // A half-sphere from angle 180 to 360 degrees, 1000 meter radius
-        const geometry = new THREE.SphereGeometry(1000, 64, 64, Math.PI, Math.PI);
+        const geometry = new THREE.SphereGeometry(100, 64, 64, Math.PI, Math.PI);
 
         // Modify UVs for stereo view
         const uvs = geometry.attributes.uv.array;
@@ -46,7 +46,7 @@ export class Vr180Mesh extends THREE.Object3D {
             }
         }
 
-        geometry.attributes.uv.needsUpdate = true;        
+        geometry.attributes.uv.needsUpdate = true;
 
         return new THREE.Mesh(geometry, material);
     }
