@@ -953,7 +953,7 @@ export function init({
 
   cam_mode        = _cam_mode;
   lock_position   = _lock_position;
-  enable_intro_animation = _enable_intro_animation && (format != "vr180");
+  enable_intro_animation = _enable_intro_animation && (_format != "vr180");
   force_hand_tracking = _force_hand_tracking;
   format = _format;
 
