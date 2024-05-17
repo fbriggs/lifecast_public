@@ -905,8 +905,10 @@ function loadTexture(_media_urls, _loop, _autoplay_muted) {
     texture.format = THREE.RGBAFormat;
     texture.type = THREE.UnsignedByteType;
   }
-  media_mesh.uniforms.uTexture = texture;
-  if (format == "ldi3" && media_mesh) {
+  if (media_mesh) {
+    media_mesh.uniforms.uTexture = texture;
+  }
+  if (media_mesh && format == "ldi3") {
     media_mesh.ldi3_layer0_material.uniforms.uTexture.value = texture;
     media_mesh.ldi3_layer1_material.uniforms.uTexture.value = texture;
     media_mesh.ldi3_layer2_material.uniforms.uTexture.value = texture;
