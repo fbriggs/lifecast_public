@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 import {Ldi3Mesh} from "./Ldi3Mesh.js";
+import {Vr180Mesh} from "./Vr180Mesh.js";
 import * as THREE from './three152.module.min.js';
 import {OrbitControls} from "./OrbitControls.js";
 import {HTMLMesh} from './HTMLMesh.js';
@@ -425,7 +426,9 @@ function startAnimatedTransitionEffect() {
 }
 
 function setVisibilityForLayerMeshes(l, v) {
-  for (var m of media_mesh.layer_to_meshes[l]) { m.visible = v; }
+  if (format == "ldi3") {
+    for (var m of media_mesh.layer_to_meshes[l]) { m.visible = v; }
+  }
 }
 
 function updateCameraPosition() {
@@ -995,7 +998,8 @@ export function init({
     // For tall aspect ratios, ensure a minimum FOV
     _vfov = _min_fov / aspect_ratio;
   }
-  camera = new THREE.PerspectiveCamera(_vfov, aspect_ratio, 0.1, 110);
+  let z_far = (format == "ldi3") ? 110 : 1100;
+  camera = new THREE.PerspectiveCamera(_vfov, aspect_ratio, 0.1, z_far);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
@@ -1007,8 +1011,10 @@ export function init({
 
   if (format == "ldi3") {
     media_mesh = new Ldi3Mesh(_decode_12bit, texture, _ftheta_scale)
-  else {
+  } else if (format == "vr180") {
     media_mesh = new Vr180Mesh(texture);
+  } else {
+    console.error("Unsupported format: " + format);
   }
   world_group.add(media_mesh)
 
@@ -1075,6 +1081,8 @@ export function init({
     // TODO: these don't seem to work on Vision Pro, but we want to reduce the framebuffer
     renderer.xr.setFramebufferScaleFactor(0.95);
     renderer.xr.setFoveation(0.9);
+  } else if (_format == "vr180") {
+    // VR180 should render fine
   } else {
     console.log("ERROR: unknown _format:", _format);
   }
