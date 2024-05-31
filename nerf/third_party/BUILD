@@ -12,3 +12,39 @@ cc_library(
   hdrs = ["json.h"],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "fmt",
+  srcs = ["tiny_cuda_nn/dependencies/fmt/src/format.cc"],
+  hdrs = glob(["tiny_cuda_nn/dependencies/fmt/include/**/*.h"]),
+  includes = ["tiny_cuda_nn/dependencies/fmt/include/"],
+)
+
+cuda_library(
+  name = "tiny_cuda_nn",
+  srcs = [
+    "tiny_cuda_nn/src/common_host.cu",
+    "tiny_cuda_nn/src/cpp_api.cu",
+    "tiny_cuda_nn/src/encoding.cu",
+  ],
+  hdrs = glob(["tiny_cuda_nn/**/*.h"]),
+  defines = [
+    "TCNN_MIN_GPU_ARCH=75",  # at least 2000 series (Titan RTX)
+    "TCNN_NO_NETWORKS",
+  ],
+  includes = [
+    "tiny_cuda_nn/include/",
+    "tiny_cuda_nn/dependencies/",
+    "tiny_cuda_nn/dependencies/cutlass/include",
+  ],
+  deps = [
+    ":fmt",
+    ":json",
+    "@local_cuda//:cuda"
+  ],
+  target_compatible_with = select({
+    "@platforms//os:osx": ["@platforms//os:incompatible"],
+    "//conditions:default": [],
+  }),
+  visibility = ["//visibility:public"],
+)

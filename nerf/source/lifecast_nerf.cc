@@ -64,6 +64,8 @@ int main(int argc, char** argv)
   }
 
   XCHECK(!FLAGS_output_dir.empty());
+  p11::file::createDirectoryIfNotExists(FLAGS_output_dir);
+  XCHECK(p11::file::directoryExists(FLAGS_output_dir));
 
   //p11::nerf::testImportanceSampling(); return EXIT_SUCCESS;
 

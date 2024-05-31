@@ -1,0 +1,5 @@
+build --flag_alias=cuda_archs=@rules_cuda//cuda:archs
+
+# Support all architectures starting with 2000-series cards to enable fully
+# fused mlp in tiny-cuda-nn
+build --cuda_archs=compute_75:compute_75,sm_75,sm_80,sm_86,sm_89,sm_90,sm_90a

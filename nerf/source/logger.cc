@@ -54,6 +54,8 @@ class TerminateHandler {
         XPLERROR << "Unhandled exception: " << e.what();
       } catch (std::string s) {
         XPLERROR << "Unhandled exception: " << s;
+      } catch (const char* s) {
+        XPLERROR << "Unhandled exception: " << s;
       } catch (...) {
         XPLERROR << "Unhandled exception of unknown type";
       }
