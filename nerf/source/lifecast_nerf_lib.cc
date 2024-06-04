@@ -572,11 +572,20 @@ void trainRadianceModel(
 
   // Split the radiance model parameters up into hashmap and other (MLP).
   // hashmap doesn't get weight decay.
+
+  auto is_hashmap_key = [](const std::string& key) {
+    // Nested torch modules end in ".hashmap". Others are just "hashmap"
+    static const std::string hashmap_param_suffix = std::string(".") + kHashmapParamsName;
+    return key == kHashmapParamsName || string::endsWith(key, hashmap_param_suffix);
+  };
+
   std::vector<torch::Tensor> radiance_hashmap_params, radiance_mlp_params;
   for (const auto& param : radiance_model->named_parameters()) {
-    (param.key() == "hashmap" ? radiance_hashmap_params : radiance_mlp_params)
-      .push_back(param.value());
+    auto& dest = is_hashmap_key(param.key()) ? radiance_hashmap_params : radiance_mlp_params;
+    dest.push_back(param.value());
   }
+  XCHECK(!radiance_hashmap_params.empty()) << "Radiance hashmap params not found. Make sure all submodules are registered.";
+
   auto radiance_model_optimizer = Adam({
     OptimizerParamGroup(
       radiance_mlp_params,
@@ -594,9 +603,11 @@ void trainRadianceModel(
   // Same for the proposal model - split the parameters and only decay non-hashmap.
   std::vector<torch::Tensor> proposal_hashmap_params, proposal_mlp_params;
   for (const auto& param : proposal_model->named_parameters()) {
-    (param.key() == "hashmap" ? proposal_hashmap_params : proposal_mlp_params)
-      .push_back(param.value());
+    auto& dest = is_hashmap_key(param.key()) ? proposal_hashmap_params : proposal_mlp_params;
+    dest.push_back(param.value());
   }
+  XCHECK(!proposal_hashmap_params.empty()) << "Proposal hashmap params not found. Make sure all submodules are registered.";
+
   auto proposal_model_optimizer = Adam({
     OptimizerParamGroup(
       proposal_mlp_params,
@@ -1266,4 +1277,3 @@ void runVideoNerfPipeline(NerfVideoConfig& vid_cfg, NeoNerfConfig& cfg, NeoNerfG
 }
 
 }}  // end namespace p11::nerf
-

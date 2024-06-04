@@ -257,13 +257,55 @@ p11_cc_binary(
 )
 
 p11_cc_library(
-  name = "ngp_radiance_model",
-  srcs = ["ngp_radiance_model.cc"],
+  name = "neural_hashmap_torch",
+  srcs = ["neural_hashmap_torch.cc"],
   hdrs = ["ngp_radiance_model.h"],
   deps = [
     ":logger",
     ":libtorch_xplatform",
+    ":util_time",
   ],
+)
+
+p11_cuda_library(
+  name = "tcnn_module",
+  srcs = ["tcnn_module.cu"],
+  hdrs = ["tcnn_module.h"],
+  deps = [
+    ":logger",
+    ":util_torch",
+    ":libtorch_xplatform",
+    "//third_party:tiny_cuda_nn",
+  ],
+  target_compatible_with = select({
+    "@platforms//os:osx": ["@platforms//os:incompatible"],
+    "//conditions:default": [],
+  }),
+)
+
+p11_cuda_library(
+  name = "neural_hashmap_cuda",
+  srcs = ["neural_hashmap_cuda.cu"],
+  hdrs = ["ngp_radiance_model.h"],
+  deps = [
+    ":logger",
+    ":tcnn_module",
+  ],
+  target_compatible_with = select({
+    "@platforms//os:osx": ["@platforms//os:incompatible"],
+    "//conditions:default": [],
+  }),
+)
+
+p11_cc_library(
+  name = "ngp_radiance_model",
+  hdrs = ["ngp_radiance_model.h"],
+  srcs = ["ngp_radiance_model.cc"],
+  deps = select({
+    "@platforms//os:osx": [":neural_hashmap_torch"],
+    "//conditions:default": [":neural_hashmap_cuda"],
+    #"//conditions:default": [":neural_hashmap_torch"],  # for debugging
+  }),
 )
 
 p11_cc_library (

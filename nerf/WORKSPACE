@@ -51,7 +51,7 @@ bind(name="gflags", actual="@com_github_gflags_gflags//:gflags")
 # On windows we compile gflags from vcpkg
 new_local_repository(
   name = "gflags_windows_vcpkg",
-  path = "../vcpkg/packages/gflags_x64-windows",
+  path = "../../vcpkg/packages/gflags_x64-windows",
   build_file_content =
 """
 cc_library(
@@ -78,7 +78,7 @@ bind(name="glog", actual="@com_github_google_glog//:glog")
 
 new_local_repository(
   name = "glog_windows_vcpkg",
-  path = "../vcpkg/packages/glog_x64-windows",
+  path = "../../vcpkg/packages/glog_x64-windows",
   build_file_content =
 """
 cc_library(
@@ -155,7 +155,7 @@ cc_library(
 
 new_local_repository(
   name = "ceres_windows_vcpkg",
-  path = "../vcpkg/packages/ceres_x64-windows",
+  path = "../../vcpkg/packages/ceres_x64-windows",
   build_file_content =
 """
 cc_library(
@@ -213,8 +213,8 @@ cc_library(
 
 new_local_repository(
   name = "glfw_windows_vcpkg",
-  #path = "../vcpkg/packages/glfw3_x86-windows", # use this if we install the x86 vcpkg instead (this would happen by default without specifying the platform)
-  path = "../vcpkg/packages/glfw3_x64-windows",
+  #path = "../../vcpkg/packages/glfw3_x86-windows", # use this if we install the x86 vcpkg instead (this would happen by default without specifying the platform)
+  path = "../../vcpkg/packages/glfw3_x64-windows",
   build_file_content =
 """
 cc_library(
@@ -280,7 +280,7 @@ cc_library(
 
 new_local_repository(
   name = "zlib_windows_vcpkg",
-  path = "../vcpkg/packages/zlib_x64-windows",
+  path = "../../vcpkg/packages/zlib_x64-windows",
   build_file_content = """
 cc_library(
     name = "zlib",
@@ -291,7 +291,7 @@ cc_library(
 
 new_local_repository(
   name = "liblzma_windows_vcpkg",
-  path = "../vcpkg/packages/liblzma_x64-windows",
+  path = "../../vcpkg/packages/liblzma_x64-windows",
   build_file_content = """
 cc_library(
     name = "liblzma",
@@ -302,7 +302,7 @@ cc_library(
 
 new_local_repository(
   name = "libpng_windows_vcpkg",
-  path = "../vcpkg/packages/libpng_x64-windows",
+  path = "../../vcpkg/packages/libpng_x64-windows",
   build_file_content = """
 cc_library(
     name = "libpng",
@@ -313,7 +313,7 @@ cc_library(
 
 new_local_repository(
   name = "libwebp_windows_vcpkg",
-  path = "../vcpkg/packages/libwebp_x64-windows",
+  path = "../../vcpkg/packages/libwebp_x64-windows",
   build_file_content = """
 cc_library(
     name = "libwebp",
@@ -324,7 +324,7 @@ cc_library(
 
 new_local_repository(
   name = "tiff_windows_vcpkg",
-  path = "../vcpkg/packages/tiff_x64-windows",
+  path = "../../vcpkg/packages/tiff_x64-windows",
   build_file_content = """
 cc_library(
     name = "tiff",
@@ -335,7 +335,7 @@ cc_library(
 
 new_local_repository(
   name = "ffmpeg_windows_vcpkg",
-  path = "../vcpkg/packages/ffmpeg_x64-windows",
+  path = "../../vcpkg/packages/ffmpeg_x64-windows",
   build_file_content = """
 cc_library(
     name = "ffmpeg",
@@ -346,7 +346,7 @@ cc_library(
 
 new_local_repository(
   name = "protobuf_windows_vcpkg",
-  path = "../vcpkg/packages/protobuf_x64-windows",
+  path = "../../vcpkg/packages/protobuf_x64-windows",
   build_file_content = """
 cc_library(
     name = "protobuf",
@@ -359,7 +359,7 @@ cc_library(
 
 new_local_repository(
   name = "opencv_windows_vcpkg",
-  path = "../vcpkg/packages/opencv4_x64-windows",
+  path = "../../vcpkg/packages/opencv4_x64-windows",
   build_file_content =
 """
 cc_library(
@@ -420,7 +420,7 @@ cc_library(
 
 new_local_repository(
   name = "libjpeg-turbo_windows_vcpkg",
-  path = "../vcpkg/packages/libjpeg-turbo_x64-windows",
+  path = "../../vcpkg/packages/libjpeg-turbo_x64-windows",
   build_file_content = """
 cc_library(
     name = "jpegturbo",
@@ -471,16 +471,14 @@ cc_library(
         "lib/libc10_cuda.so",
         "lib/libtorch.so",
         "lib/libtorch_cuda.so",
-        "lib/libtorch_cuda_cu.so",
-        "lib/libtorch_cuda_cpp.so",
         "lib/libasmjit.a",
         "lib/libonnx.a",
         "lib/libtorch_cpu.so",
         "lib/libgomp.so.1",
-        "lib/libcudart.so.11.0",
+        "lib/libcudart.so.12",
         "lib/libnvToolsExt.so.1",
-        "lib/libnvrtc.so.11.2",
-        "lib/libnvrtc-builtins.so.11.6",
+        "lib/libnvrtc.so.12",
+        "lib/libnvrtc-builtins.so.12.1",
     ],
     hdrs = glob(["include/**/*.h"]),
     includes = ["include/", "include/torch/csrc/api/include/"],
@@ -492,7 +490,8 @@ cc_library(
 
 new_local_repository(
   name = "libtorch_windows",
-  path = "../libtorch-win-shared-with-deps-1.12.0+cu116/libtorch",
+  path = "../../libtorch-win-shared-with-deps-2.2.1+cu121/libtorch",
+  #path = "../libtorch-win-shared-with-deps-1.12.0+cu116/libtorch",
   #path = "../libtorch-win-shared-with-deps-1.12.0+cu113/libtorch",
   #path = "../libtorch-win-shared-with-deps-1.11.0+cu113/libtorch",
   #path = "../libtorch-win-shared-with-deps-debug-1.12.0+cu113/libtorch",
@@ -505,50 +504,6 @@ cc_library(
     visibility = ["//visibility:public"],
 )""")
 
-
-### CUDA ###
-
-# TODO: this probably isn't needed with the new rules_cuda
-new_local_repository(
-  name = "cuda_linux",
-  path = "/usr",
-  build_file_content = """
-cc_library(
-    name = "cuda",
-    srcs = glob([
-      "local/cuda/lib64/*.so",
-    ]),
-    hdrs = glob(["local/cuda/include/**/*.h", "local/cuda/include/**/*.hpp"]),
-    includes = ["local/cuda/include/"],
-    visibility = ["//visibility:public"],
-)
-"""
-)
-
-
-### tensorrt ###
-
-# TODO: maybe use arch instead of x86_64
-# TODO: see if there's a way to get CUDA from rules_cuda instead of manually here
-new_local_repository(
-  name = "tensorrt_linux",
-  path = "/usr",
-  build_file_content = """
-cc_library(
-    name = "tensorrt",
-    deps = ["@cuda_linux//cuda"], # TODO: rules_cuda's runtime
-    srcs = glob([
-      "lib/x86_64-linux-gnu/libnvinfer.so",
-      "lib/x86_64-linux-gnu/libnvinfer_plugin.so",
-      "lib/x86_64-linux-gnu/libnvonnxparser.so",
-      "lib/x86_64-linux-gnu/libnvparsers.so",
-    ]),
-    hdrs = glob(["include/x86_64-linux-gnu/Nv*.h", "local/cuda/include/**/*.h", "local/cuda/include/**/*.hpp"]),
-    includes = ["include/x86_64-linux-gnu/", "local/cuda/include/"],
-    visibility = ["//visibility:public"],
-)
-"""
-)
 
 ### cpprest ###
 
@@ -645,7 +600,7 @@ cc_library(
 
 new_local_repository(
   name = "cpprestsdk_windows_vcpkg",
-  path = "../vcpkg/packages/cpprestsdk_x64-windows",
+  path = "../../vcpkg/packages/cpprestsdk_x64-windows",
   build_file_content =
 """
 cc_library(
@@ -662,7 +617,7 @@ cc_library(
 
 new_local_repository(
   name = "glew_windows_vcpkg",
-  path = "../vcpkg/packages/glew_x64-windows",
+  path = "../../vcpkg/packages/glew_x64-windows",
   build_file_content =
 """
 cc_library(

@@ -48,5 +48,10 @@ static bool beginsWith(const std::string& src, const std::string& prefix) {
   return src.rfind(prefix, 0) == 0;
 }
 
+// Returns true if the string src ends with suffix
+static bool endsWith(const std::string& src, const std::string& suffix) {
+  return src.rfind(suffix) == src.size() - suffix.size();
+}
+
 
 }}  // namespace p11::string
