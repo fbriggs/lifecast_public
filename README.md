@@ -34,6 +34,9 @@ Here is a minimal example of embedding Lifecast ldi3 player in a div. For more e
 
 For more examples, see the web/ directory of this repo.
 
+Notable forks:
+* [akbartus's A-Frame component and simplified THREE.js player](https://github.com/akbartus/A-Frame-LifeCast-Volumetric-Player-Component)
+
 # Volumetric Video Player for Unreal Engine
 
 Download project files:
