@@ -26,9 +26,10 @@ THE SOFTWARE.
 class HelpGetVR {
   static createBanner(renderer, enter_xr_button_title, exit_xr_button_title, force_hand_tracking) {
     var banner = document.createElement( 'div' );
-
+    
     function showEnterVR() {
       let currentSession = null;
+      
       async function onSessionStarted( session ) {
         session.addEventListener( 'end', onSessionEnded );
         await renderer.xr.setSession( session );
@@ -74,14 +75,8 @@ class HelpGetVR {
       banner.onmouseleave = null;
       banner.onclick = null;
     }
-
+    
     function showWebXRNotFound() {
-      // Old code shows a nag message:
-      //disableButton();
-      //banner.innerHTML = 'VR is not available on this device, but you can still watch in 3D. Control the camera by dragging the mouse (left to rotate, right to move). &nbsp; <a style="color: white;" href="how_to_watch_in_VR.html">[Help]</a> &nbsp;';
-      //banner.innerHTML += "<span style='cursor: pointer; color: white; text-decoration: underline;'  onclick='parentNode.style.display=\"none\";'>[Dismiss]</span>";
-
-      // New code: show nothing, don't annoy people with a popup that must be dismissed. Just let em figure it out.
       banner.style.display = "none";
     }
 
@@ -90,27 +85,50 @@ class HelpGetVR {
 
     var is_ios = navigator.userAgent.match(/iPhone|iPad|iPod/i);
 
+    // Setting relevant styles 
+    banner.style.position = 'absolute';
+    banner.style.borderRadius = '12px';
+    banner.style.background = 'rgba(0,0,0,0.5)';
+    banner.style.color = '#ffffffff';
+    banner.style.textAlign = 'center';
+    banner.style.opacity = '0.75';
+    banner.style.outline = 'none';
+    banner.style.zIndex = '999';
+    banner.style.transform = 'translate(-50%, -50%)';
+
     if (is_ios) {
       banner.innerHTML = "<button onclick='DeviceOrientationEvent.requestPermission(); parentNode.style.display=\"none\";' style='font-size: 24px;'>Enable Tilt Control</button>";
-      banner.style.border = '';
+      let button = banner.querySelector('button');
+      button.style.borderRadius = '8px';
+      button.style.color = '#FFA500FF';
+      button.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+      button.style.border = '1px solid #F0F0F040';
+      button.style.fontSize = '24px';
+      button.style.height = '40px';
+      button.style.margin = '0px';
+
+      if (window.innerWidth <= 768) {
+        banner.style.top = '50%';
+        banner.style.left = '50%';
+        banner.style.bottom = '0';
+        banner.style.height = '40px';
+        banner.style.width = '240px';
+      } else {
+        banner.style.left = '50%';
+        banner.style.bottom = '0';
+        banner.style.height = '40px';
+        banner.style.width = '240px';
+      }
       banner.style.display = "block";
       return banner;
     } else if ('xr' in navigator) {
-      banner.style.position = 'absolute';
       banner.style.bottom = '15%';
       banner.style.padding = '12px 6px';
       banner.style.border = '1px solid #ffffff40';
-      banner.style.borderRadius = '12px';
-      banner.style.background = 'rgba(0,0,0,0.5)';
-      banner.style.color = '#ffffffff';
       banner.style.font = 'normal 32px sans-serif';
-      banner.style.textAlign = 'center';
-      banner.style.opacity = '0.75';
-      banner.style.outline = 'none';
-      banner.style.zIndex = '999';
-      banner.style.left = '50%'; // Center the banner horizontally
-      banner.style.transform = 'translateX(-50%)'; // Adjust for the banner's width to truly center it
+      banner.style.left = '50%';
       banner.style.width = '350px';
+
       navigator.xr.isSessionSupported( 'immersive-vr' ).then( function ( supported ) {
         if (supported) {
           showEnterVR();
