@@ -1,6 +1,6 @@
 {
   "name": "lifecast-video-player",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "Lifecast's 6DOF AR/VR player for 3D photos and videos",
   "scripts": {
     "build": "webpack --mode production --stats verbose",
