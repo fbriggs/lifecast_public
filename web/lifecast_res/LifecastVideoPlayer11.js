@@ -628,12 +628,10 @@ function initHandControllers(handleft, handright) {
 }
 
 function updateGamepad(vr_controller, hand) {
-  if (!vr_controller) {
-    return;
-  }
-  if (!vr_controller.gamepad) {
-    return;
-  }
+  if (!vr_controller) return;
+  if (!vr_controller.gamepad) return;
+  if (!vr_controller.gamepad.buttons) return;
+  if (vr_controller.gamepad.buttons.length < 2) return;
 
   // Uncomment to show button state
   //console.log("buttons=" + JSON.stringify(vr_controller.gamepad.buttons.map((b) => b.value)));
@@ -1089,7 +1087,9 @@ export function init({
     renderer.xr.setFramebufferScaleFactor(0.95);
     renderer.xr.setFoveation(0.9);
   } else if (_format == "vr180") {
-    // VR180 should render fine
+    // Render VR180 more clearly
+    renderer.xr.setFramebufferScaleFactor(1.25);
+    renderer.xr.setFoveation(0.0);
   } else {
     console.log("ERROR: unknown _format:", _format);
   }
