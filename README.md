@@ -70,7 +70,7 @@ https://github.com/user-attachments/assets/e01cd9a0-d62b-41fc-a2f9-1b8478167654
 
 Create immersive volumetric video for XR with arrays of cameras. Compress for distribution on the web using Lifecast's LDI3 format. Command line tools for Linux.
 
-(Lifecast NeRF video engine)[https://github.com/fbriggs/lifecast_public/tree/main/nerf]
+[Lifecast NeRF video engine](https://github.com/fbriggs/lifecast_public/tree/main/nerf)
 
 # Volumetric Video Player for  WebGL / WebXR / Javascript
 
