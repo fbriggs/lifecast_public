@@ -184,16 +184,16 @@ https://download.pytorch.org/libtorch/cu121/libtorch-win-shared-with-deps-2.2.1%
 
 Torch puts its DLLs in the lib folder instead of bin folder, which confuses bazel.
 So we'll hack around this with a symlink.
-Update the paths here with your username, and run these commands:
+From the parent directory run:
 
 ```
-mv ~\dev\libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\bin ~\dev\libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\bin_old
+mv libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\bin libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\bin_old
 ```
 
-Windows has all its bin files in the lib dir so the following symlink simplifies bazel config. From an admin termainal:
+Then from an admin termainal:
 
 ```
-New-Item -ItemType SymbolicLink -Path "~\dev\libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\bin" -Target "~\dev\libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\lib"
+New-Item -ItemType SymbolicLink -Path "libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\bin" -Target "libtorch-win-shared-with-deps-2.2.1+cu121\libtorch\lib"
 ```
 
 ### vcpkg packages
