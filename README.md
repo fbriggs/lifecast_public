@@ -36,7 +36,35 @@ Demo video: https://youtu.be/Htnr8ipVnN0?si=8pBwtJGe5B9M-ohB
 
 # Volumetric Video Editor
 
+Unlike traditional volumetric capture systems that focus inward on a single subject, Lifecast's software enables you to capture an entire immersive scene with both foreground and background. Whether you're building an immersive mixed reality experience or creating 3D background environments for virtual production in Unreal, Lifecast offers a state-of-the-art solution for photorealistic volumetric capture, editing, and deployment.
+
+Unlike other methods, Lifecast doesn't rely on limited-resolution depth sensors. Instead, it seamlessly integrates with VR180 cameras, such as the Canon EOS R5, that offer a wider field of view and greater resolution. These off-the-shelf cameras can be used in any environment, giving you the freedom to unleash your creativity.
+
+Powered by cutting-edge machine learning and 3D geometric computer vision, Lifecast's Volumetric Video Editor reconstructs a 3D model for every frame of your video. The software then efficiently compresses it into a standard video file format, ready to be deployed on the web using JavaScript, WebXR, or in popular game engines like Unreal or Unity.
+
+* Use any VR180 camera, such as the Canon EOS R5 with RF 5.2mm f/2.8 Dual Fisheye 3D lens
+* VR180 cameras have higher resolution and field of view than traditional depth sensors
+* Lifecast enables you to capture a full scene including the background, not just a single person or object
+* Beyond light stages, VR180 cameras are highly portable and can be used in remote locations
+* Beyond photogrammetry and NeRF, Lifecast's LDI3 format and rendering pipeline handles video and motion
+* Render VR180 to volumetric (LDI3) format using state-of-the-art machine learning for stereo depth estimation
+* Edit volumetric video channels and preview 3D results in real-time
+* Automatically encode video in standard formats for deployment in Unreal, Unity, or javascript (web, mobile, VR)
+
+Demo video: https://youtu.be/nZ0x_RItfD0?si=fbpux0YtFRUVx4EN
+
 # Volurama
+
+A GUI tool for creating NeRF (neural radiance field) 3D models of a scene with an iPhone, and rendering them as videos (including render to VR180).
+
+* Capture a short video (~10 seconds) of a scene using an iPhone. Move the camera in a square or circle to capture from different points of view.
+* Process the video with Volurama on Windows or Mac. Volurama creates a 3D model of the scene from your video.
+* Photorealistically simulate camera motions that would typically require expensive hardware, such as dolly, boom, and orbit.
+* Render eye-catching 2D videos to stand out and/or save production costs.
+* Render VR180 (stereoscopic 3D) video. Create 3D VR photos and videos using only a phone.
+* Render holograms for the Looking Glass Portrait.
+
+https://github.com/user-attachments/assets/e01cd9a0-d62b-41fc-a2f9-1b8478167654
 
 # Volumetric Video Player for  WebGL / WebXR / Javascript
 
