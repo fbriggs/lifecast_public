@@ -4,6 +4,8 @@ Unfortunately, Lifecast.ai shut down. The good news is, we made all of our tools
 
 # 4D Gaussian Studio
 
+A complete studio for creating 3D and 4D Gaussian video.
+
 * Custom GUI and engine for 3D and 4D Gaussian reconstruction
 * Input video from one or more iPhones or GoPros (rectilinear or fisheye lenses)
 * In-house structure from motion solver estimates camera poses
@@ -11,13 +13,26 @@ Unfortunately, Lifecast.ai shut down. The good news is, we made all of our tools
 * Render flythroughs as 2D video
 * Export into our 4DGS compression format (stored in mp4), playback in THREE.js
 
-
-
 https://github.com/user-attachments/assets/d171b665-6039-4cca-aeff-499757e27c13
 
-
-
 # UpscaleVideo.ai
+
+Resize, sharpen, and de-noise videos and photos.
+
+* Batch process video and image files with drag and drop
+* Increase video resolution 2x, e.g., 1080p to 4K, 4K to 8K, or 8K to 16K
+* Handles very high resolution videos, e.g., 16K output in ProRes
+* Input .mp4, .mov, .mkv, .png, .jpg, .gif
+* Input any size of video
+* Encode output video as h264, h265, ProRes, or 16-bit PNG sequence
+* Output 10-bit ProRes (Windows/Mac) or 10-bit h265 (Mac only)
+* Enhance videos or photos
+* Content-adaptive de-noising and de-blurring / sharpening
+* Reduce aliasing and compression artifacts
+* Scale AI generated videos to 4K
+* De-noise with bilateral filter for photos with high grain
+
+Demo video: https://youtu.be/Htnr8ipVnN0?si=8pBwtJGe5B9M-ohB
 
 # Volumetric Video Editor
 
