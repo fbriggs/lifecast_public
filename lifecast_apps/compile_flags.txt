@@ -1,0 +1,11 @@
+-I/usr/include
+-I/usr/local/cuda/include
+-I/usr/include/opencv4
+-I/usr/include/eigen3
+-I/usr/local/torch/include
+-I/usr/local/torch/include/torch/csrc/api/include
+-I/opt/XIMEA/include
+-I.
+-std=c++17
+-stdlib=libstdc++
+-xc++

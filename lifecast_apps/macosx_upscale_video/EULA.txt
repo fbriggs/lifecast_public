@@ -1,0 +1,332 @@
+END USER LICENSE AGREEMENT
+
+Effective Date: Feb 28 2022
+THIS END USER LICENSE AGREEMENT ("EULA") IS MADE BETWEEN YOU, AN INDIVIDUAL PERSON OR LEGAL ENTITY ("Licensee") AND LIFECAST INCORPORATED ("Lifecast"). THIS EULA GOVERNS LICENSEE'S USE OF THE SOFTWARE (DEFINED IN SECTION 1). LIFECAST AND LICENSEE ARE SOMETIMES REFERRED TO INDIVIDUALLY IN THIS EULA AS A "Party" AND COLLECTIVELY AS THE "Parties".
+
+BY ACCEPTING THIS EULA THROUGH THE REQUIRED PROCESS OR OTHERWISE ACCESSING OR USING THE SOFTWARE, LICENSEE REPRESENTS AND WARRANTS THAT: (1) LICENSEE HAS READ AND UNDERSTANDS THIS EULA, AND AGREES TO BE BOUND LEGALLY BY THIS EULA; (2) IF LICENSEE IS AN INDIVIDUAL, LICENSEE IS AT LEAST 18 YEARS OF AGE; AND (3) IF LICENSEE IS A LEGAL ENTITY, YOU HAVE THE RIGHT, POWER, AND AUTHORITY TO ENTER INTO THIS EULA ON BEHALF OF LICENSEE AND TO LEGALLY BIND LICENSEE TO THIS EULA.
+
+IF LICENSEE DOES NOT AGREE TO THE TERMS OF THIS EULA, LIFECAST WILL NOT AND DOES NOT LICENSE THE SOFTWARE TO LICENSEE AND LICENSEE MUST NOT ACCESS OR USE THE SOFTWARE.
+
+General Description. Lifecast has developed a proprietary software application that makes tools for stabilized 6DOF VR video and 3D scene reconstruction with arrays of cameras and other sensors. As used in this EULA, the term "Software" refers to an object code version of the proprietary software application described in the prior sentence, including any related documentation that Lifecast makes available to Licensee.
+
+License. Subject to Licensee's compliance with this EULA, Lifecast hereby grants to Licensee during the Term (defined in Section 7 below) a non-exclusive, non-transferable (except under Section 14), non-sublicensable, worldwide and royalty-free license to download and use the Software in the manner permitted by the Software's functionalities, on a single computing device owned or controlled by Licensee. Notwithstanding the foregoing in this Section 2 and any other terms in this EULA, any third party code (including open source software) that may be incorporated into the Software is covered by the applicable license terms governing such code and nothing in this EULA limits or supersedes those terms. For a list of the open source components included in the Software, please refer to the list at the end of this document.
+
+Restrictions. Lifecast reserves all rights that are not expressly granted to Licensee in Section 2. Without limiting the preceding sentence, Licensee will not, and will not assist or authorize any third party to: (a) copy, modify, translate, or create derivative works of the Software; (b) reverse engineer, decompile, disassemble or otherwise attempt to reconstruct, identify or discover any source code, underlying ideas, underlying user interface techniques, or algorithms of the Software, except to the extent such restriction is impermissible under applicable law; (c) lend, rent, lease, offer for sale, sell or otherwise distribute the Software to any third party; (d) attempt to circumvent any license, timing or use restrictions that are built into the Software; or (e) use the Software in violation of this EULA, any applicable laws, rules or regulations or any third party rights. Without limiting the foregoing, Licensee may not use the Software in any manner that would require any portion of the Software (other than any open source software therein) to be subject to the terms of any open source or similar license.
+
+Ownership; Feedback. As between the Parties, Lifecast solely owns and retains all right, title and interest (including all intellectual property rights) in and to the Software subject only to the limited license granted in Section 2. If Licensee makes available to Lifecast any comments, suggestions, ideas or other information or materials regarding Licensee's use of and/or experience with the Software or otherwise related to the Software (collectively, "Feedback"), then Licensee hereby grants to Lifecast a non-exclusive, perpetual, irrevocable, transferable, worldwide and royalty-free license, with the right to make and authorize sublicenses, to reproduce, make derivative works of, distribute, publicly display and perform, make, have made, sell, offer for sale, import, use and otherwise exploit the Feedback in any manner and for any purpose without any restriction, credit, attribution or fees due to Licensee.
+
+Fees. If Lifecast charges fees in connection with access to or use of the Software, those fees will be set forth in a separate written document between the Parties. Lifecast may choose in its sole discretion to charge fees for certain or all uses of the Software. Lifecast will notify Licensee of the same before they go into effect.
+
+Data. Notwithstanding anything to the contrary in this EULA, Lifecast may collect and compile data and information related to Licensee's use of the Software ("Data"). As between the Parties, all right, title, and interest in Data, including all intellectual property rights therein, belong solely to and are retained solely by Lifecast. Licensee agrees that Lifecast may use Data to the fullest extent permitted under applicable law, and hereby consents to such use, provided that Lifecast will not publicly disclose Data in a form where it specifically and directly identifies Licensee.
+
+Term and Termination. This EULA will commence on the date when Licensee accepts the EULA through the required process or otherwise accesses or uses the Software and will continue until it is terminated by either Party ("Term"). Lifecast may terminate the EULA without or without notice to Licensee for any or no reason. Licensee may terminate the EULA by providing written notice of the same to Lifecast at eula@lifecastvr.com. Upon termination, the license granted to Licensee in Section 2 will immediately terminate, and Licensee must permanently delete all copies of the Software within Licensee's possession or control. Sections 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14 and 15, and all defined terms used in any of those Sections, or required to interpret any of those Sections, will survive any termination of this EULA.
+
+Disclaimers and Limitations on Liability. TO THE FULLEST EXTENT PERMITTED BY LAW, AND WITHOUT LIMITING ANY OTHER TERMS IN THIS EULA, THE FOLLOWING TERMS APPLY:
+(a) THE LIFECAST SOFTWARE IS PROVIDED SOLELY "AS IS", "AS AVAILABLE" AND WITH ALL FAULTS, AND LIFECAST DOES NOT MAKE, AND HEREBY DISCLAIMS, ANY AND ALL EXPRESS OR IMPLIED WARRANTIES IN CONNECTION WITH THIS EULA, INCLUDING ALL WARRANTIES OF MERCHANTABILITY, QUALITY, PERFORMANCE, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, TITLE, AND ANY WARRANTIES ARISING FROM COURSE OF DEALING, USAGE, OR TRADE PRACTICE.
+(b) IN NO EVENT WILL LIFECAST BE LIABLE TO LICENSEE FOR ANY SPECIAL, INCIDENTAL, PUNITIVE, INDIRECT, EXEMPLARY, OR CONSEQUENTIAL DAMAGES, OR FOR LOST REVENUE, LOST PROFITS, COST OF REPLACEMENT OF GOODS OR SERVICES, LOSS OF TECHNOLOGY, GOODWILL, RIGHTS OR SERVICES, LOSS OF DATA OR INTERRUPTION OR LOSS OF USE OF SERVICE IN CONNECTION WITH THIS EULA. LIFECAST'S TOTAL LIABILITY TO LICENSEE FOR ALL CLAIMS IN CONNECTION WITH THIS EULA WILL NOT EXCEED THE TOTAL AMOUNT PAID BY LICENSEE TO LIFECAST DURING THE TWELVE (12) MONTH PERIOD PRIOR TO THE EVENT GIVING RISE TO THE APPLICABLE CLAIM(S).
+(c) THE FOREGOING LIMITATIONS IN THIS SECTION 8 WILL APPLY REGARDLESS OF WHETHER THE APPLICABLE LIABILITY ARISES FROM ANY CLAIM BASED UPON CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, AND WHETHER OR NOT LIFECAST HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH LOSS OR DAMAGE. INSOFAR AS APPLICABLE LAW PROHIBITS ANY LIMITATION ON LIABILITY IN THIS EULA, THE PARTIES AGREE THAT SUCH LIMITATION WILL BE AUTOMATICALLY MODIFIED, BUT ONLY TO THE EXTENT SO AS TO MAKE THE LIMITATION COMPLIANT WITH APPLICABLE LAW. THE PARTIES AGREE THAT THE LIMITATIONS ON LIABILITIES SET FORTH IN THIS AGREEMENT ARE AGREED ALLOCATIONS OF RISK AND SUCH LIMITATIONS WILL APPLY NOTWITHSTANDING THE FAILURE OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY.
+
+Indemnification. To the fullest extent permitted by law, Licensee will defend, indemnify and hold harmless Lifecast, its affiliates, and their respective officers, directors, employees, consultants, agents, licensors and suppliers (together, the "Lifecast Entities") from and against every claim, action, suit or proceeding brought by a third party, and any related liability, damage, loss, and expense, including reasonable attorneys' fees and costs, arising out of or in connection with: (a) Licensee's use or misuse of the Software; (b) Licensee's breach of this EULA; (c) Licensee's use of the Software in a manner that violates any third party rights or any applicable law, rule or regulation; or (d) any dispute or issue between Licensee and any third party. Lifecast reserves the right, in its sole discretion, to assume the exclusive defense and control of any matter which is subject to indemnification under this Section 9 at Licensee's sole expense if Lifecast believes that Licensee is unwilling or incapable of defending Lifecast's interests. In such case, Licensee agrees to cooperate with any reasonable requests assisting Lifecast's defense of such matter at Licensee's sole expense.
+
+Governing Law and Dispute Resolution.
+
+This EULA will be interpreted, construed, and enforced in all respects in accordance with the local laws of the State of California, without reference to its choice of law rules and not including the provisions of the 1980 U.N. Convention on Contracts for the International Sale of Goods.
+Any dispute with respect to this EULA will be settled by binding arbitration in San Mateo County, California, under the Rules of the American Arbitration Association by three arbitrators appointed in accordance with such rules. Judgment upon the award rendered by the arbitrators may be entered in any court of competent jurisdiction. The prevailing Party will be entitled to receive from the other Party its attorneys' fees and costs incurred in connection with any arbitration or litigation instituted in connection with this EULA. LICENSEE UNDERSTANDS AND AGREES THAT, BY ENTERING INTO THIS EULA, LICENSEE AND LIFECAST ARE EACH WAIVING THE RIGHT TO A TRIAL BY JURY OR TO PARTICIPATE IN A CLASS ACTION.
+
+Notwithstanding the foregoing in Section 10(b), Licensee acknowledges and agrees that a breach or threatened breach of this EULA would cause Lifecast irreparable harm for which monetary damages would not be an adequate remedy and agrees that, in the event of such breach or threatened breach, Lifecast will be entitled to equitable relief and any other relief that may be available from any court of competent jurisdiction, without any requirement to post a bond or other security, or to prove actual damages or that monetary damages are not an adequate remedy. Such remedies are not exclusive and are in addition to all other remedies that may be available at law, in equity, or otherwise.
+
+Changes. Licensee understands and agrees that Lifecast may change this EULA at any time without prior notice. Lifecast will endeavor to provide Licensee with prior notice of any material changes to this EULA. Licensee may read a current, effective copy of this EULA at any time by selecting the appropriate link on the Lifecast website located https://lifecastvr.com/eula.html. The revised EULA will become effective at the time of posting on such website, and Licensee's use of the Software after such time will constitute Licensee's acceptance of the revised EULA. If any change to this EULA is not acceptable to Licensee, then Licensee's sole remedy is to stop using the Software.  Notwithstanding the preceding sentences of this Section 11, no revisions to this EULA will apply to any dispute between Licensee and Lifecast that arose prior to the effective date of those revisions.
+
+Export Regulation; Sanctions.
+
+The Software may be subject to US export control laws, including the Export Control Reform Act and its associated regulations. The Licensee will not, directly or indirectly, export, re-export, or release the Software to, or make the Software accessible from, any jurisdiction or country to which export, re-export, or release is prohibited by law, rule, or regulation.
+
+Licensee covenants that it is not, and at all times during the Term will not be: (i) the target of any Laws administered by the United States Department of the Treasury's Office of Foreign Assets Control ("OFAC") or any other governmental entity imposing economic sanctions and trade embargoes; or (ii) located, organized, or resident in a country or territory that is, or whose government is, the target of sanctions imposed by OFAC or any other governmental entity.
+
+Government Rights. The Software is commercial computer software, as such term is defined in 48 C.F.R. S2.101. Accordingly, if the Licensee is the US Government or any contractor therefor, Licensee shall receive only those rights with respect to the Software as are granted to all other end users under license, in accordance with (a) 48 C.F.R. S227.7201 through 48 C.F.R. S227.7204, with respect to the Department of Defense and their contractors, or (b) 48 C.F.R. S12.212, with respect to all other US Government licensees and their contractors.
+
+Miscellaneous. Licensee agrees that no joint venture, partnership, employment or agency relationship exists between Licensee and Lifecast as a result of this EULA. If any provision of this EULA is found to be invalid by any court or arbitrator having competent jurisdiction, then the invalidity of such provision will not affect the validity of the remaining provisions of this EULA, which will remain in full force and effect. Failure of Lifecast to act on or enforce any provision of this EULA will not be construed as a waiver of that provision or any other provision in this EULA. No waiver will be effective against Lifecast unless made in writing, and no such waiver will be construed as a waiver in any other instance. This EULA constitutes the entire agreement between Licensee and Lifecast with respect to the subject matter hereof, and supersedes all previous or contemporaneous agreements, whether written or oral, between the parties with respect to the subject matter hereof. The Section headings are provided merely for convenience and will not be given any legal import. This EULA will inure to the benefit of the parties' successors and assigns. Licensee may not assign this EULA or any of the rights or licenses granted hereunder without the prior express written consent of Lifecast. Lifecast may assign this EULA, including all of its rights hereunder, without restriction. This EULA may only be amended in a writing signed by an authorized representative of each party, except as provided in Section 11. Licensee acknowledges and agrees that Licensee had the opportunity to consult legal counsel in connection with this EULA even if Licensee chose not to do so, and this EULA will not be construed against Licensee or Lifecast as drafter.
+
+Open Source Software Disclosures:
+
+The following software may be included in this product: DearImGUI. This software contains the following license and notice below:
+
+Copyright (c) 2014-2022 Omar Cornut
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The following software may be included in this product: C++ MJPEG over HTTP Library. This software contains the following license and notice below:
+
+Copyright (c) 2020-2022 Muhammad Kamal Nadjieb
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The following software may be included in this product: qDecoder. This software contains the following license and notice below:
+
+Copyright 2008 The qDecoder Project. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE QDECODER PROJECT "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE QDECODER PROJECT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The following software may be included in this product: QR Code Generator Library. This software contains the following license and notice below:
+Copyright © 2021 Project Nayuki. (MIT License)
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
+The following software may be included in this product: quirc. This software contains the following license and notice below:
+
+Copyright (C) 2010-2012 Daniel Beer
+
+ISC License
+
+Permission to use, copy, modify, and/or distribute this software for
+any purpose with or without fee is hereby granted, provided that the
+above copyright notice and this permission notice appear in all
+copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+The following software may be included in this product: RAFT. This software contains the following license and notice below:
+
+Copyright (c) 2020, princeton-vl
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The following software may be included in this product: tinyfiledialogs. This software contains the following license and notice below:
+Copyright (c) (year unknown) Original Author
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
+The following software may be included in this product: Turbo Color Map. This software contains the following license and notice below:
+Copyright (c) (year unknown) Original Author
+Apache License
+Version 2.0, January 2004
+
+TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+1. Definitions.
+"License" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 9 of this document.
+"Licensor" shall mean the copyright owner or entity authorized by the copyright owner that is granting the License.
+"Legal Entity" shall mean the union of the acting entity and all other entities that control, are controlled by, or are under common control with that entity. For the purposes of this definition, "control" means (i) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (ii) ownership of fifty percent (50%) or more of the outstanding shares, or (iii) beneficial ownership of such entity.
+"You" (or "Your") shall mean an individual or Legal Entity exercising permissions granted by this License.
+"Source" form shall mean the preferred form for making modifications, including but not limited to software source code, documentation source, and configuration files.
+"Object" form shall mean any form resulting from mechanical transformation or translation of a Source form, including but not limited to compiled object code, generated documentation, and conversions to other media types.
+"Work" shall mean the work of authorship, whether in Source or Object form, made available under the License, as indicated by a copyright notice that is included in or attached to the work (an example is provided in the Appendix below).
+"Derivative Works" shall mean any work, whether in Source or Object form, that is based on (or derived from) the Work and for which the editorial revisions, annotations, elaborations, or other modifications represent, as a whole, an original work of authorship. For the purposes of this License, Derivative Works shall not include works that remain separable from, or merely link (or bind by name) to the interfaces of, the Work and Derivative Works thereof.
+"Contribution" shall mean any work of authorship, including the original version of the Work and any modifications or additions to that Work or Derivative Works thereof, that is intentionally submitted to Licensor for inclusion in the Work by the copyright owner or by an individual or Legal Entity authorized to submit on behalf of the copyright owner. For the purposes of this definition, "submitted" means any form of electronic, verbal, or written communication sent to the Licensor or its representatives, including but not limited to communication on electronic mailing lists, source code control systems, and issue tracking systems that are managed by, or on behalf of, the Licensor for the purpose of discussing and improving the Work, but excluding communication that is conspicuously marked or otherwise designated in writing by the copyright owner as "Not a Contribution."
+"Contributor" shall mean Licensor and any individual or Legal Entity on behalf of whom a Contribution has been received by Licensor and subsequently incorporated within the Work.
+2. Grant of Copyright License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare Derivative Works of, publicly display, publicly perform, sublicense, and distribute the Work and such Derivative Works in Source or Object form.
+3. Grant of Patent License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable (except as stated in this section) patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer the Work, where such license applies only to those patent claims licensable by such Contributor that are necessarily infringed by their Contribution(s) alone or by combination of their Contribution(s) with the Work to which such Contribution(s) was submitted. If You institute patent litigation against any entity (including a cross-claim or counterclaim in a lawsuit) alleging that the Work or a Contribution incorporated within the Work constitutes direct or contributory patent infringement, then any patent licenses granted to You under this License for that Work shall terminate as of the date such litigation is filed.
+4. Redistribution. You may reproduce and distribute copies of the Work or Derivative Works thereof in any medium, with or without modifications, and in Source or Object form, provided that You meet the following conditions:
+You must give any other recipients of the Work or Derivative Works a copy of this License; and
+You must cause any modified files to carry prominent notices stating that You changed the files; and
+You must retain, in the Source form of any Derivative Works that You distribute, all copyright, patent, trademark, and attribution notices from the Source form of the Work, excluding those notices that do not pertain to any part of the Derivative Works; and
+If the Work includes a "NOTICE" text file as part of its distribution, then any Derivative Works that You distribute must include a readable copy of the attribution notices contained within such NOTICE file, excluding those notices that do not pertain to any part of the Derivative Works, in at least one of the following places: within a NOTICE text file distributed as part of the Derivative Works; within the Source form or documentation, if provided along with the Derivative Works; or, within a display generated by the Derivative Works, if and wherever such third-party notices normally appear. The contents of the NOTICE file are for informational purposes only and do not modify the License. You may add Your own attribution notices within Derivative Works that You distribute, alongside or as an addendum to the NOTICE text from the Work, provided that such additional attribution notices cannot be construed as modifying the License.
+
+You may add Your own copyright statement to Your modifications and may provide additional or different license terms and conditions for use, reproduction, or distribution of Your modifications, or for any such Derivative Works as a whole, provided Your use, reproduction, and distribution of the Work otherwise complies with the conditions stated in this License.
+5. Submission of Contributions. Unless You explicitly state otherwise, any Contribution intentionally submitted for inclusion in the Work by You to the Licensor shall be under the terms and conditions of this License, without any additional terms or conditions. Notwithstanding the above, nothing herein shall supersede or modify the terms of any separate license agreement you may have executed with Licensor regarding such Contributions.
+6. Trademarks. This License does not grant permission to use the trade names, trademarks, service marks, or product names of the Licensor, except as required for reasonable and customary use in describing the origin of the Work and reproducing the content of the NOTICE file.
+7. Disclaimer of Warranty. Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under this License.
+8. Limitation of Liability. In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall any Contributor be liable to You for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising as a result of this License or out of the use or inability to use the Work (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if such Contributor has been advised of the possibility of such damages.
+9. Accepting Warranty or Additional Liability. While redistributing the Work or Derivative Works thereof, You may choose to offer, and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or rights consistent with this License. However, in accepting such obligations, You may act only on Your own behalf and on Your sole responsibility, not on behalf of any other Contributor, and only if You agree to indemnify, defend, and hold each Contributor harmless for any liability incurred by, or claims asserted against, such Contributor by reason of your accepting any such warranty or additional liability.
+END OF TERMS AND CONDITIONS
+
+The following software may be included in this product: GLFW. This software contains the following license and notice below:
+
+Copyright © 2002-2006 Marcus Geelnard
+
+Copyright © 2006-2019 Camilla Löwy
+
+This software is provided ‘as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+
+The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+
+Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+
+This notice may not be removed or altered from any source distribution.
+
+The following software may be included in this product: OpenCV. This software contains the following license and notice below:
+
+Copyright (C) 2000-2020, Intel Corporation, all rights reserved.
+Copyright (C) 2009-2011, Willow Garage Inc., all rights reserved.
+Copyright (C) 2009-2016, NVIDIA Corporation, all rights reserved.
+Copyright (C) 2010-2013, Advanced Micro Devices, Inc., all rights reserved.
+Copyright (C) 2015-2016, OpenCV Foundation, all rights reserved.
+Copyright (C) 2015-2016, Itseez Inc., all rights reserved.
+Copyright (C) 2019-2020, Xperience AI, all rights reserved.
+Third party copyrights are property of their respective owners.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+  * Neither the names of the copyright holders nor the names of the contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+This software is provided by the copyright holders and contributors "as is" and any express or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose are disclaimed. In no event shall copyright holders or contributors be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
+
+The following software may be included in this product: Ceres. This software contains the following license and notice below:
+
+Copyright 2016 Google Inc. All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+Neither the name of Google Inc., nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+This software is provided by the copyright holders and contributors "AS IS" and any express or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose are disclaimed. In no event shall Google Inc. be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out of the use of this software, even if advised of the possibility of such damage.
+
+The following software may be included in this product: cpprestsdk. This software contains the following license and notice below:
+
+Copyright (c) Microsoft Corporation
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The following software may be included in this product: openssl. This software contains the following license and notice below:
+Copyright (c) (year unknown) Original Author
+Apache License
+Version 2.0, January 2004
+
+TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+1. Definitions.
+"License" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 9 of this document.
+"Licensor" shall mean the copyright owner or entity authorized by the copyright owner that is granting the License.
+"Legal Entity" shall mean the union of the acting entity and all other entities that control, are controlled by, or are under common control with that entity. For the purposes of this definition, "control" means (i) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (ii) ownership of fifty percent (50%) or more of the outstanding shares, or (iii) beneficial ownership of such entity.
+"You" (or "Your") shall mean an individual or Legal Entity exercising permissions granted by this License.
+"Source" form shall mean the preferred form for making modifications, including but not limited to software source code, documentation source, and configuration files.
+"Object" form shall mean any form resulting from mechanical transformation or translation of a Source form, including but not limited to compiled object code, generated documentation, and conversions to other media types.
+"Work" shall mean the work of authorship, whether in Source or Object form, made available under the License, as indicated by a copyright notice that is included in or attached to the work (an example is provided in the Appendix below).
+"Derivative Works" shall mean any work, whether in Source or Object form, that is based on (or derived from) the Work and for which the editorial revisions, annotations, elaborations, or other modifications represent, as a whole, an original work of authorship. For the purposes of this License, Derivative Works shall not include works that remain separable from, or merely link (or bind by name) to the interfaces of, the Work and Derivative Works thereof.
+"Contribution" shall mean any work of authorship, including the original version of the Work and any modifications or additions to that Work or Derivative Works thereof, that is intentionally submitted to Licensor for inclusion in the Work by the copyright owner or by an individual or Legal Entity authorized to submit on behalf of the copyright owner. For the purposes of this definition, "submitted" means any form of electronic, verbal, or written communication sent to the Licensor or its representatives, including but not limited to communication on electronic mailing lists, source code control systems, and issue tracking systems that are managed by, or on behalf of, the Licensor for the purpose of discussing and improving the Work, but excluding communication that is conspicuously marked or otherwise designated in writing by the copyright owner as "Not a Contribution."
+"Contributor" shall mean Licensor and any individual or Legal Entity on behalf of whom a Contribution has been received by Licensor and subsequently incorporated within the Work.
+2. Grant of Copyright License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare Derivative Works of, publicly display, publicly perform, sublicense, and distribute the Work and such Derivative Works in Source or Object form.
+3. Grant of Patent License. Subject to the terms and conditions of this License, each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable (except as stated in this section) patent license to make, have made, use, offer to sell, sell, import, and otherwise transfer the Work, where such license applies only to those patent claims licensable by such Contributor that are necessarily infringed by their Contribution(s) alone or by combination of their Contribution(s) with the Work to which such Contribution(s) was submitted. If You institute patent litigation against any entity (including a cross-claim or counterclaim in a lawsuit) alleging that the Work or a Contribution incorporated within the Work constitutes direct or contributory patent infringement, then any patent licenses granted to You under this License for that Work shall terminate as of the date such litigation is filed.
+4. Redistribution. You may reproduce and distribute copies of the Work or Derivative Works thereof in any medium, with or without modifications, and in Source or Object form, provided that You meet the following conditions:
+You must give any other recipients of the Work or Derivative Works a copy of this License; and
+You must cause any modified files to carry prominent notices stating that You changed the files; and
+You must retain, in the Source form of any Derivative Works that You distribute, all copyright, patent, trademark, and attribution notices from the Source form of the Work, excluding those notices that do not pertain to any part of the Derivative Works; and
+If the Work includes a "NOTICE" text file as part of its distribution, then any Derivative Works that You distribute must include a readable copy of the attribution notices contained within such NOTICE file, excluding those notices that do not pertain to any part of the Derivative Works, in at least one of the following places: within a NOTICE text file distributed as part of the Derivative Works; within the Source form or documentation, if provided along with the Derivative Works; or, within a display generated by the Derivative Works, if and wherever such third-party notices normally appear. The contents of the NOTICE file are for informational purposes only and do not modify the License. You may add Your own attribution notices within Derivative Works that You distribute, alongside or as an addendum to the NOTICE text from the Work, provided that such additional attribution notices cannot be construed as modifying the License.
+
+You may add Your own copyright statement to Your modifications and may provide additional or different license terms and conditions for use, reproduction, or distribution of Your modifications, or for any such Derivative Works as a whole, provided Your use, reproduction, and distribution of the Work otherwise complies with the conditions stated in this License.
+5. Submission of Contributions. Unless You explicitly state otherwise, any Contribution intentionally submitted for inclusion in the Work by You to the Licensor shall be under the terms and conditions of this License, without any additional terms or conditions. Notwithstanding the above, nothing herein shall supersede or modify the terms of any separate license agreement you may have executed with Licensor regarding such Contributions.
+6. Trademarks. This License does not grant permission to use the trade names, trademarks, service marks, or product names of the Licensor, except as required for reasonable and customary use in describing the origin of the Work and reproducing the content of the NOTICE file.
+7. Disclaimer of Warranty. Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under this License.
+8. Limitation of Liability. In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise, unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing, shall any Contributor be liable to You for damages, including any direct, indirect, special, incidental, or consequential damages of any character arising as a result of this License or out of the use or inability to use the Work (including but not limited to damages for loss of goodwill, work stoppage, computer failure or malfunction, or any and all other commercial damages or losses), even if such Contributor has been advised of the possibility of such damages.
+9. Accepting Warranty or Additional Liability. While redistributing the Work or Derivative Works thereof, You may choose to offer, and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations and/or rights consistent with this License. However, in accepting such obligations, You may act only on Your own behalf and on Your sole responsibility, not on behalf of any other Contributor, and only if You agree to indemnify, defend, and hold each Contributor harmless for any liability incurred by, or claims asserted against, such Contributor by reason of your accepting any such warranty or additional liability.
+END OF TERMS AND CONDITIONS
+
+The following software may be included in this product: libtorch. This software contains the following license and notice below:
+
+Copyright (c) 2016-     Facebook, Inc            (Adam Paszke)
+Copyright (c) 2014-     Facebook, Inc            (Soumith Chintala)
+Copyright (c) 2011-2014 Idiap Research Institute (Ronan Collobert)
+Copyright (c) 2012-2014 Deepmind Technologies    (Koray Kavukcuoglu)
+Copyright (c) 2011-2012 NEC Laboratories America (Koray Kavukcuoglu)
+Copyright (c) 2011-2013 NYU                      (Clement Farabet)
+Copyright (c) 2006-2010 NEC Laboratories America (Ronan Collobert, Leon Bottou, Iain Melvin, Jason Weston)
+Copyright (c) 2006      Idiap Research Institute (Samy Bengio)
+Copyright (c) 2001-2004 Idiap Research Institute (Ronan Collobert, Samy Bengio, Johnny Mariethoz)
+
+From Caffe2:
+
+Copyright (c) 2016-present, Facebook Inc. All rights reserved.
+
+All contributions by Facebook: Copyright (c) 2016 Facebook Inc.
+
+All contributions by Google: Copyright (c) 2015 Google Inc. All rights reserved.
+
+All contributions by Yangqing Jia: Copyright (c) 2015 Yangqing Jia. All rights reserved.
+
+All contributions by Kakao Brain: Copyright 2019-2020 Kakao Brain
+
+All contributions from Caffe: Copyright(c) 2013, 2014, 2015, the respective contributors
+All rights reserved.
+
+All other contributions:
+Copyright(c) 2015, 2016 the respective contributors
+All rights reserved.
+
+Caffe2 uses a copyright model similar to Caffe: each contributor holds
+copyright over their contributions to Caffe2. The project versioning records
+all such contribution and copyright details. If a contributor wants to further
+mark their specific copyright on a particular contribution, they should
+indicate their copyright solely in the commit message of the change when it is
+committed.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+3. Neither the names of Facebook, Deepmind Technologies, NYU, NEC Laboratories America
+   and IDIAP Research Institute nor the names of its contributors may be
+   used to endorse or promote products derived from this software without
+   specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
