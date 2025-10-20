@@ -1,4 +1,4 @@
-# Instructions for building Lifecast apps
+# Prerequisites for building Lifecast Apps
 
 ## All platforms
 
@@ -223,6 +223,8 @@ NOTE installing opencv with vcpkg will bring in a lot of other dependencies, e.g
 
 ### Test build
 
+From the lifecast_public/lifecast_apps/ directory:
+
 ```
 bazel run -c opt //examples:hello_glfw
 ```
@@ -254,6 +256,8 @@ See https://developer.nvidia.com/cuda-gpus to find out your architecture (8.6 =>
 
 Code has been run on 2000-, 3000-, and 4000- series.
 
+# Test the build environment
+
 ## Run Unit Tests
 
 ```
@@ -267,6 +271,34 @@ bazel test --test_output=errors //source:test_camera_and_projection
 
 ```
 bazel run -- //examples:hello_world --name Moo
+```
+
+# Running the apps
+
+## 4D Gaussian Studio
+
+TODO
+
+## Upscale Video
+
+TODO
+
+## Volurama
+
+TODO
+
+## Volumetric Video Editor
+
+TODO
+
+# Tips and tricks
+
+## Out of memory during build
+
+If you run out of RAM or your system becomes unresponsive while building, you can limit parallel jobs in your build/run commands. E.g.
+
+```
+bazel build --local_cpu_resources=10 --jobs=1 -c opt --cuda_archs=compute_75 //third_party:tiny_cuda_nn
 ```
 
 ## VSCode Tips
