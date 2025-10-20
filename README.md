@@ -1,15 +1,6 @@
-# Open soure immersive volumetric media by lifecast.ai
+# Lifecast.ai shut down... but we made our tools free and open source
 
-Lifecast is dedicated to pushing the limits of immersive volumetric media.
-We created a new format for volumetric photos and videos called 'ldi3' which enables real-time 6DOF photorealistic rendering on a wide variety of platforms.
-
-Visit https://lifecast.ai for some demos of what can be done with ldi3 and NeRF, which work on Vision Pro and Quest!
-
-There are a lot of ways to create and edit ldi3. In the /nerf directory, we provide an open source nerf video engine that compresses into ldi3 for web streaming of volumetric/holographic video. We also offer some commercial software for working with ldi3:
-
-* [Volurama](https://volurama.com/) - a Windows/Mac GUI for the NeRF engine here, for reconstructing static scenes from iPhone video input.
-* [Volumetric Video Editor](https://lifecastvr.com/volumetric_video_editor.html) - Windows/Mac tool for converting VR180 to ldi3 (not NeRF-based, uses fisheye stereo depth estimation).
-* [holovolo.tv](https://holovolo.tv) - text-to-ldi3 with Stable Diffusion
+Unfortunately, Lifecast.ai shut down. The good news is, we made all of our tools free and open source. The code for UpscaleVideo.ai, Volumetric Video Editor, and 4D Gaussian Studio are in the /lifecast_apps directory. Precompiled apps for Windows and Mac are available under Releases. Many thanks to the Lifecast team, and all of our supporters!
 
 # Volumetric Video Player for  WebGL / WebXR / Javascript
 
