@@ -562,8 +562,8 @@ cc_library(
 
 new_local_repository(
   name = "x264_windows_vcpkg",
-  #path = "../../vcpkg/packages/x264_x64-windows/tools/x264",
-  path = "../../vcpkg/packages/x264_x64-windows",
+  path = "../../vcpkg/packages/x264_x64-windows/tools/x264",
+  #path = "../../vcpkg/packages/x264_x64-windows",
   build_file_content = """
 cc_library(
     name = "x264",
@@ -628,10 +628,10 @@ cc_library(
       "debug_build": glob(["debug/lib/*.lib", "debug/bin/*.dll"]),
       "//conditions:default": glob(["lib/*.lib", "bin/*.dll"]), # include the dll here to copy it to the build directory!
     }),
-    #hdrs = glob(["include/opencv4/opencv2/*.hpp", "include/opencv4/opencv2/**/*.hpp"]),
-    hdrs = glob(["include/opencv2/*.hpp", "include/opencv2/**/*.hpp"]),
-    #includes = ["include/opencv4"],
-    includes = ["include"],
+    hdrs = glob(["include/opencv4/opencv2/*.hpp", "include/opencv4/opencv2/**/*.hpp"]),
+    #hdrs = glob(["include/opencv2/*.hpp", "include/opencv2/**/*.hpp"]),
+    includes = ["include/opencv4"],
+    #includes = ["include"],
     visibility = ["//visibility:public"],
     deps = [
       "@zlib_windows_vcpkg//:zlib",
