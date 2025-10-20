@@ -2,6 +2,27 @@
 
 Unfortunately, Lifecast.ai shut down. The good news is, we made all of our tools free and open source. The code for UpscaleVideo.ai, Volumetric Video Editor, and 4D Gaussian Studio are in the /lifecast_apps directory. Precompiled apps for Windows and Mac are available under [Releases](https://github.com/fbriggs/lifecast_public/releases). Many thanks to the Lifecast team, and all of our supporters!
 
+# 4D Gaussian Studio
+
+* Custom GUI and engine for 3D and 4D Gaussian reconstruction
+* Input video from one or more iPhones or GoPros (rectilinear or fisheye lenses)
+* In-house structure from motion solver estimates camera poses
+* For each frame of video, it builds a 3D Gaussian video scene
+* Render flythroughs as 2D video
+* Export into our 4DGS compression format (stored in mp4), playback in THREE.js
+
+
+
+https://github.com/user-attachments/assets/d171b665-6039-4cca-aeff-499757e27c13
+
+
+
+# UpscaleVideo.ai
+
+# Volumetric Video Editor
+
+# Volurama
+
 # Volumetric Video Player for  WebGL / WebXR / Javascript
 
 Here is a minimal example of embedding Lifecast ldi3 player in a div. For more examples, check out the /web directory.
