@@ -1,6 +1,6 @@
 # Lifecast.ai shut down... but we made our tools free and open source
 
-Unfortunately, Lifecast.ai shut down. The good news is, we made all of our tools free and open source. The code for UpscaleVideo.ai, Volumetric Video Editor, and 4D Gaussian Studio are in the /lifecast_apps directory. Precompiled apps for Windows and Mac are available under [Releases](https://github.com/fbriggs/lifecast_public/releases). Many thanks to the Lifecast team, and all of our supporters!
+Unfortunately, Lifecast.ai shut down. The good news is, we made all of our tools free and open source. The code for UpscaleVideo.ai, Volumetric Video Editor, and 4D Gaussian Studio are in the /lifecast_apps directory. Installers for Windows and Mac are available under [Releases](https://github.com/fbriggs/lifecast_public/releases). Much of the code can also be compiled and run on Linux (instructions included). Many thanks to the Lifecast team, and all of our supporters!
 
 # 4D Gaussian Studio
 
